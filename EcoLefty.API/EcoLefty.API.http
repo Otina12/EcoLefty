@@ -1,0 +1,6 @@
+@EcoLefty.API_HostAddress = http://localhost:5159
+
+GET {{EcoLefty.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
