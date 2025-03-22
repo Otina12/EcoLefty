@@ -1,6 +1,10 @@
+using Common.Extensions;
+
 var builder = WebApplication.CreateBuilder(args);
+var configuration = builder.Configuration;
 
 // Add services to the container.
+builder.Services.ConfigureContext(configuration);
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();

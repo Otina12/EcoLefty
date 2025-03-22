@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
 namespace EcoLefty.Web.Controllers;
+
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
