@@ -1,10 +1,10 @@
 ﻿using EcoLefty.Domain.Contracts;
 using EcoLefty.Domain.Contracts.Repositories;
-using EcoLefty.Domain.Contracts.Repositories.Common;
 using EcoLefty.Infrastructure.Repositories;
 using EcoLefty.Infrastructure.Repositories.Common;
 using EcoLefty.Persistence.Context;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace EcoLefty.Infrastructure;
 
@@ -12,40 +12,59 @@ public class UnitOfWork : IUnitOfWork, IDisposable
 {
     private readonly EcoLeftyDbContext _context;
 
+    private readonly Lazy<IAccountRepository> _accountRepository;
     private readonly Lazy<IApplicationUserRepository> _userRepository;
     private readonly Lazy<ICategoryRepository> _categoryRepository;
     private readonly Lazy<ICompanyRepository> _companyRepository;
     private readonly Lazy<IOfferRepository> _offerRepository;
     private readonly Lazy<IProductRepository> _productRepository;
-    private readonly Lazy<ISoftDeletableRepository> _softDeletableRepository;
+    private readonly Lazy<IAuditLogRepository> _auditLogRepository;
 
     public UnitOfWork(EcoLeftyDbContext ecoLeftyContext)
     {
         _context = ecoLeftyContext;
 
+        _accountRepository = new Lazy<IAccountRepository>(() => new AccountRepository(ecoLeftyContext));
         _userRepository = new Lazy<IApplicationUserRepository>(() => new ApplicationUserRepository(ecoLeftyContext));
         _categoryRepository = new Lazy<ICategoryRepository>(() => new CategoryRepository(ecoLeftyContext));
         _companyRepository = new Lazy<ICompanyRepository>(() => new CompanyRepository(ecoLeftyContext));
         _offerRepository = new Lazy<IOfferRepository>(() => new OfferRepository(ecoLeftyContext));
         _productRepository = new Lazy<IProductRepository>(() => new ProductRepository(ecoLeftyContext));
-        _softDeletableRepository = new Lazy<ISoftDeletableRepository>(() => new SoftDeletableRepository(ecoLeftyContext));
+        _auditLogRepository = new Lazy<IAuditLogRepository>(() => new AuditLogRepository(ecoLeftyContext));
     }
 
-    public async Task<int> SaveChangesAsync()
+    public async Task<int> SaveChangesAsync(CancellationToken token, bool softDeleteEnabled = true) // works with interceptor
     {
-        return await _context.SaveChangesAsync();
+        if (softDeleteEnabled)
+        {
+            AuditLogWriter.HandleAuditLogging(_context);
+        }
+
+        return await _context.SaveChangesAsync(token);
     }
 
+    public async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken token)
+    {
+        return await _context.Database.BeginTransactionAsync(token);
+    }
+
+    public IAccountRepository Accounts => _accountRepository.Value;
     public IApplicationUserRepository Users => _userRepository.Value;
     public ICategoryRepository Categories => _categoryRepository.Value;
     public ICompanyRepository Companies => _companyRepository.Value;
     public IOfferRepository Offers => _offerRepository.Value;
     public IProductRepository Products => _productRepository.Value;
-    public ISoftDeletableRepository SoftDeleteRepository => _softDeletableRepository.Value;
+    public IAuditLogRepository AuditLogs => _auditLogRepository.Value;
+
 
     public EntityEntry<T> Entry<T>(T entity) where T : class
     {
         return _context.Entry(entity);
+    }
+
+    public void Attach<T>(T entity) where T : class
+    {
+        _context.Attach<T>(entity);
     }
 
     public void Detach<T>(T entity) where T : class

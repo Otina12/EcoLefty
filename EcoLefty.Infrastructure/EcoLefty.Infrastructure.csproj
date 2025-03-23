@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.3" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\EcoLefty.Domain\EcoLefty.Domain.csproj" />
     <ProjectReference Include="..\EcoLefty.Persistence\EcoLefty.Persistence.csproj" />
   </ItemGroup>

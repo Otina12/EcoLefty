@@ -11,14 +11,13 @@ public class CompanyConfiguration : IEntityTypeConfiguration<Company>
     {
         builder.ToTable("Companies", Schemas.EcoLefty);
 
+        builder.HasQueryFilter(x => x.DeletedAtUtc == null);
+
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Name)
                .IsRequired()
                .HasMaxLength(200);
-
-        builder.Property(x => x.Phone)
-               .HasMaxLength(30);
 
         builder.Property(x => x.Country)
                .HasMaxLength(100);
@@ -32,10 +31,10 @@ public class CompanyConfiguration : IEntityTypeConfiguration<Company>
         builder.Property(x => x.Balance)
                .HasPrecision(18, 2);
 
-        builder.HasOne(x => x.Creator)
-               .WithMany(x => x.Companies)
-               .HasForeignKey(x => x.CreatorId)
-               .OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(x => x.Account)
+               .WithOne()
+               .HasForeignKey<Company>(x => x.AccountId)
+               .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasMany(x => x.Products)
                .WithOne(x => x.Company)

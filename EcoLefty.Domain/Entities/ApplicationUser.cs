@@ -13,10 +13,9 @@ public class ApplicationUser : SoftDeletableEntity
     public decimal Balance { get; set; }
 
     // Foreign keys
-    public string AuthUserId { get; set; }
+    public string AccountId { get; set; }
 
     // Navigation properties
-    public virtual UserAccount IdentityUser { get; set; }
+    public virtual Account Account { get; set; }
     public virtual ICollection<Category> FollowedCategories { get; set; }
-    public virtual ICollection<Company> Companies { get; set; }
 }

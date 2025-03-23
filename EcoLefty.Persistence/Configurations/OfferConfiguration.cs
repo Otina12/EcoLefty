@@ -11,6 +11,8 @@ public class OfferConfiguration : IEntityTypeConfiguration<Offer>
     {
         builder.ToTable("Offers", Schemas.EcoLefty);
 
+        builder.HasQueryFilter(x => x.DeletedAtUtc == null);
+
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Title)

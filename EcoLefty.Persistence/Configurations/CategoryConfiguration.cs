@@ -12,6 +12,8 @@ public class CategoryConfiguration : IEntityTypeConfiguration<Category>
     {
         builder.ToTable("Categories", Schemas.EcoLefty);
 
+        builder.HasQueryFilter(x => x.DeletedAtUtc == null);
+
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Name)

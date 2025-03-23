@@ -1,5 +1,8 @@
-﻿namespace EcoLefty.Domain.Contracts.Repositories;
+﻿using EcoLefty.Domain.Contracts.Repositories.Common;
+using EcoLefty.Domain.Entities;
 
-public interface ICompanyRepository
+namespace EcoLefty.Domain.Contracts.Repositories;
+
+public interface ICompanyRepository : IBaseRepository<Company, int>
 {
 }

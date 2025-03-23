@@ -1,5 +1,8 @@
-﻿namespace EcoLefty.Domain.Contracts.Repositories;
+﻿using EcoLefty.Domain.Contracts.Repositories.Common;
+using EcoLefty.Domain.Entities;
 
-public interface IApplicationUserRepository
+namespace EcoLefty.Domain.Contracts.Repositories;
+
+public interface IApplicationUserRepository : IBaseRepository<ApplicationUser, int>
 {
 }

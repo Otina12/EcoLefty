@@ -1,4 +1,5 @@
 ﻿using EcoLefty.Domain.Common;
+using EcoLefty.Domain.Entities.Identity;
 
 namespace EcoLefty.Domain.Entities;
 
@@ -6,7 +7,6 @@ public class Company : SoftDeletableEntity
 {
     public int Id { get; set; }
     public string Name { get; set; }
-    public string Phone { get; set; }
     public string Country { get; set; }
     public string City { get; set; }
     public string Address { get; set; }
@@ -15,10 +15,10 @@ public class Company : SoftDeletableEntity
     public bool IsApproved { get; set; }
 
     // Foreign keys
-    public int CreatorId { get; set; }
+    public string AccountId { get; set; }
 
     // Navigation properties
-    public virtual ApplicationUser Creator { get; set; }
+    public virtual Account Account { get; set; }
     public virtual ICollection<Product> Products { get; set; }
     public virtual ICollection<Offer> Offers { get; set; }
 }

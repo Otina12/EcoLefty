@@ -1,0 +1,82 @@
+﻿@using EcoLefty.Application.ApplicationUsers.DTOs;﻿
+@model CreateApplicationUserRequestDto
+
+@{
+    ViewData["Title"] = "Register";
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert-container">
+            <div class="alert alert-danger">
+                <ul>
+                    <li>@TempData["ErrorMessage"]</li>
+                </ul>
+            </div>
+        </div>
+    }
+}
+
+
+<head>
+    <link rel="stylesheet" href="~/css/auth-form.css" />
+</head>
+
+<body>
+    <div class="my-form">
+        <div class="title">
+            Register
+        </div>
+        <form asp-asp-controller="Account" asp-action="Register" method="post">
+            <div class="my-field">
+                <label class="required">Name</label>
+                <div class="name-fields">
+                    <input asp-for="FirstName" type="text" placeholder="FirstName*" class="name-input" required />
+                    <input asp-for="LastName" type="text" placeholder="LastName*" class="name-input" required />
+                </div>
+                <span asp-validation-for="FirstName" class="text-danger"></span>
+                <span asp-validation-for="LastName" class="text-danger"></span>
+            </div>
+            <div class="my-field">
+                <label class="required" asp-for="Email">Email</label>
+                <input asp-for="Email" type="email" placeholder="example@gmail.com" required />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="my-field">
+                <label class="required">Birthdate</label>
+                <div class="birthdate-fields">
+                    <input asp-for="BirthDay" type="number" placeholder="Day*" class="birthdate-input" required />
+                    <input asp-for="BirthMonth" type="number" placeholder="Month*" class="birthdate-input" required />
+                    <input asp-for="BirthYear" type="number" placeholder="Year*" class="birthdate-input" required />
+                </div>
+                <span asp-validation-for="BirthDay" class="text-danger"></span>
+                <span asp-validation-for="BirthMonth" class="text-danger"></span>
+                <span asp-validation-for="BirthYear" class="text-danger"></span>
+            </div>
+            <div class="my-field">
+                <label asp-for="PhoneNumber">Phone number</label>
+                <input asp-for="PhoneNumber" type="text" placeholder="555123456"/>
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+            <div class="my-field">
+                <label asp-for="Bio">Bio</label>
+                <input asp-for="Bio" type="text" placeholder="Tell about yourself" />
+                <span asp-validation-for="Bio" class="text-danger"></span>
+            </div>
+            <div class="my-field">
+                <label class="required" asp-for="Password">Password</label>
+                <input asp-for="Password" type="password" required/>
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="my-field">
+                <label class="required" asp-for="ConfirmPassword">Confirm Password</label>
+                <input asp-for="ConfirmPassword" type="password" required/>
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+
+            <input class="submit-button" type="submit" value="Register" />
+            <div class="have-account">
+                <a asp-controller="Account" asp-action="Login">Already have an account?</a>
+            </div>
+        </form>
+    </div>
+</body>

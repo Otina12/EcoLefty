@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EcoLefty.Persistence.Migrations
 {
     [DbContext(typeof(EcoLeftyDbContext))]
-    [Migration("20250322183657_InitialCreate")]
+    [Migration("20250323165720_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -27,8 +27,8 @@ namespace EcoLefty.Persistence.Migrations
 
             modelBuilder.Entity("ApplicationUserCategory", b =>
                 {
-                    b.Property<Guid>("FollowedCategoriesId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("FollowedCategoriesId")
+                        .HasColumnType("int");
 
                     b.Property<int>("FollowingUsersId")
                         .HasColumnType("int");
@@ -42,8 +42,8 @@ namespace EcoLefty.Persistence.Migrations
 
             modelBuilder.Entity("CategoryProduct", b =>
                 {
-                    b.Property<Guid>("CategoriesId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("CategoriesId")
+                        .HasColumnType("int");
 
                     b.Property<int>("ProductsId")
                         .HasColumnType("int");
@@ -63,7 +63,7 @@ namespace EcoLefty.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("AuthUserId")
+                    b.Property<string>("AccountId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
@@ -101,7 +101,7 @@ namespace EcoLefty.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AuthUserId")
+                    b.HasIndex("AccountId")
                         .IsUnique();
 
                     b.ToTable("ApplicationUsers", "ecolefty");
@@ -145,9 +145,11 @@ namespace EcoLefty.Persistence.Migrations
 
             modelBuilder.Entity("EcoLefty.Domain.Entities.Category", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("datetime2");
@@ -176,6 +178,10 @@ namespace EcoLefty.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("AccountId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("Address")
                         .IsRequired()
                         .HasMaxLength(300)
@@ -198,9 +204,6 @@ namespace EcoLefty.Persistence.Migrations
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("CreatorId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime?>("DeletedAtUtc")
                         .HasColumnType("datetime2");
 
@@ -216,27 +219,26 @@ namespace EcoLefty.Persistence.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<string>("Phone")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
                     b.Property<DateTime?>("UpdatedAtUtc")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatorId");
+                    b.HasIndex("AccountId")
+                        .IsUnique();
 
                     b.ToTable("Companies", "ecolefty");
                 });
 
-            modelBuilder.Entity("EcoLefty.Domain.Entities.Identity.UserAccount", b =>
+            modelBuilder.Entity("EcoLefty.Domain.Entities.Identity.Account", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("AccessFailedCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("AccountType")
                         .HasColumnType("int");
 
                     b.Property<string>("ConcurrencyStamp")
@@ -298,7 +300,7 @@ namespace EcoLefty.Persistence.Migrations
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
-                    b.ToTable("UserAccounts", "auth");
+                    b.ToTable("Accounts", "auth");
                 });
 
             modelBuilder.Entity("EcoLefty.Domain.Entities.Offer", b =>
@@ -569,24 +571,24 @@ namespace EcoLefty.Persistence.Migrations
 
             modelBuilder.Entity("EcoLefty.Domain.Entities.ApplicationUser", b =>
                 {
-                    b.HasOne("EcoLefty.Domain.Entities.Identity.UserAccount", "IdentityUser")
+                    b.HasOne("EcoLefty.Domain.Entities.Identity.Account", "Account")
                         .WithOne()
-                        .HasForeignKey("EcoLefty.Domain.Entities.ApplicationUser", "AuthUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasForeignKey("EcoLefty.Domain.Entities.ApplicationUser", "AccountId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("IdentityUser");
+                    b.Navigation("Account");
                 });
 
             modelBuilder.Entity("EcoLefty.Domain.Entities.Company", b =>
                 {
-                    b.HasOne("EcoLefty.Domain.Entities.ApplicationUser", "Creator")
-                        .WithMany("Companies")
-                        .HasForeignKey("CreatorId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                    b.HasOne("EcoLefty.Domain.Entities.Identity.Account", "Account")
+                        .WithOne()
+                        .HasForeignKey("EcoLefty.Domain.Entities.Company", "AccountId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Creator");
+                    b.Navigation("Account");
                 });
 
             modelBuilder.Entity("EcoLefty.Domain.Entities.Offer", b =>
@@ -630,7 +632,7 @@ namespace EcoLefty.Persistence.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("EcoLefty.Domain.Entities.Identity.UserAccount", null)
+                    b.HasOne("EcoLefty.Domain.Entities.Identity.Account", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -639,7 +641,7 @@ namespace EcoLefty.Persistence.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("EcoLefty.Domain.Entities.Identity.UserAccount", null)
+                    b.HasOne("EcoLefty.Domain.Entities.Identity.Account", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -654,7 +656,7 @@ namespace EcoLefty.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("EcoLefty.Domain.Entities.Identity.UserAccount", null)
+                    b.HasOne("EcoLefty.Domain.Entities.Identity.Account", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -663,16 +665,11 @@ namespace EcoLefty.Persistence.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("EcoLefty.Domain.Entities.Identity.UserAccount", null)
+                    b.HasOne("EcoLefty.Domain.Entities.Identity.Account", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("EcoLefty.Domain.Entities.ApplicationUser", b =>
-                {
-                    b.Navigation("Companies");
                 });
 
             modelBuilder.Entity("EcoLefty.Domain.Entities.Company", b =>

@@ -4,7 +4,7 @@ namespace EcoLefty.Domain.Entities;
 
 public class Category : SoftDeletableEntity
 {
-    public Guid Id { get; set; }
+    public int Id { get; set; }
     public string Name { get; set; }
 
     // Navigation properties

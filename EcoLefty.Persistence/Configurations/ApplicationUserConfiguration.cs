@@ -13,6 +13,8 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
 
         builder.HasKey(x => x.Id);
 
+        builder.HasQueryFilter(x => x.DeletedAtUtc == null);
+
         builder.Property(x => x.FirstName)
                .IsRequired()
                .HasMaxLength(100);
@@ -29,14 +31,10 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
         builder.Property(x => x.Balance)
                .HasPrecision(18, 2);
 
-        builder.HasOne(x => x.IdentityUser)
+        builder.HasOne(x => x.Account)
                .WithOne()
-               .HasForeignKey<ApplicationUser>(x => x.AuthUserId)
-               .OnDelete(DeleteBehavior.Cascade);
-
-        builder.HasMany(x => x.Companies)
-               .WithOne(x => x.Creator)
-               .HasForeignKey(x => x.CreatorId);
+               .HasForeignKey<ApplicationUser>(x => x.AccountId)
+               .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasMany(x => x.FollowedCategories)
                .WithMany(x => x.FollowingUsers)

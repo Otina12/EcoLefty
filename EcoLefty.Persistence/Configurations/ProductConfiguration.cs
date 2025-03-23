@@ -11,6 +11,8 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
     {
         builder.ToTable("Products", Schemas.EcoLefty);
 
+        builder.HasQueryFilter(x => x.DeletedAtUtc == null);
+
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Name)
