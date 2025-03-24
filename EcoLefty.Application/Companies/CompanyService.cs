@@ -2,6 +2,7 @@
 using EcoLefty.Application.Accounts;
 using EcoLefty.Application.Accounts.DTOs;
 using EcoLefty.Application.Companies.DTOs;
+using EcoLefty.Domain.Common.Enums;
 using EcoLefty.Domain.Common.Exceptions;
 using EcoLefty.Domain.Common.IncludeExpressions;
 using EcoLefty.Domain.Contracts;
@@ -24,16 +25,15 @@ public class CompanyService : ICompanyService
 
     public async Task<IEnumerable<CompanyResponseDto>> GetAllAsync(CancellationToken token = default)
     {
-        var companies = await _unitOfWork.Companies.GetAllAsync(trackChanges: false, token: token, CompanyIncludeExpressions.Account);
+        var companies = await _unitOfWork.Companies.GetAllAsync(trackChanges: false, token: token, CompanyIncludes.Account);
         return _mapper.Map<IEnumerable<CompanyResponseDto>>(companies);
     }
 
     public async Task<CompanyDetailsResponseDto> GetByIdAsync(int id, CancellationToken token)
     {
         var company = await _unitOfWork.Companies.GetByIdAsync(id, trackChanges: false, token: token,
-            CompanyIncludeExpressions.Account,
-            CompanyIncludeExpressions.Products,
-            CompanyIncludeExpressions.Offers
+            CompanyIncludes.Account,
+            CompanyIncludes.Products
             );
 
         if (company is null)
@@ -53,7 +53,7 @@ public class CompanyService : ICompanyService
         {
             // First, we need to register identity user
             var accountDto = _mapper.Map<RegisterAccountRequestDto>(createCompanyDto);
-            string accountId = await _authService.RegisterAccountAsync(accountDto);
+            string accountId = await _authService.RegisterAccountAsync(accountDto, AccountRole.Company);
 
             // Then we can create the company
             var company = _mapper.Map<Company>(createCompanyDto);
@@ -89,6 +89,13 @@ public class CompanyService : ICompanyService
         return _mapper.Map<CompanyResponseDto>(company);
     }
 
+    /// <summary>
+    /// Soft deletes an entity and all related entities.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="token"></param>
+    /// <returns></returns>
+    /// <exception cref="CompanyNotFoundException"></exception>
     public async Task<bool> DeleteAsync(int id, CancellationToken token = default)
     {
         var company = await _unitOfWork.Companies.GetByIdAsync(id, trackChanges: false, token: token);
@@ -99,10 +106,9 @@ public class CompanyService : ICompanyService
 
         _unitOfWork.Companies.Delete(company);
 
-        // Because of soft delete, we need delete/soft delete related entities
+        // Because of soft delete, we need deactivate related account manually.
+        // Other entities will be soft deleted using custom cascading soft delete when saving changes.
         await _unitOfWork.Accounts.DeactivateAsync(company.AccountId, token);
-        _unitOfWork.Products.DeleteAllWhere(x => x.CompanyId == company.Id);
-        _unitOfWork.Offers.DeleteAllWhere(x => x.CompanyId == company.Id);
 
         var deleted = await _unitOfWork.SaveChangesAsync(token);
         return deleted > 0;

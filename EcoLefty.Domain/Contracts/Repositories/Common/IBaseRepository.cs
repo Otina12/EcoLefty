@@ -14,5 +14,6 @@ public interface IBaseRepository<T, TKey> where T : class
     Task CreateRangeAsync(IEnumerable<T> entities, CancellationToken token = default);
     void Update(T entity);
     void Delete(T entity);
+    void DeleteRange(IEnumerable<T> entities);
     void DeleteAllWhere(Expression<Func<T, bool>> where);
 }

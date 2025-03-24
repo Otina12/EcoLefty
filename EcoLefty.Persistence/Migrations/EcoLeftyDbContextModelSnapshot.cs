@@ -73,6 +73,9 @@ namespace EcoLefty.Persistence.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
+                    b.Property<DateTime>("BirthDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("datetime2");
 
@@ -101,7 +104,7 @@ namespace EcoLefty.Persistence.Migrations
                     b.HasIndex("AccountId")
                         .IsUnique();
 
-                    b.ToTable("ApplicationUsers", "ecolefty");
+                    b.ToTable("Users", "ecolefty");
                 });
 
             modelBuilder.Entity("EcoLefty.Domain.Entities.AuditLog", b =>
@@ -112,8 +115,9 @@ namespace EcoLefty.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ActionType")
-                        .HasColumnType("int");
+                    b.Property<string>("ActionType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Changes")
                         .IsRequired()
@@ -230,6 +234,7 @@ namespace EcoLefty.Persistence.Migrations
             modelBuilder.Entity("EcoLefty.Domain.Entities.Identity.Account", b =>
                 {
                     b.Property<string>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("AccessFailedCount")
@@ -308,9 +313,6 @@ namespace EcoLefty.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CompanyId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("datetime2");
 
@@ -350,8 +352,6 @@ namespace EcoLefty.Persistence.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CompanyId");
 
                     b.HasIndex("ProductId");
 
@@ -477,7 +477,7 @@ namespace EcoLefty.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserClaims", "auth");
+                    b.ToTable("AccountClaims", "auth");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
@@ -499,7 +499,7 @@ namespace EcoLefty.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserLogins", "auth");
+                    b.ToTable("AccountLogins", "auth");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
@@ -514,7 +514,7 @@ namespace EcoLefty.Persistence.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("UserRoles", "auth");
+                    b.ToTable("AccountRoles", "auth");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
@@ -533,7 +533,7 @@ namespace EcoLefty.Persistence.Migrations
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
-                    b.ToTable("UserTokens", "auth");
+                    b.ToTable("AccountTokens", "auth");
                 });
 
             modelBuilder.Entity("ApplicationUserCategory", b =>
@@ -571,7 +571,7 @@ namespace EcoLefty.Persistence.Migrations
                     b.HasOne("EcoLefty.Domain.Entities.Identity.Account", "Account")
                         .WithOne()
                         .HasForeignKey("EcoLefty.Domain.Entities.ApplicationUser", "AccountId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Account");
@@ -590,19 +590,11 @@ namespace EcoLefty.Persistence.Migrations
 
             modelBuilder.Entity("EcoLefty.Domain.Entities.Offer", b =>
                 {
-                    b.HasOne("EcoLefty.Domain.Entities.Company", "Company")
-                        .WithMany("Offers")
-                        .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("EcoLefty.Domain.Entities.Product", "Product")
                         .WithMany("Offers")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Company");
 
                     b.Navigation("Product");
                 });
@@ -671,8 +663,6 @@ namespace EcoLefty.Persistence.Migrations
 
             modelBuilder.Entity("EcoLefty.Domain.Entities.Company", b =>
                 {
-                    b.Navigation("Offers");
-
                     b.Navigation("Products");
                 });
 

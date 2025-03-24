@@ -1,8 +1,10 @@
 ﻿using Common.Shared;
 using EcoLefty.Application;
 using EcoLefty.Domain.Contracts;
+using EcoLefty.Domain.Entities.Identity;
 using EcoLefty.Infrastructure;
 using EcoLefty.Persistence.Context;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
@@ -30,6 +32,22 @@ public static class ServiceExtensions
         services.AddScoped<IUserContext, UserContext>();
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+
         services.AddScoped<IServiceManager, ServiceManager>();
+    }
+
+    public static void ConfigureIdentity(this IServiceCollection services)
+    {
+        services.AddIdentity<Account, IdentityRole>(o =>
+        {
+            o.Password.RequireDigit = true;
+            o.Password.RequireUppercase = true;
+            o.Password.RequireNonAlphanumeric = true;
+            o.Password.RequiredLength = 8;
+            o.User.RequireUniqueEmail = true;
+        })
+        .AddRoles<IdentityRole>()
+        .AddEntityFrameworkStores<EcoLeftyDbContext>()
+        .AddDefaultTokenProviders();
     }
 }

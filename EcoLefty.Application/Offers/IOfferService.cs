@@ -4,10 +4,17 @@ namespace EcoLefty.Application.Offers;
 
 public interface IOfferService
 {
-    Task<IEnumerable<OfferResponseDto>> GetAllAsync(CancellationToken token = default);
-    Task<IEnumerable<OfferResponseDto>> GetActiveOffersAsync(CancellationToken token = default);
-    Task<OfferResponseDto> GetByIdAsync(int id, CancellationToken token = default);
-    Task<OfferResponseDto> CreateAsync(CreateOfferRequestDto createOfferDto, CancellationToken token = default);
-    Task<OfferResponseDto> UpdateAsync(int id, UpdateOfferRequestDto updateOfferDto, CancellationToken token = default);
+    Task<IEnumerable<OfferDetailsResponseDto>> GetAllAsync(CancellationToken token = default);
+    Task<IEnumerable<OfferDetailsResponseDto>> GetActiveOffersAsync(CancellationToken token = default);
+    Task<OfferDetailsResponseDto> GetByIdAsync(int id, CancellationToken token = default);
+    Task<OfferDetailsResponseDto> CreateAsync(CreateOfferRequestDto createOfferDto, CancellationToken token = default);
+    Task<OfferDetailsResponseDto> UpdateAsync(int id, UpdateOfferRequestDto updateOfferDto, CancellationToken token = default);
+    /// <summary>
+    /// Soft deletes an entity and all related entities.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="token"></param>
+    /// <returns></returns>
+    /// <exception cref="OfferNotFoundException"></exception>
     Task<bool> DeleteAsync(int id, CancellationToken token = default);
 }

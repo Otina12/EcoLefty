@@ -20,5 +20,4 @@ public class Company : SoftDeletableEntity
     // Navigation properties
     public virtual Account Account { get; set; }
     public virtual ICollection<Product> Products { get; set; }
-    public virtual ICollection<Offer> Offers { get; set; }
 }

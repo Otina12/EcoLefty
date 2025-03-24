@@ -9,11 +9,14 @@ public class CompanyConfiguration : IEntityTypeConfiguration<Company>
 {
     public void Configure(EntityTypeBuilder<Company> builder)
     {
-        builder.ToTable("Companies", Schemas.EcoLefty);
+        builder.ToTable(Tables.Company, Schemas.EcoLefty);
 
         builder.HasQueryFilter(x => x.DeletedAtUtc == null);
 
         builder.HasKey(x => x.Id);
+
+        builder.Property(x => x.Id)
+               .ValueGeneratedOnAdd();
 
         builder.Property(x => x.Name)
                .IsRequired()
@@ -38,10 +41,7 @@ public class CompanyConfiguration : IEntityTypeConfiguration<Company>
 
         builder.HasMany(x => x.Products)
                .WithOne(x => x.Company)
-               .HasForeignKey(x => x.CompanyId);
-
-        builder.HasMany(x => x.Offers)
-               .WithOne(x => x.Company)
-               .HasForeignKey(x => x.CompanyId);
+               .HasForeignKey(x => x.CompanyId)
+               .OnDelete(DeleteBehavior.Cascade);
     }
 }

@@ -9,6 +9,7 @@ public class ApplicationUser : SoftDeletableEntity
     public string FirstName { get; set; }
     public string LastName { get; set; }
     public string Bio { get; set; }
+    public DateTime BirthDate { get; set; }
     public string ProfilePictureUrl { get; set; }
     public decimal Balance { get; set; }
 

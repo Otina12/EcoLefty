@@ -12,7 +12,6 @@ public class EcoLeftyDbContext : IdentityDbContext<Account, IdentityRole, string
     {
     }
 
-    public DbSet<Account> Accounts { get; set; }
     public DbSet<ApplicationUser> ApplicationUsers { get; set; }
     public DbSet<Company> Companies { get; set; }
     public DbSet<Offer> Offers { get; set; }
@@ -24,13 +23,13 @@ public class EcoLeftyDbContext : IdentityDbContext<Account, IdentityRole, string
     {
         base.OnModelCreating(builder);
 
-        builder.Entity<Account>().ToTable("Accounts", Schemas.Auth);
+        builder.Entity<Account>().ToTable(Tables.UserAccount, Schemas.Auth);
         builder.Entity<IdentityRole>().ToTable("Roles", Schemas.Auth);
-        builder.Entity<IdentityUserRole<string>>().ToTable("UserRoles", Schemas.Auth);
-        builder.Entity<IdentityUserClaim<string>>().ToTable("UserClaims", Schemas.Auth);
-        builder.Entity<IdentityUserLogin<string>>().ToTable("UserLogins", Schemas.Auth);
+        builder.Entity<IdentityUserRole<string>>().ToTable("AccountRoles", Schemas.Auth);
+        builder.Entity<IdentityUserClaim<string>>().ToTable("AccountClaims", Schemas.Auth);
+        builder.Entity<IdentityUserLogin<string>>().ToTable("AccountLogins", Schemas.Auth);
         builder.Entity<IdentityRoleClaim<string>>().ToTable("RoleClaims", Schemas.Auth);
-        builder.Entity<IdentityUserToken<string>>().ToTable("UserTokens", Schemas.Auth);
+        builder.Entity<IdentityUserToken<string>>().ToTable("AccountTokens", Schemas.Auth);
 
         builder.ApplyConfigurationsFromAssembly(typeof(EcoLeftyDbContext).Assembly);
     }

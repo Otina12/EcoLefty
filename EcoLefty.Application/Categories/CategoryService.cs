@@ -66,6 +66,13 @@ public class CategoryService : ICategoryService
         return _mapper.Map<CategoryResponseDto>(category);
     }
 
+    /// <summary>
+    /// Soft deletes an entity and all related entities.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="token"></param>
+    /// <returns></returns>
+    /// <exception cref="CategoryNotFoundException"></exception>
     public async Task<bool> DeleteAsync(int id, CancellationToken token = default)
     {
         var category = await _unitOfWork.Categories.GetByIdAsync(id);

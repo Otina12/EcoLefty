@@ -1,9 +1,11 @@
-﻿using EcoLefty.Domain.Common;
+﻿using EcoLefty.Application.Categories.DTOs;
+using EcoLefty.Application.Companies.DTOs;
+using EcoLefty.Application.Products.DTOs;
 using EcoLefty.Domain.Common.Enums;
 
-namespace EcoLefty.Domain.Entities;
+namespace EcoLefty.Application.Offers.DTOs;
 
-public class Offer : SoftDeletableEntity
+public record OfferDetailsResponseDto
 {
     public int Id { get; set; }
     public string Title { get; set; }
@@ -13,10 +15,7 @@ public class Offer : SoftDeletableEntity
     public OfferStatus OfferStatus { get; set; }
     public DateTime StartDateUtc { get; set; }
     public DateTime ExpiryDateUtc { get; set; }
-
-    // Foreign keys
-    public int ProductId { get; set; }
-
-    // Navigation properties
-    public virtual Product Product { get; set; }
+    public CompanyResponseDto Company { get; set; }
+    public ProductResponseDto Product { get; set; }
+    public IEnumerable<CategoryResponseDto> Categories { get; set; }
 }

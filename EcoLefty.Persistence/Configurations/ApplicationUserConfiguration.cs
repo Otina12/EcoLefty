@@ -1,4 +1,5 @@
 ﻿using EcoLefty.Domain.Entities;
+using EcoLefty.Domain.Entities.Identity;
 using EcoLefty.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -9,9 +10,12 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
 {
     public void Configure(EntityTypeBuilder<ApplicationUser> builder)
     {
-        builder.ToTable("ApplicationUsers", Schemas.EcoLefty);
+        builder.ToTable(Tables.ApplicationUser, Schemas.EcoLefty);
 
         builder.HasKey(x => x.Id);
+
+        builder.Property(x => x.Id)
+               .ValueGeneratedOnAdd();
 
         builder.HasQueryFilter(x => x.DeletedAtUtc == null);
 
@@ -33,11 +37,13 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
 
         builder.HasOne(x => x.Account)
                .WithOne()
-               .HasForeignKey<ApplicationUser>(x => x.AccountId)
-               .OnDelete(DeleteBehavior.Restrict);
+               .HasForeignKey<ApplicationUser>(x => x.AccountId);
 
         builder.HasMany(x => x.FollowedCategories)
                .WithMany(x => x.FollowingUsers)
                .UsingEntity(j => j.ToTable("UserFollowedCategories"));
+
+        builder.HasOne<Account>(x => x.Account);
+
     }
 }

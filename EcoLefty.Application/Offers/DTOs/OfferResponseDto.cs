@@ -1,9 +1,8 @@
-﻿using EcoLefty.Application.Products.DTOs;
-using EcoLefty.Domain.Common.Enums;
+﻿using EcoLefty.Domain.Common.Enums;
 
 namespace EcoLefty.Application.Offers.DTOs;
 
-public record OfferResponseDto
+public class OfferResponseDto
 {
     public int Id { get; set; }
     public string Title { get; set; }
@@ -13,5 +12,4 @@ public record OfferResponseDto
     public OfferStatus OfferStatus { get; set; }
     public DateTime StartDateUtc { get; set; }
     public DateTime ExpiryDateUtc { get; set; }
-    public ProductDetailsResponseDto Product { get; set; }
 }

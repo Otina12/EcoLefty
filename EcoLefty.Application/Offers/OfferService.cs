@@ -18,29 +18,36 @@ public class OfferService : IOfferService
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<OfferResponseDto>> GetAllAsync(CancellationToken token = default)
+    public async Task<IEnumerable<OfferDetailsResponseDto>> GetAllAsync(CancellationToken token = default)
     {
-        var offers = await _unitOfWork.Offers.GetAllAsync(trackChanges: false, token: token, OfferIncludeExpressions.Products);
+        var offers = await _unitOfWork.Offers.GetAllAsync(
+            trackChanges: false,
+            token: token,
+            OfferIncludes.Product,
+            OfferIncludes.Product_Company,
+            OfferIncludes.Product_Categories
+        ); // <- real
 
-        // TODO. ThenInclude Company and get companydto from productdto
-        return _mapper.Map<IEnumerable<OfferResponseDto>>(offers);
+        return _mapper.Map<IEnumerable<OfferDetailsResponseDto>>(offers);
     }
 
-    public async Task<IEnumerable<OfferResponseDto>> GetActiveOffersAsync(CancellationToken token = default)
+    public async Task<IEnumerable<OfferDetailsResponseDto>> GetActiveOffersAsync(CancellationToken token = default)
     {
         var now = DateTime.UtcNow;
-        var activeOffers = await _unitOfWork.Offers
-            .GetAllWhereAsync(
-                o => o.StartDateUtc <= now && o.ExpiryDateUtc >= now,
-                trackChanges: false,
-                token: token,
-                OfferIncludeExpressions.Products
-            );
 
-        return _mapper.Map<IEnumerable<OfferResponseDto>>(activeOffers);
+        var activeOffers = await _unitOfWork.Offers.GetAllWhereAsync(
+            o => o.StartDateUtc <= now && o.ExpiryDateUtc >= now,
+            trackChanges: false,
+            token: token,
+            OfferIncludes.Product,
+            OfferIncludes.Product_Company,
+            OfferIncludes.Product_Categories
+        );
+
+        return _mapper.Map<IEnumerable<OfferDetailsResponseDto>>(activeOffers);
     }
 
-    public async Task<OfferResponseDto> GetByIdAsync(int id, CancellationToken token = default)
+    public async Task<OfferDetailsResponseDto> GetByIdAsync(int id, CancellationToken token = default)
     {
         var offer = await _unitOfWork.Offers.GetByIdAsync(id);
         if (offer is null)
@@ -48,20 +55,20 @@ public class OfferService : IOfferService
             throw new OfferNotFoundException(id);
         }
 
-        return _mapper.Map<OfferResponseDto>(offer);
+        return _mapper.Map<OfferDetailsResponseDto>(offer);
     }
 
-    public async Task<OfferResponseDto> CreateAsync(CreateOfferRequestDto createOfferDto, CancellationToken token = default)
+    public async Task<OfferDetailsResponseDto> CreateAsync(CreateOfferRequestDto createOfferDto, CancellationToken token = default)
     {
         var offer = _mapper.Map<Offer>(createOfferDto);
 
         await _unitOfWork.Offers.CreateAsync(offer);
         await _unitOfWork.SaveChangesAsync();
 
-        return _mapper.Map<OfferResponseDto>(offer);
+        return _mapper.Map<OfferDetailsResponseDto>(offer);
     }
 
-    public async Task<OfferResponseDto> UpdateAsync(int id, UpdateOfferRequestDto updateOfferDto, CancellationToken token = default)
+    public async Task<OfferDetailsResponseDto> UpdateAsync(int id, UpdateOfferRequestDto updateOfferDto, CancellationToken token = default)
     {
         var offer = await _unitOfWork.Offers.GetByIdAsync(id);
         if (offer is null)
@@ -74,9 +81,16 @@ public class OfferService : IOfferService
         _unitOfWork.Offers.Update(offer);
         await _unitOfWork.SaveChangesAsync();
 
-        return _mapper.Map<OfferResponseDto>(offer);
+        return _mapper.Map<OfferDetailsResponseDto>(offer);
     }
 
+    /// <summary>
+    /// Soft deletes an entity and all related entities.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="token"></param>
+    /// <returns></returns>
+    /// <exception cref="OfferNotFoundException"></exception>
     public async Task<bool> DeleteAsync(int id, CancellationToken token = default)
     {
         var offer = await _unitOfWork.Offers.GetByIdAsync(id);

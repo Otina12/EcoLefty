@@ -2,6 +2,7 @@
 using EcoLefty.Application.Accounts;
 using EcoLefty.Application.Accounts.DTOs;
 using EcoLefty.Application.ApplicationUsers.DTOs;
+using EcoLefty.Domain.Common.Enums;
 using EcoLefty.Domain.Common.Exceptions;
 using EcoLefty.Domain.Common.IncludeExpressions;
 using EcoLefty.Domain.Contracts;
@@ -24,15 +25,15 @@ public class ApplicationUserService : IApplicationUserService
 
     public async Task<IEnumerable<ApplicationUserResponseDto>> GetAllAsync(CancellationToken token = default)
     {
-        var users = await _unitOfWork.Users.GetAllAsync(trackChanges: false, token: token, ApplicationUserIncludeExpressions.Account);
+        var users = await _unitOfWork.Users.GetAllAsync(trackChanges: false, token: token, ApplicationUserIncludes.Account);
         return _mapper.Map<IEnumerable<ApplicationUserResponseDto>>(users);
     }
 
     public async Task<ApplicationUserDetailsResponseDto> GetByIdAsync(int id, CancellationToken token)
     {
         var user = await _unitOfWork.Users.GetByIdAsync(id, trackChanges: false, token: token,
-            ApplicationUserIncludeExpressions.Account,
-            ApplicationUserIncludeExpressions.Categories);
+            ApplicationUserIncludes.Account,
+            ApplicationUserIncludes.Categories);
 
         if (user is null)
         {
@@ -51,7 +52,7 @@ public class ApplicationUserService : IApplicationUserService
         {
             // First, we need to register identity user
             var accountDto = _mapper.Map<RegisterAccountRequestDto>(createUserDto);
-            string accountId = await _authService.RegisterAccountAsync(accountDto);
+            string accountId = await _authService.RegisterAccountAsync(accountDto, AccountRole.User);
 
             // Then we can create the application user
             var applicationUser = _mapper.Map<ApplicationUser>(createUserDto);
@@ -87,6 +88,13 @@ public class ApplicationUserService : IApplicationUserService
         return _mapper.Map<ApplicationUserResponseDto>(user);
     }
 
+    /// <summary>
+    /// Soft deletes an entity and all related entities.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="token"></param>
+    /// <returns></returns>
+    /// <exception cref="ApplicationUserNotFoundException"></exception>
     public async Task<bool> DeleteAsync(int id, CancellationToken token = default)
     {
         var user = await _unitOfWork.Users.GetByIdAsync(id, trackChanges: false, token: token);
@@ -97,7 +105,8 @@ public class ApplicationUserService : IApplicationUserService
 
         _unitOfWork.Users.Delete(user);
 
-        // Because of soft delete, we need delete/soft delete related entities
+        // Because of soft delete, we need deactivate related account manually.
+        // Other entities will be soft deleted using custom cascading soft delete when saving changes.
         await _unitOfWork.Accounts.DeactivateAsync(user.AccountId, token);
 
         var result = await _unitOfWork.SaveChangesAsync(token);

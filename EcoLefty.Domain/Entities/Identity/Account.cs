@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Identity;
 
 namespace EcoLefty.Domain.Entities.Identity;
 
-public class Account : IdentityUser<string>
+public class Account : IdentityUser
 {
     public bool IsActive { get; set; }
-    public AccountType AccountType { get; set; }
+    public AccountRole AccountType { get; set; }
 }

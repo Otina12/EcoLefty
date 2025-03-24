@@ -1,7 +1,6 @@
 ﻿using EcoLefty.Domain.Contracts;
 using EcoLefty.Domain.Contracts.Repositories;
 using EcoLefty.Infrastructure.Repositories;
-using EcoLefty.Infrastructure.Repositories.Common;
 using EcoLefty.Persistence.Context;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -20,9 +19,12 @@ public class UnitOfWork : IUnitOfWork, IDisposable
     private readonly Lazy<IProductRepository> _productRepository;
     private readonly Lazy<IAuditLogRepository> _auditLogRepository;
 
-    public UnitOfWork(EcoLeftyDbContext ecoLeftyContext)
+    private readonly IUserContext _currentUserContext;
+
+    public UnitOfWork(EcoLeftyDbContext ecoLeftyContext, IUserContext userContext)
     {
         _context = ecoLeftyContext;
+        _currentUserContext = userContext;
 
         _accountRepository = new Lazy<IAccountRepository>(() => new AccountRepository(ecoLeftyContext));
         _userRepository = new Lazy<IApplicationUserRepository>(() => new ApplicationUserRepository(ecoLeftyContext));
@@ -33,14 +35,21 @@ public class UnitOfWork : IUnitOfWork, IDisposable
         _auditLogRepository = new Lazy<IAuditLogRepository>(() => new AuditLogRepository(ecoLeftyContext));
     }
 
-    public async Task<int> SaveChangesAsync(CancellationToken token, bool softDeleteEnabled = true) // works with interceptor
+    public async Task<int> SaveChangesAsync(CancellationToken token, bool softDeleteEnabled = true)
     {
+        var now = DateTime.UtcNow;
+
         if (softDeleteEnabled)
         {
-            AuditLogWriter.HandleAuditLogging(_context);
+            SoftDeleteHelper.ProcessChanges(_context, _currentUserContext, now);
         }
 
         return await _context.SaveChangesAsync(token);
+    }
+
+    public void ShowAllTracked()
+    {
+        var entries = _context.ChangeTracker.Entries();
     }
 
     public async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken token)

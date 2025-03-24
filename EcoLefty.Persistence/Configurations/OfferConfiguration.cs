@@ -9,11 +9,14 @@ public class OfferConfiguration : IEntityTypeConfiguration<Offer>
 {
     public void Configure(EntityTypeBuilder<Offer> builder)
     {
-        builder.ToTable("Offers", Schemas.EcoLefty);
+        builder.ToTable(Tables.Offer, Schemas.EcoLefty);
 
         builder.HasQueryFilter(x => x.DeletedAtUtc == null);
 
         builder.HasKey(x => x.Id);
+
+        builder.Property(x => x.Id)
+               .ValueGeneratedOnAdd();
 
         builder.Property(x => x.Title)
                .IsRequired()
@@ -24,10 +27,6 @@ public class OfferConfiguration : IEntityTypeConfiguration<Offer>
 
         builder.Property(x => x.UnitPrice)
                .HasPrecision(18, 2);
-
-        builder.HasOne(x => x.Company)
-               .WithMany(x => x.Offers)
-               .HasForeignKey(x => x.CompanyId);
 
         builder.HasOne(x => x.Product)
                .WithMany(x => x.Offers)

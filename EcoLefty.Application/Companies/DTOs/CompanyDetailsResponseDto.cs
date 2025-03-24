@@ -16,5 +16,5 @@ public record CompanyDetailsResponseDto
     public decimal Balance { get; set; }
     public bool IsApproved { get; set; }
     public IEnumerable<ProductResponseDto> Products { get; set; } = [];
-    public IEnumerable<OfferResponseDto> Offers { get; set; } = [];
+    public IEnumerable<OfferDetailsResponseDto> Offers { get; set; } = [];
 }

@@ -1,6 +1,4 @@
-﻿using EcoLefty.Domain.Common.Enums;
-
-namespace EcoLefty.Domain.Entities;
+﻿namespace EcoLefty.Domain.Entities;
 
 /// <summary>
 /// Represents an audit log entry that records changes made to entities in the system.
@@ -20,7 +18,7 @@ public class AuditLog
     /// <summary>
     /// Gets or sets the type of action performed (Create, Update, Delete...).
     /// </summary>
-    public ActionType ActionType { get; set; }
+    public string ActionType { get; set; }
 
     /// <summary>
     /// Gets or sets the name of the entity that was changed.

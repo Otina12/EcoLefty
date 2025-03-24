@@ -165,6 +165,11 @@ public abstract class BaseRepository<T, TKey> : IBaseRepository<T, TKey> where T
         dbSet.Remove(entity);
     }
 
+    public virtual void DeleteRange(IEnumerable<T> entities)
+    {
+        dbSet.RemoveRange(entities);
+    }
+
     /// <summary>
     /// Deletes all entities that match the given condition.
     /// </summary>

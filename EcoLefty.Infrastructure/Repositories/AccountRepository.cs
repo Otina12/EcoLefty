@@ -14,7 +14,7 @@ public class AccountRepository : IAccountRepository
 
     public async Task DeactivateAsync(string id, CancellationToken token = default)
     {
-        var account = await _context.Accounts.FindAsync(new object?[] { id }, cancellationToken: token);
+        var account = await _context.Users.FindAsync(new object?[] { id }, cancellationToken: token);
 
         if (account != null)
         {

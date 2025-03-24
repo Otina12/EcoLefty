@@ -10,9 +10,12 @@ public class CategoryConfiguration : IEntityTypeConfiguration<Category>
 {
     public void Configure(EntityTypeBuilder<Category> builder)
     {
-        builder.ToTable("Categories", Schemas.EcoLefty);
+        builder.ToTable(Tables.Category, Schemas.EcoLefty);
 
         builder.HasQueryFilter(x => x.DeletedAtUtc == null);
+
+        builder.Property(x => x.Id)
+               .ValueGeneratedOnAdd();
 
         builder.HasKey(x => x.Id);
 

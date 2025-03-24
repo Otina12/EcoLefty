@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using EcoLefty.Application.Products.DTOs;
 using EcoLefty.Domain.Common.Exceptions;
+using EcoLefty.Domain.Common.IncludeExpressions;
 using EcoLefty.Domain.Contracts;
 using EcoLefty.Domain.Entities;
 
@@ -25,7 +26,11 @@ public class ProductService : IProductService
 
     public async Task<ProductDetailsResponseDto> GetByIdAsync(int id, CancellationToken token = default)
     {
-        var product = await _unitOfWork.Products.GetByIdAsync(id);
+        var product = await _unitOfWork.Products.GetByIdAsync(id, trackChanges: false, token: token,
+            ProductIncludes.Company,
+            ProductIncludes.Categories,
+            ProductIncludes.Offers);
+
         if (product is null)
         {
             throw new ProductNotFoundException(id);
@@ -72,6 +77,13 @@ public class ProductService : IProductService
         return _mapper.Map<ProductResponseDto>(product);
     }
 
+    /// <summary>
+    /// Soft deletes an entity and all related entities.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="token"></param>
+    /// <returns></returns>
+    /// <exception cref="ProductNotFoundException"></exception>
     public async Task<bool> DeleteAsync(int id, CancellationToken token = default)
     {
         var product = await _unitOfWork.Products.GetByIdAsync(id);

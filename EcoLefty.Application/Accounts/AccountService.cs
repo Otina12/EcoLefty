@@ -11,16 +11,14 @@ internal class AccountService : IAccountService
 {
     private readonly UserManager<Account> _userManager;
     private readonly SignInManager<Account> _signInManager;
-    private readonly IMapper _mapper;
 
     public AccountService(UserManager<Account> userManager, SignInManager<Account> signInManager, IMapper mapper)
     {
         _userManager = userManager;
         _signInManager = signInManager;
-        _mapper = mapper;
     }
 
-    public async Task<string> RegisterAccountAsync(RegisterAccountRequestDto registerDto)
+    public async Task<string> RegisterAccountAsync(RegisterAccountRequestDto registerDto, AccountRole accountType)
     {
         var existingUser = await _userManager.FindByEmailAsync(registerDto.Email);
 
@@ -29,8 +27,21 @@ internal class AccountService : IAccountService
             throw new AccountAlreadyExistsException(registerDto.Email);
         }
 
-        var employee = _mapper.Map<RegisterAccountRequestDto, Account>(registerDto);
-        var registerResult = await _userManager.CreateAsync(employee, registerDto.Password);
+        var uppercaseEmail = registerDto.Email.ToUpper();
+
+        // NOT using AutoMapper for account mapping
+        var account = new Account
+        {
+            Email = registerDto.Email,
+            NormalizedEmail = uppercaseEmail,
+            UserName = registerDto.Email,
+            NormalizedUserName = uppercaseEmail,
+            PhoneNumber = registerDto.PhoneNumber,
+            IsActive = true,
+            AccountType = accountType
+        };
+
+        var registerResult = await _userManager.CreateAsync(account, registerDto.Password);
 
         if (!registerResult.Succeeded)
         {
@@ -38,9 +49,9 @@ internal class AccountService : IAccountService
             throw new Exception(errors);
         }
 
-        await _userManager.AddToRoleAsync(employee, AccountRole.User.ToString());
-        await _signInManager.SignInAsync(employee, false);
-        return employee.Id;
+        await _userManager.AddToRoleAsync(account, AccountRole.User.ToString());
+        await _signInManager.SignInAsync(account, false);
+        return account.Id;
     }
 
     public async Task LoginAccountAsync(LoginAccountRequestDto loginDto)
@@ -49,7 +60,7 @@ internal class AccountService : IAccountService
 
         if (existingUser is null || !existingUser.IsActive)
         {
-            throw new AccountNotFoundException();
+            throw new AccountNotFoundException(loginDto.Email);
         }
 
         var loginResult = await _signInManager.PasswordSignInAsync(existingUser, loginDto.Password, false, false);

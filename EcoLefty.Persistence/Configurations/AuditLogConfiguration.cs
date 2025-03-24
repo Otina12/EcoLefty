@@ -9,9 +9,12 @@ public class AuditLogConfiguration : IEntityTypeConfiguration<AuditLog>
 {
     public void Configure(EntityTypeBuilder<AuditLog> builder)
     {
-        builder.ToTable("AuditLogs", Schemas.EcoLefty);
+        builder.ToTable(Tables.AuditLog, Schemas.EcoLefty);
 
         builder.HasKey(x => x.Id);
+
+        builder.Property(x => x.Id)
+               .ValueGeneratedOnAdd();
 
         builder.Property(x => x.UserId)
                .IsRequired();

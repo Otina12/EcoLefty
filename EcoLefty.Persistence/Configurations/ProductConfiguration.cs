@@ -9,11 +9,14 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
 {
     public void Configure(EntityTypeBuilder<Product> builder)
     {
-        builder.ToTable("Products", Schemas.EcoLefty);
+        builder.ToTable(Tables.Product, Schemas.EcoLefty);
 
         builder.HasQueryFilter(x => x.DeletedAtUtc == null);
 
         builder.HasKey(x => x.Id);
+
+        builder.Property(x => x.Id)
+               .ValueGeneratedOnAdd();
 
         builder.Property(x => x.Name)
                .IsRequired()
@@ -31,7 +34,8 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
 
         builder.HasMany(x => x.Offers)
                .WithOne(x => x.Product)
-               .HasForeignKey(x => x.ProductId);
+               .HasForeignKey(x => x.ProductId)
+               .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasMany(x => x.Categories)
                .WithMany(x => x.Products)
