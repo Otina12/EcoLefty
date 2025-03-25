@@ -1,5 +1,5 @@
 ﻿using Asp.Versioning;
-using EcoLefty.Application;
+using EcoLefty.Application.Contracts;
 using EcoLefty.Application.Offers.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;

@@ -1,4 +1,4 @@
-﻿using EcoLefty.Application;
+﻿using EcoLefty.Application.Contracts;
 using EcoLefty.Application.Products.DTOs;
 using Microsoft.AspNetCore.Mvc;
 

@@ -3,6 +3,7 @@ using EcoLefty.Application.Accounts;
 using EcoLefty.Application.ApplicationUsers;
 using EcoLefty.Application.Categories;
 using EcoLefty.Application.Companies;
+using EcoLefty.Application.Contracts;
 using EcoLefty.Application.Offers;
 using EcoLefty.Application.Products;
 using EcoLefty.Domain.Contracts;

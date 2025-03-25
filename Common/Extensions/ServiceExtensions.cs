@@ -1,5 +1,6 @@
 ﻿using Common.Shared;
 using EcoLefty.Application;
+using EcoLefty.Application.Contracts;
 using EcoLefty.Domain.Contracts;
 using EcoLefty.Domain.Entities.Identity;
 using EcoLefty.Infrastructure;
@@ -50,4 +51,5 @@ public static class ServiceExtensions
         .AddEntityFrameworkStores<EcoLeftyDbContext>()
         .AddDefaultTokenProviders();
     }
+
 }

@@ -1,5 +1,5 @@
-﻿using EcoLefty.Application;
-using EcoLefty.Application.ApplicationUsers.DTOs;
+﻿using EcoLefty.Application.ApplicationUsers.DTOs;
+using EcoLefty.Application.Contracts;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EcoLefty.Api.Controllers;

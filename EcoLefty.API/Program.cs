@@ -1,11 +1,16 @@
 using Asp.Versioning;
 using Common.Extensions;
+using EcoLefty.API.Infrastructure;
 using EcoLefty.API.Infrastructure.Extensions;
-using EcoLefty.API.Infrastructure.Middlewares;
 using EcoLefty.Application;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
+
+builder.Host.ConfigureSerilogILogger();
+services.ConfigureLoggerService();
+services.ConfigureHttpLogging();
 
 services.AddExceptionHandler<ExceptionHandler>();
 
@@ -34,20 +39,22 @@ services.AddApiVersioning(options =>
     options.AssumeDefaultVersionWhenUnspecified = true;
     options.ReportApiVersions = true;
     options.ApiVersionReader = new UrlSegmentApiVersionReader();
+})
+.AddApiExplorer(options =>
+{
+    options.GroupNameFormat = "'v'VVV";
+    options.SubstituteApiVersionInUrl = true;
 });
 
-services.AddApiVersioning()
-    .AddApiExplorer(options =>
-    {
-        options.GroupNameFormat = "'v'VVV";
-        options.SubstituteApiVersionInUrl = true;
-    });
 
 services.AddAuthentication();
 services.AddAuthorization();
 
 
 var app = builder.Build();
+
+app.UseRequestContextLogging();
+app.UseSerilogRequestLogging();
 
 app.UseExceptionHandler();
 app.UseStatusCodePages();
