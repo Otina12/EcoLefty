@@ -19,9 +19,9 @@ public class UnitOfWork : IUnitOfWork, IDisposable
     private readonly Lazy<IProductRepository> _productRepository;
     private readonly Lazy<IAuditLogRepository> _auditLogRepository;
 
-    private readonly IUserContext _currentUserContext;
+    private readonly ICurrentUserContext _currentUserContext;
 
-    public UnitOfWork(EcoLeftyDbContext ecoLeftyContext, IUserContext userContext)
+    public UnitOfWork(EcoLeftyDbContext ecoLeftyContext, ICurrentUserContext userContext)
     {
         _context = ecoLeftyContext;
         _currentUserContext = userContext;

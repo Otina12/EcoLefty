@@ -29,7 +29,7 @@ public static class ServiceExtensions
     {
         services.AddHttpContextAccessor();
 
-        services.AddScoped<IUserContext, UserContext>();
+        services.AddScoped<ICurrentUserContext, CurrentUserContext>();
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 

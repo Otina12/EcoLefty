@@ -1,6 +1,6 @@
 ﻿namespace EcoLefty.Domain.Contracts;
 
-public interface IUserContext
+public interface ICurrentUserContext
 {
     string? UserId { get; }
 }
