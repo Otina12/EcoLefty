@@ -17,6 +17,7 @@ public class UnitOfWork : IUnitOfWork, IDisposable
     private readonly Lazy<ICompanyRepository> _companyRepository;
     private readonly Lazy<IOfferRepository> _offerRepository;
     private readonly Lazy<IProductRepository> _productRepository;
+    private readonly Lazy<IPurchaseRepository> _purchaseRepository;
     private readonly Lazy<IAuditLogRepository> _auditLogRepository;
 
     private readonly ICurrentUserContext _currentUserContext;
@@ -32,6 +33,7 @@ public class UnitOfWork : IUnitOfWork, IDisposable
         _companyRepository = new Lazy<ICompanyRepository>(() => new CompanyRepository(ecoLeftyContext));
         _offerRepository = new Lazy<IOfferRepository>(() => new OfferRepository(ecoLeftyContext));
         _productRepository = new Lazy<IProductRepository>(() => new ProductRepository(ecoLeftyContext));
+        _purchaseRepository = new Lazy<IPurchaseRepository>(() => new PurchaseRepository(ecoLeftyContext));
         _auditLogRepository = new Lazy<IAuditLogRepository>(() => new AuditLogRepository(ecoLeftyContext));
     }
 
@@ -63,8 +65,8 @@ public class UnitOfWork : IUnitOfWork, IDisposable
     public ICompanyRepository Companies => _companyRepository.Value;
     public IOfferRepository Offers => _offerRepository.Value;
     public IProductRepository Products => _productRepository.Value;
+    public IPurchaseRepository Purchases => _purchaseRepository.Value;
     public IAuditLogRepository AuditLogs => _auditLogRepository.Value;
-
 
     public EntityEntry<T> Entry<T>(T entity) where T : class
     {

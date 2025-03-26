@@ -19,4 +19,6 @@ public interface IUnitOfWork
     ICompanyRepository Companies { get; }
     IOfferRepository Offers { get; }
     IProductRepository Products { get; }
+    IPurchaseRepository Purchases { get; }
+
 }

@@ -1,5 +1,4 @@
 ﻿using EcoLefty.Application.Contracts;
-using EcoLefty.Domain.Common.Exceptions.Base;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,27 +15,27 @@ internal sealed class ExceptionHandler : IExceptionHandler
         _logger = logger;
     }
 
-    public async ValueTask<bool> TryHandleAsync(HttpContext context, Exception exception, CancellationToken cancellationToken)
+    public async ValueTask<bool> TryHandleAsync(
+        HttpContext httpContext,
+        Exception exception,
+        CancellationToken cancellationToken)
     {
-        var status = exception switch
+        int status = exception switch
         {
-            NotFoundException => StatusCodes.Status404NotFound,
-            AlreadyExistsException => StatusCodes.Status409Conflict,
             ArgumentException => StatusCodes.Status400BadRequest,
             _ => StatusCodes.Status500InternalServerError
         };
 
-        LogException(status, exception);
-
         var problemDetails = new ProblemDetails
         {
             Status = status,
-            Title = GetTitleForStatus(status),
+            Title = "An error occurred",
             Type = exception.GetType().Name,
             Detail = exception.Message
         };
 
-        await context.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
+        httpContext.Response.StatusCode = status;
+        await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
 
         return true;
     }

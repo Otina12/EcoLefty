@@ -6,8 +6,9 @@ namespace EcoLefty.Application.Accounts;
 public interface IAccountService
 {
     Task<string> RegisterAccountAsync(RegisterAccountRequestDto registerDto, AccountRole accountType);
-    Task LoginAccountAsync(LoginAccountRequestDto loginDto);
+    Task<string> LoginAccountAsync(LoginAccountRequestDto loginDto);
     //Task ResetPassword(ResetAccountPasswordRequestDto resetPasswordDto);
     //Task ForgotPassword(string email);
     Task LogoutAsync();
+    Task<string> GetUserIdFromJwtTokenAsync(string jwtToken);
 }

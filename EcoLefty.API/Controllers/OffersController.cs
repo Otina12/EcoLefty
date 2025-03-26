@@ -1,6 +1,7 @@
 ﻿using Asp.Versioning;
 using EcoLefty.Application.Contracts;
 using EcoLefty.Application.Offers.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -12,7 +13,6 @@ namespace EcoLefty.Api.Controllers;
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiversion}/[controller]")]
-[SwaggerTag("Offer endpoints for retrieving, creating, updating, and deleting offers.")]
 public class OffersController : ControllerBase
 {
     private readonly IServiceManager _serviceManager;
@@ -62,6 +62,7 @@ public class OffersController : ControllerBase
         return Ok(offer);
     }
 
+    [Authorize(Roles = "Company")]
     [HttpPost]
     [SwaggerOperation(
         Summary = "Create a new offer",
@@ -91,6 +92,20 @@ public class OffersController : ControllerBase
         return Ok(updatedOffer);
     }
 
+    [HttpPost("cancel/{id}")]
+    [SwaggerOperation(
+        Summary = "Cancel an offer",
+        Description = "Cancels an offer using its ID.",
+        OperationId = "Offers.Cancel"
+    )]
+    [SwaggerResponse(StatusCodes.Status204NoContent, "Offer cancelled successfully.")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Offer not found.")]
+    public async Task<IActionResult> Cancel(int id, CancellationToken cancellationToken)
+    {
+        var cancelled = await _serviceManager.OfferService.CancelAsync(id, cancellationToken);
+        return NoContent();
+    }
+
     [HttpDelete("{id}")]
     [SwaggerOperation(
         Summary = "Delete an offer",
@@ -102,8 +117,6 @@ public class OffersController : ControllerBase
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
         var deleted = await _serviceManager.OfferService.DeleteAsync(id, cancellationToken);
-        if (deleted)
-            return NoContent();
-        return NotFound();
+        return NoContent();
     }
 }

@@ -1,5 +1,6 @@
 ﻿using EcoLefty.Application.Contracts;
 using EcoLefty.Application.Products.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EcoLefty.Api.Controllers;
@@ -29,6 +30,7 @@ public class ProductsController : ControllerBase
         return Ok(product);
     }
 
+    [Authorize(Roles = "Company")]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateProductRequestDto createDto, CancellationToken cancellationToken)
     {

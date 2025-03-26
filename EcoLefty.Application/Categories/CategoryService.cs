@@ -25,7 +25,7 @@ public class CategoryService : ICategoryService
 
     public async Task<CategoryResponseDto> GetByIdAsync(int id, CancellationToken token = default)
     {
-        var category = await _unitOfWork.Categories.GetByIdAsync(id);
+        var category = await _unitOfWork.Categories.GetByIdAsync(id, false, token);
         if (category is null)
         {
             throw new CategoryNotFoundException(id);
@@ -44,15 +44,15 @@ public class CategoryService : ICategoryService
 
         var category = _mapper.Map<Category>(createCategoryDto);
 
-        await _unitOfWork.Categories.CreateAsync(category);
-        await _unitOfWork.SaveChangesAsync();
+        await _unitOfWork.Categories.CreateAsync(category, token);
+        await _unitOfWork.SaveChangesAsync(token);
 
         return _mapper.Map<CategoryResponseDto>(category);
     }
 
     public async Task<CategoryResponseDto> UpdateAsync(int id, UpdateCategoryRequestDto updateCategoryDto, CancellationToken token = default)
     {
-        var category = await _unitOfWork.Categories.GetByIdAsync(id);
+        var category = await _unitOfWork.Categories.GetByIdAsync(id, true, token);
         if (category is null)
         {
             throw new CategoryNotFoundException(id);
@@ -61,7 +61,7 @@ public class CategoryService : ICategoryService
         _mapper.Map(updateCategoryDto, category);
 
         _unitOfWork.Categories.Update(category);
-        await _unitOfWork.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync(token);
 
         return _mapper.Map<CategoryResponseDto>(category);
     }
@@ -75,7 +75,7 @@ public class CategoryService : ICategoryService
     /// <exception cref="CategoryNotFoundException"></exception>
     public async Task<bool> DeleteAsync(int id, CancellationToken token = default)
     {
-        var category = await _unitOfWork.Categories.GetByIdAsync(id);
+        var category = await _unitOfWork.Categories.GetByIdAsync(id, false, token);
         if (category is null)
         {
             throw new CategoryNotFoundException(id);
@@ -83,7 +83,7 @@ public class CategoryService : ICategoryService
 
         _unitOfWork.Categories.Delete(category);
 
-        var deleted = await _unitOfWork.SaveChangesAsync();
+        var deleted = await _unitOfWork.SaveChangesAsync(token);
         return deleted > 0;
     }
 }

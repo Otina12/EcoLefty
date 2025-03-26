@@ -7,5 +7,9 @@ public sealed class CompanyNotFoundException : NotFoundException
     public CompanyNotFoundException(int id) : base($"Company with Id: {id} does not exist.")
     {
     }
+
+    public CompanyNotFoundException(string message) : base(message)
+    {
+    }
 }
 

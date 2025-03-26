@@ -403,6 +403,48 @@ namespace EcoLefty.Persistence.Migrations
                     b.ToTable("Products", "ecolefty");
                 });
 
+            modelBuilder.Entity("EcoLefty.Domain.Entities.Purchase", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("OfferId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("PurchaseDateUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("TotalPrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("OfferId");
+
+                    b.ToTable("Purchases", "ecolefty");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -610,6 +652,25 @@ namespace EcoLefty.Persistence.Migrations
                     b.Navigation("Company");
                 });
 
+            modelBuilder.Entity("EcoLefty.Domain.Entities.Purchase", b =>
+                {
+                    b.HasOne("EcoLefty.Domain.Entities.ApplicationUser", "Customer")
+                        .WithMany("Purchases")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EcoLefty.Domain.Entities.Offer", "Offer")
+                        .WithMany("Purchases")
+                        .HasForeignKey("OfferId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Offer");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -661,9 +722,19 @@ namespace EcoLefty.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("EcoLefty.Domain.Entities.ApplicationUser", b =>
+                {
+                    b.Navigation("Purchases");
+                });
+
             modelBuilder.Entity("EcoLefty.Domain.Entities.Company", b =>
                 {
                     b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("EcoLefty.Domain.Entities.Offer", b =>
+                {
+                    b.Navigation("Purchases");
                 });
 
             modelBuilder.Entity("EcoLefty.Domain.Entities.Product", b =>

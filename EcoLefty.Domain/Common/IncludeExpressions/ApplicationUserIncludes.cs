@@ -6,5 +6,6 @@ namespace EcoLefty.Domain.Common.IncludeExpressions;
 public static class ApplicationUserIncludes
 {
     public static Expression<Func<ApplicationUser, object>> Account => user => user.Account;
+    public static Expression<Func<ApplicationUser, object>> Purchases => user => user.Purchases;
     public static Expression<Func<ApplicationUser, object>> Categories => user => user.FollowedCategories;
 }

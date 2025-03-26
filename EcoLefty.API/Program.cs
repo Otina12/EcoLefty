@@ -3,6 +3,7 @@ using Common.Extensions;
 using EcoLefty.API.Infrastructure;
 using EcoLefty.API.Infrastructure.Extensions;
 using EcoLefty.Application;
+using EcoLefty.Persistence.Seed;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,6 +33,8 @@ services.AddControllers();
 //.AddJsonOptions(o => o.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 services.AddEndpointsApiExplorer();
 services.ConfigureSwaggerGen();
+services.ConfigureValidation();
+
 
 services.AddApiVersioning(options =>
 {
@@ -46,8 +49,17 @@ services.AddApiVersioning(options =>
     options.SubstituteApiVersionInUrl = true;
 });
 
+//services.ConfigureApplicationCookie(options =>
+//{
+//    options.Events.OnRedirectToLogin = context =>
+//    {
+//        context.Response.StatusCode = 401;
+//        return Task.CompletedTask;
+//    };
+//});
 
-services.AddAuthentication();
+builder.Services.ConfigureJwtAuthentication(builder.Configuration);
+
 services.AddAuthorization();
 
 
@@ -60,7 +72,7 @@ app.UseExceptionHandler();
 app.UseStatusCodePages();
 
 // seed data
-//await EcoLeftySeeder.SeedAsync(app.Services);
+await EcoLeftySeeder.SeedAsync(app.Services);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

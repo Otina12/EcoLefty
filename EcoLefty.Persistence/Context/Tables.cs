@@ -9,4 +9,5 @@ public class Tables
     public const string Category = "Categories";
     public const string Offer = "Offers";
     public const string Product = "Products";
+    public const string Purchase = "Purchases";
 }

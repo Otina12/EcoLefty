@@ -12,7 +12,6 @@ namespace EcoLefty.Api.Controllers;
 [ApiController]
 [ApiVersion("2.0")]
 [Route("api/v{version:apiversion}/[controller]")]
-[SwaggerTag("Offer endpoints for retrieving, creating, updating, and deleting offers.")]
 public class OffersControllerV2 : ControllerBase
 {
     private readonly IServiceManager _serviceManager;

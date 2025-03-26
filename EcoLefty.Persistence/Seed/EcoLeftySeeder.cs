@@ -20,8 +20,8 @@ public static class EcoLeftySeeder
         await context.Database.MigrateAsync();
 
         await SeedRolesAsync(roleManager);
-        var accountIds = await SeedIdentityAccountsAsync(userManager);
-        await SeedDomainEntitiesAsync(context, accountIds);
+        //var accountIds = await SeedIdentityAccountsAsync(userManager);
+        //await SeedDomainEntitiesAsync(context, accountIds);
     }
 
     private static async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager)

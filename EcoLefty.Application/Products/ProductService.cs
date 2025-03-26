@@ -10,11 +10,13 @@ namespace EcoLefty.Application.Products;
 public class ProductService : IProductService
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ICurrentUserContext _currentUserContext;
     private readonly IMapper _mapper;
 
-    public ProductService(IUnitOfWork unitOfWork, IMapper mapper)
+    public ProductService(IUnitOfWork unitOfWork, ICurrentUserContext currentUserContext, IMapper mapper)
     {
         _unitOfWork = unitOfWork;
+        _currentUserContext = currentUserContext;
         _mapper = mapper;
     }
 
@@ -51,19 +53,27 @@ public class ProductService : IProductService
             throw new ProductAlreadyExistsException(createProductDto.Name);
         }
 
-        // ---------------- TODO: assign urrent company ID ----------------
+        var currentUserId = _currentUserContext.UserId;
 
         var product = _mapper.Map<Product>(createProductDto);
+        var company = await _unitOfWork.Companies.GetOneWhereAsync(x => x.AccountId == currentUserId, false, token);
 
-        await _unitOfWork.Products.CreateAsync(product);
-        await _unitOfWork.SaveChangesAsync();
+        if (company is null)
+        {
+            throw new CompanyNotFoundException($"Company attached to account with Id: {currentUserId} was not found");
+        }
+
+        product.CompanyId = company.Id;
+
+        await _unitOfWork.Products.CreateAsync(product, token);
+        await _unitOfWork.SaveChangesAsync(token);
 
         return _mapper.Map<ProductResponseDto>(product);
     }
 
     public async Task<ProductResponseDto> UpdateAsync(int id, UpdateProductRequestDto updateProductDto, CancellationToken token = default)
     {
-        var product = await _unitOfWork.Products.GetByIdAsync(id);
+        var product = await _unitOfWork.Products.GetByIdAsync(id, true, token);
         if (product is null)
         {
             throw new ProductNotFoundException(id);
@@ -72,7 +82,7 @@ public class ProductService : IProductService
         _mapper.Map(updateProductDto, product);
 
         _unitOfWork.Products.Update(product);
-        await _unitOfWork.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync(token);
 
         return _mapper.Map<ProductResponseDto>(product);
     }
@@ -86,7 +96,7 @@ public class ProductService : IProductService
     /// <exception cref="ProductNotFoundException"></exception>
     public async Task<bool> DeleteAsync(int id, CancellationToken token = default)
     {
-        var product = await _unitOfWork.Products.GetByIdAsync(id);
+        var product = await _unitOfWork.Products.GetByIdAsync(id, true, token);
         if (product is null)
         {
             throw new ProductNotFoundException(id);
@@ -94,7 +104,7 @@ public class ProductService : IProductService
 
         _unitOfWork.Products.Delete(product);
 
-        var deleted = await _unitOfWork.SaveChangesAsync();
+        var deleted = await _unitOfWork.SaveChangesAsync(token);
         return deleted > 0;
     }
 }

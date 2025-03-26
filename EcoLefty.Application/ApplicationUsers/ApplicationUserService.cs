@@ -13,12 +13,12 @@ namespace EcoLefty.Application.ApplicationUsers;
 public class ApplicationUserService : IApplicationUserService
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IAccountService _authService;
+    private readonly IAccountService _accountService;
     private readonly IMapper _mapper;
 
     public ApplicationUserService(IUnitOfWork unitOfWork, IMapper mapper, IAccountService authService)
     {
-        _authService = authService;
+        _accountService = authService;
         _unitOfWork = unitOfWork;
         _mapper = mapper;
     }
@@ -43,7 +43,7 @@ public class ApplicationUserService : IApplicationUserService
         return _mapper.Map<ApplicationUserDetailsResponseDto>(user);
     }
 
-    public async Task<ApplicationUserResponseDto> CreateAsync(CreateApplicationUserRequestDto createUserDto, CancellationToken token = default)
+    public async Task<string> CreateAsync(CreateApplicationUserRequestDto createUserDto, CancellationToken token = default)
     {
         // We need a transaction to ensure that identity user is not added without application user and vice versa
         using var transaction = await _unitOfWork.BeginTransactionAsync(token);
@@ -52,18 +52,19 @@ public class ApplicationUserService : IApplicationUserService
         {
             // First, we need to register identity user
             var accountDto = _mapper.Map<RegisterAccountRequestDto>(createUserDto);
-            string accountId = await _authService.RegisterAccountAsync(accountDto, AccountRole.User);
+            string jwtToken = await _accountService.RegisterAccountAsync(accountDto, AccountRole.User);
+            var accountId = await _accountService.GetUserIdFromJwtTokenAsync(jwtToken);
 
             // Then we can create the application user
             var applicationUser = _mapper.Map<ApplicationUser>(createUserDto);
             applicationUser.AccountId = accountId;
 
-            await _unitOfWork.Users.CreateAsync(applicationUser);
+            await _unitOfWork.Users.CreateAsync(applicationUser, token);
             await _unitOfWork.SaveChangesAsync(token);
 
             await transaction.CommitAsync(token);
 
-            return _mapper.Map<ApplicationUserResponseDto>(applicationUser);
+            return jwtToken;
         }
         catch (Exception)
         {
@@ -106,7 +107,7 @@ public class ApplicationUserService : IApplicationUserService
         _unitOfWork.Users.Delete(user);
 
         // Because of soft delete, we need deactivate related account manually.
-        // Other entities will be soft deleted using custom cascading soft delete when saving changes.
+        // Other entities will be soft deleted using custom cascading soft delete when saving changes. Account entity is not soft-deletable (by choice).
         await _unitOfWork.Accounts.DeactivateAsync(user.AccountId, token);
 
         var result = await _unitOfWork.SaveChangesAsync(token);

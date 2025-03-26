@@ -18,6 +18,8 @@ public class EcoLeftyDbContext : IdentityDbContext<Account, IdentityRole, string
     public DbSet<Product> Products { get; set; }
     public DbSet<Category> Categories { get; set; }
     public DbSet<AuditLog> AuditLogs { get; set; }
+    public DbSet<Purchase> Purchases { get; set; }
+
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

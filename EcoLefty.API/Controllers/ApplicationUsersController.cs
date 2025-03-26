@@ -1,5 +1,7 @@
 ﻿using EcoLefty.Application.ApplicationUsers.DTOs;
+using EcoLefty.Application.ApplicationUsers.Validators;
 using EcoLefty.Application.Contracts;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EcoLefty.Api.Controllers;
@@ -32,8 +34,11 @@ public class ApplicationUsersController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateApplicationUserRequestDto createDto, CancellationToken cancellationToken)
     {
-        var createdUser = await _serviceManager.ApplicationUserService.CreateAsync(createDto, cancellationToken);
-        return CreatedAtAction(nameof(GetById), new { id = createdUser.Id }, createdUser);
+        var validator = new CreateApplicationUserRequestDtoValidator();
+        await validator.ValidateAndThrowAsync(createDto, HttpContext.RequestAborted);
+
+        var jwtToken = await _serviceManager.ApplicationUserService.CreateAsync(createDto, cancellationToken);
+        return Ok(new { token = jwtToken });
     }
 
     [HttpPut("{id}")]

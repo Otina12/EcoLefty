@@ -19,4 +19,5 @@ public class ApplicationUser : SoftDeletableEntity
     // Navigation properties
     public virtual Account Account { get; set; }
     public virtual ICollection<Category> FollowedCategories { get; set; }
+    public virtual ICollection<Purchase> Purchases { get; set; }
 }

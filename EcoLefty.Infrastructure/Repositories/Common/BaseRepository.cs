@@ -121,7 +121,7 @@ public abstract class BaseRepository<T, TKey> : IBaseRepository<T, TKey> where T
     /// <param name="id">The ID of the entity.</param>
     /// <param name="token">Cancellation token.</param>
     /// <returns>True if the entity exists, otherwise false.</returns>
-    public virtual async Task<bool> Exists(TKey id, CancellationToken token = default)
+    public virtual async Task<bool> ExistsAsync(TKey id, CancellationToken token = default)
     {
         var entity = await dbSet.AsNoTracking().FirstOrDefaultAsync(e => EF.Property<TKey>(e, "Id").Equals(id), token);
         return entity is not null;

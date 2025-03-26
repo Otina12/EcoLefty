@@ -13,12 +13,12 @@ namespace EcoLefty.Application.Companies;
 public class CompanyService : ICompanyService
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IAccountService _authService;
+    private readonly IAccountService _accountService;
     private readonly IMapper _mapper;
 
     public CompanyService(IUnitOfWork unitOfWork, IMapper mapper, IAccountService authService)
     {
-        _authService = authService;
+        _accountService = authService;
         _unitOfWork = unitOfWork;
         _mapper = mapper;
     }
@@ -44,7 +44,7 @@ public class CompanyService : ICompanyService
         return _mapper.Map<CompanyDetailsResponseDto>(company);
     }
 
-    public async Task<CompanyResponseDto> CreateAsync(CreateCompanyRequestDto createCompanyDto, CancellationToken token = default)
+    public async Task<string> CreateAsync(CreateCompanyRequestDto createCompanyDto, CancellationToken token = default)
     {
         // We need a transaction to ensure that identity user is not added without company and vice versa
         using var transaction = await _unitOfWork.BeginTransactionAsync(token);
@@ -53,7 +53,8 @@ public class CompanyService : ICompanyService
         {
             // First, we need to register identity user
             var accountDto = _mapper.Map<RegisterAccountRequestDto>(createCompanyDto);
-            string accountId = await _authService.RegisterAccountAsync(accountDto, AccountRole.Company);
+            string jwtToken = await _accountService.RegisterAccountAsync(accountDto, AccountRole.Company);
+            var accountId = await _accountService.GetUserIdFromJwtTokenAsync(jwtToken);
 
             // Then we can create the company
             var company = _mapper.Map<Company>(createCompanyDto);
@@ -64,7 +65,7 @@ public class CompanyService : ICompanyService
 
             await transaction.CommitAsync(token);
 
-            return _mapper.Map<CompanyResponseDto>(company);
+            return jwtToken;
         }
         catch (Exception)
         {
@@ -106,7 +107,7 @@ public class CompanyService : ICompanyService
 
         _unitOfWork.Companies.Delete(company);
 
-        // Because of soft delete, we need deactivate related account manually.
+        // Because of soft delete, we need deactivate related account manually. Account entity is not soft-deletable (by choice).
         // Other entities will be soft deleted using custom cascading soft delete when saving changes.
         await _unitOfWork.Accounts.DeactivateAsync(company.AccountId, token);
 

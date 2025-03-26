@@ -1,10 +1,12 @@
 ﻿using Common.Shared;
 using EcoLefty.Application;
+using EcoLefty.Application.Authentication;
 using EcoLefty.Application.Contracts;
 using EcoLefty.Domain.Contracts;
 using EcoLefty.Domain.Entities.Identity;
 using EcoLefty.Infrastructure;
 using EcoLefty.Persistence.Context;
+using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -29,6 +31,7 @@ public static class ServiceExtensions
     public static void ConfigureServices(this IServiceCollection services)
     {
         services.AddHttpContextAccessor();
+        services.AddScoped<IAuthenticationService, AuthenticationService>();
 
         services.AddScoped<ICurrentUserContext, CurrentUserContext>();
 
@@ -48,8 +51,12 @@ public static class ServiceExtensions
             o.User.RequireUniqueEmail = true;
         })
         .AddRoles<IdentityRole>()
-        .AddEntityFrameworkStores<EcoLeftyDbContext>()
-        .AddDefaultTokenProviders();
+        .AddEntityFrameworkStores<EcoLeftyDbContext>();
+    }
+
+    public static void ConfigureValidation(this IServiceCollection services)
+    {
+        services.AddValidatorsFromAssembly(typeof(EcoLefty.Application.AssemblyReference).Assembly);
     }
 
 }

@@ -32,8 +32,8 @@ public class CompaniesController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateCompanyRequestDto createDto, CancellationToken cancellationToken)
     {
-        var createdCompany = await _serviceManager.CompanyService.CreateAsync(createDto, cancellationToken);
-        return CreatedAtAction(nameof(GetById), new { id = createdCompany.Id }, createdCompany);
+        var jwtToken = await _serviceManager.CompanyService.CreateAsync(createDto, cancellationToken);
+        return Ok(new { token = jwtToken });
     }
 
     [HttpPut("{id}")]

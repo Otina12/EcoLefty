@@ -19,4 +19,6 @@ public class Offer : SoftDeletableEntity
 
     // Navigation properties
     public virtual Product Product { get; set; }
+    public virtual ICollection<Purchase> Purchases { get; set; }
+
 }

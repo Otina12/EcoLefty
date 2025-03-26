@@ -2,12 +2,15 @@
 using EcoLefty.API.Infrastructure.Middlewares;
 using EcoLefty.API.Infrastructure.Swagger;
 using EcoLefty.Application.Contracts;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
+using System.Text;
 
 namespace EcoLefty.API.Infrastructure.Extensions;
 
@@ -81,6 +84,30 @@ public static class ServiceExtensions
             options.IncludeXmlComments(xmlPath, includeControllerXmlComments: true);
             options.EnableAnnotations();
         });
+    }
+
+    public static void ConfigureJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
+    {
+        var jwtSettings = configuration.GetSection("JwtSettings");
+
+        services.AddAuthentication(opt =>
+        {
+            opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtSettings["Issuer"],
+                    ValidAudience = jwtSettings["Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Secret"]!)),
+                };
+            });
     }
 
     public static IApplicationBuilder UseRequestContextLogging(this IApplicationBuilder app)
