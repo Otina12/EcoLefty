@@ -10,4 +10,5 @@ public class Tables
     public const string Offer = "Offers";
     public const string Product = "Products";
     public const string Purchase = "Purchases";
+    public const string RefreshToken = "RefreshTokens";
 }

@@ -43,8 +43,26 @@ public class CreateApplicationUserRequestDtoValidator : AbstractValidator<Create
             .InclusiveBetween(1900, DateTime.Now.Year)
             .WithMessage($"Birth year must be between 1900 and {DateTime.Now.Year}.");
 
+        RuleFor(x => x)
+                .Must(x => BirthdayIsValid(x.BirthYear, x.BirthMonth, x.BirthDay))
+                .WithMessage("Birthdate is not valid.");
+
         //RuleFor(x => x.ProfilePictureUrl)
         //    .Must(url => string.IsNullOrEmpty(url))
         //    .WithMessage("Profile picture URL must be a valid absolute URL.");
+    }
+
+    private bool BirthdayIsValid(int year, int month, int day)
+    {
+        if (year < 1850 || year > DateTime.Today.Year) // validate year
+            return false;
+
+        if (month < 1 || month > 12) // validate month
+            return false;
+
+        if (day < 1 || day > DateTime.DaysInMonth(year, month)) // validate day (including leap years)
+            return false;
+
+        return true; // otherwise valid
     }
 }

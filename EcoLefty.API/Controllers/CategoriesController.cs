@@ -1,5 +1,8 @@
 ﻿using EcoLefty.Application.Categories.DTOs;
+using EcoLefty.Application.Categories.Validators;
 using EcoLefty.Application.Contracts;
+using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EcoLefty.Api.Controllers;
@@ -29,20 +32,29 @@ public class CategoriesController : ControllerBase
         return Ok(category);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateCategoryRequestDto createDto, CancellationToken cancellationToken)
     {
+        var validator = new CreateCategoryRequestDtoValidator();
+        await validator.ValidateAndThrowAsync(createDto, HttpContext.RequestAborted);
+
         var createdCategory = await _serviceManager.CategoryService.CreateAsync(createDto, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = createdCategory.Id }, createdCategory);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateCategoryRequestDto updateDto, CancellationToken cancellationToken)
     {
+        var validator = new UpdateCategoryRequestDtoValidator();
+        await validator.ValidateAndThrowAsync(updateDto, HttpContext.RequestAborted);
+
         var updatedCategory = await _serviceManager.CategoryService.UpdateAsync(id, updateDto, cancellationToken);
         return Ok(updatedCategory);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {

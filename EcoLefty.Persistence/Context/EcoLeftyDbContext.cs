@@ -1,4 +1,5 @@
 ﻿using EcoLefty.Domain.Entities;
+using EcoLefty.Domain.Entities.Auth;
 using EcoLefty.Domain.Entities.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -19,7 +20,7 @@ public class EcoLeftyDbContext : IdentityDbContext<Account, IdentityRole, string
     public DbSet<Category> Categories { get; set; }
     public DbSet<AuditLog> AuditLogs { get; set; }
     public DbSet<Purchase> Purchases { get; set; }
-
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

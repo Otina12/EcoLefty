@@ -20,5 +20,7 @@ public interface IUnitOfWork
     IOfferRepository Offers { get; }
     IProductRepository Products { get; }
     IPurchaseRepository Purchases { get; }
+    IRefreshTokenRepository RefreshTokens { get; }
 
+    ICurrentUserContext CurrentUserContext { get; }
 }

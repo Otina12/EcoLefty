@@ -6,5 +6,5 @@ public record UpdateCompanyRequestDto
     public string Country { get; set; }
     public string City { get; set; }
     public string Address { get; set; }
-    public string LogoUrl { get; set; }
+    public string? LogoUrl { get; set; }
 }

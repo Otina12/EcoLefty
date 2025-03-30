@@ -9,8 +9,6 @@ using EcoLefty.Application.Offers;
 using EcoLefty.Application.Products;
 using EcoLefty.Application.Purchases;
 using EcoLefty.Domain.Contracts;
-using EcoLefty.Domain.Entities.Identity;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace EcoLefty.Application;
@@ -27,22 +25,16 @@ public class ServiceManager : IServiceManager
 
     public ServiceManager(IUnitOfWork unitOfWork,
         IMapper mapper,
-        IServiceProvider serviceProvider,
-        ICurrentUserContext currentUserContext)
+        IServiceProvider serviceProvider)
     {
-        _accountService = new Lazy<IAccountService>(() =>
-        {
-            var userManager = serviceProvider.GetRequiredService<UserManager<Account>>();
-            var signInManager = serviceProvider.GetRequiredService<SignInManager<Account>>();
-            var authService = serviceProvider.GetRequiredService<IAuthenticationService>();
-            return new AccountService(userManager, signInManager, authService);
-        });
+        var authService = serviceProvider.GetRequiredService<IAuthenticationService>();
 
-        _applicationUserService = new Lazy<IApplicationUserService>(() => new ApplicationUserService(unitOfWork, mapper, AccountService));
+        _accountService = new Lazy<IAccountService>(() => new AccountService(unitOfWork));
+        _applicationUserService = new Lazy<IApplicationUserService>(() => new ApplicationUserService(unitOfWork, mapper, authService));
         _categoryService = new Lazy<ICategoryService>(() => new CategoryService(unitOfWork, mapper));
-        _companyService = new Lazy<ICompanyService>(() => new CompanyService(unitOfWork, mapper, AccountService));
-        _offerService = new Lazy<IOfferService>(() => new OfferService(unitOfWork, mapper, PurchaseService, currentUserContext));
-        _productService = new Lazy<IProductService>(() => new ProductService(unitOfWork, currentUserContext, mapper));
+        _companyService = new Lazy<ICompanyService>(() => new CompanyService(unitOfWork, mapper, authService));
+        _offerService = new Lazy<IOfferService>(() => new OfferService(unitOfWork, mapper, PurchaseService));
+        _productService = new Lazy<IProductService>(() => new ProductService(unitOfWork, mapper));
         _purchaseService = new Lazy<IPurchaseService>(() => new PurchaseService(unitOfWork, mapper));
     }
 

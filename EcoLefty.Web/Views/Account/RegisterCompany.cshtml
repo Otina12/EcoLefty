@@ -1,0 +1,66 @@
+﻿@using EcoLefty.Application.Companies.DTOs;
+@model CreateCompanyRequestDto
+
+@{
+    ViewData["Title"] = "Register Company";
+}
+
+<head>
+    <link rel="stylesheet" href="~/css/auth-form.css" />
+</head>
+
+<body>
+    <div class="my-form">
+        <div class="title">
+            Register Company
+        </div>
+        <form asp-controller="Account" asp-action="RegisterCompany" method="post">
+            <div class="my-field">
+                <label class="required" asp-for="Name">Company Name</label>
+                <input asp-for="Name" type="text" placeholder="Company Name*" required />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="my-field">
+                <label class="required" asp-for="Email">Email</label>
+                <input asp-for="Email" type="email" placeholder="example@company.com" required />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="my-field">
+                <label asp-for="PhoneNumber">Phone Number</label>
+                <input asp-for="PhoneNumber" type="text" placeholder="Phone Number" />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+            <div class="my-field">
+                <label asp-for="Country">Country</label>
+                <input asp-for="Country" type="text" placeholder="Country" />
+                <span asp-validation-for="Country" class="text-danger"></span>
+            </div>
+            <div class="my-field">
+                <label asp-for="City">City</label>
+                <input asp-for="City" type="text" placeholder="City" />
+                <span asp-validation-for="City" class="text-danger"></span>
+            </div>
+            <div class="my-field">
+                <label asp-for="Address">Address</label>
+                <input asp-for="Address" type="text" placeholder="Address" />
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+            <div class="my-field">
+                <label asp-for="LogoUrl">Logo URL</label>
+                <input asp-for="LogoUrl" type="text" placeholder="Logo URL" />
+                <span asp-validation-for="LogoUrl" class="text-danger"></span>
+            </div>
+            <div class="my-field">
+                <label class="required" asp-for="Password">Password</label>
+                <input asp-for="Password" type="password" required />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="my-field">
+                <label class="required" asp-for="ConfirmPassword">Confirm Password</label>
+                <input asp-for="ConfirmPassword" type="password" required />
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+            <input class="submit-button" type="submit" value="Register Company" />
+        </form>
+    </div>
+</body>

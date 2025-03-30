@@ -78,7 +78,16 @@ internal static class SoftDeleteHelper
             if (navigation.Metadata is ISkipNavigation)
                 continue;
 
-            if (navigation.Metadata.IsCollection && navigation.CurrentValue is IEnumerable<object> children)
+            var navigationMetadata = navigation.Metadata;
+
+            if (navigationMetadata is not INavigation navMetadata)
+                continue;
+
+            if (navMetadata.IsOnDependent)
+                continue;
+
+            if (navigationMetadata.IsCollection && navigation.CurrentValue is IEnumerable<object> children)
+
             {
                 foreach (var child in children)
                 {

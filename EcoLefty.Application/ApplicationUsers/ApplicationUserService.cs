@@ -1,7 +1,8 @@
 ﻿using AutoMapper;
-using EcoLefty.Application.Accounts;
 using EcoLefty.Application.Accounts.DTOs;
 using EcoLefty.Application.ApplicationUsers.DTOs;
+using EcoLefty.Application.Authentication;
+using EcoLefty.Application.Authentication.Tokens.DTOs;
 using EcoLefty.Domain.Common.Enums;
 using EcoLefty.Domain.Common.Exceptions;
 using EcoLefty.Domain.Common.IncludeExpressions;
@@ -13,12 +14,12 @@ namespace EcoLefty.Application.ApplicationUsers;
 public class ApplicationUserService : IApplicationUserService
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IAccountService _accountService;
+    private readonly IAuthenticationService _authenticationService;
     private readonly IMapper _mapper;
 
-    public ApplicationUserService(IUnitOfWork unitOfWork, IMapper mapper, IAccountService authService)
+    public ApplicationUserService(IUnitOfWork unitOfWork, IMapper mapper, IAuthenticationService authenticationService)
     {
-        _accountService = authService;
+        _authenticationService = authenticationService;
         _unitOfWork = unitOfWork;
         _mapper = mapper;
     }
@@ -43,7 +44,21 @@ public class ApplicationUserService : IApplicationUserService
         return _mapper.Map<ApplicationUserDetailsResponseDto>(user);
     }
 
-    public async Task<string> CreateAsync(CreateApplicationUserRequestDto createUserDto, CancellationToken token = default)
+    public async Task<ApplicationUserDetailsResponseDto> GetByAccountIdAsync(string accountId, CancellationToken token)
+    {
+        var user = await _unitOfWork.Users.GetOneWhereAsync(x => x.AccountId == accountId, trackChanges: false, token: token,
+            ApplicationUserIncludes.Account,
+            ApplicationUserIncludes.Categories);
+
+        if (user is null)
+        {
+            throw new AccountNotFoundException(accountId);
+        }
+
+        return _mapper.Map<ApplicationUserDetailsResponseDto>(user);
+    }
+
+    public async Task<TokenResponseDto> CreateAsync(CreateApplicationUserRequestDto createUserDto, CancellationToken token = default)
     {
         // We need a transaction to ensure that identity user is not added without application user and vice versa
         using var transaction = await _unitOfWork.BeginTransactionAsync(token);
@@ -52,8 +67,8 @@ public class ApplicationUserService : IApplicationUserService
         {
             // First, we need to register identity user
             var accountDto = _mapper.Map<RegisterAccountRequestDto>(createUserDto);
-            string jwtToken = await _accountService.RegisterAccountAsync(accountDto, AccountRole.User);
-            var accountId = await _accountService.GetUserIdFromJwtTokenAsync(jwtToken);
+            TokenResponseDto tokenPair = await _authenticationService.RegisterAccountAsync(accountDto, AccountRole.User);
+            string accountId = await _authenticationService.GetAccountIdFromJwtTokenAsync(tokenPair.AccessToken);
 
             // Then we can create the application user
             var applicationUser = _mapper.Map<ApplicationUser>(createUserDto);
@@ -64,7 +79,7 @@ public class ApplicationUserService : IApplicationUserService
 
             await transaction.CommitAsync(token);
 
-            return jwtToken;
+            return tokenPair;
         }
         catch (Exception)
         {

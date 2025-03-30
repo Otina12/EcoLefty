@@ -1,11 +1,19 @@
 using Common.Extensions;
+using EcoLefty.API.Infrastructure.Extensions;
+using EcoLefty.Application;
 
 var builder = WebApplication.CreateBuilder(args);
+var services = builder.Services;
 var configuration = builder.Configuration;
 
 // Add services to the container.
-builder.Services.ConfigureContext(configuration);
-builder.Services.AddControllersWithViews();
+services.ConfigureContext(configuration);
+services.ConfigureServices();
+services.ConfigureIdentity();
+services.AddControllersWithViews();
+
+services.ConfigureValidators();
+services.AddAutoMapper(typeof(MappingProfile));
 
 var app = builder.Build();
 
@@ -22,6 +30,10 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+
+app.MapControllerRoute(
+      name: "areas",
+      pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
     name: "default",

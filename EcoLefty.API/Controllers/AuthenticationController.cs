@@ -1,5 +1,8 @@
 ﻿using EcoLefty.Application.Accounts.DTOs;
-using EcoLefty.Application.Contracts;
+using EcoLefty.Application.Accounts.Validators;
+using EcoLefty.Application.Authentication;
+using EcoLefty.Application.Authentication.Tokens.DTOs;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,27 +12,27 @@ namespace EcoLefty.API.Controllers;
 [ApiController]
 public class AuthenticationController : ControllerBase
 {
-    private readonly IServiceManager _serviceManager;
+    private readonly IAuthenticationService _authenticationService;
 
-    public AuthenticationController(IServiceManager serviceManager)
+    public AuthenticationController(IAuthenticationService authenticationService)
     {
-        _serviceManager = serviceManager;
+        _authenticationService = authenticationService;
     }
 
     [HttpPost("Login")]
     public async Task<IActionResult> Login([FromBody] LoginAccountRequestDto loginDto)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
+        var validator = new LoginAccountRequestDtoValidator();
+        await validator.ValidateAndThrowAsync(loginDto, HttpContext.RequestAborted);
 
-        var token = await _serviceManager.AccountService.LoginAccountAsync(loginDto);
-        return Ok(new { Token = token });
+        TokenResponseDto tokenPair = await _authenticationService.LoginAccountAsync(loginDto);
+        return Ok(new { Tokens = tokenPair });
     }
 
     [HttpPost("Logout")]
     public async Task<IActionResult> Logout()
     {
-        await _serviceManager.AccountService.LogoutAsync();
+        await _authenticationService.LogoutAsync();
         return Ok(new { Message = "Logged out successfully." });
     }
 
@@ -37,6 +40,6 @@ public class AuthenticationController : ControllerBase
     [HttpGet("test-cur-user-id")]
     public async Task<string> AuthTest(string token)
     {
-        return await _serviceManager.AccountService.GetUserIdFromJwtTokenAsync(token);
+        return await _authenticationService.GetAccountIdFromJwtTokenAsync(token);
     }
 }

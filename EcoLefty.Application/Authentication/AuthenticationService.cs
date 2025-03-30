@@ -1,50 +1,154 @@
-﻿using EcoLefty.Domain.Entities.Identity;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
+﻿using EcoLefty.Application.Accounts.DTOs;
+using EcoLefty.Application.Authentication.Tokens;
+using EcoLefty.Application.Authentication.Tokens.DTOs;
+using EcoLefty.Domain.Common.Enums;
+using EcoLefty.Domain.Common.Exceptions;
+using EcoLefty.Domain.Common.Exceptions.Base;
+using EcoLefty.Domain.Contracts;
+using EcoLefty.Domain.Contracts.Repositories;
+using EcoLefty.Domain.Entities.Auth;
+using EcoLefty.Domain.Entities.Identity;
+using Microsoft.AspNetCore.Identity;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
 
 namespace EcoLefty.Application.Authentication;
 
 public class AuthenticationService : IAuthenticationService
 {
-    private readonly IConfiguration _configuration;
+    private readonly UserManager<Account> _userManager;
+    private readonly SignInManager<Account> _signInManager;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly ITokenService _tokenService;
+    private readonly IRefreshTokenRepository _refreshTokenRepository;
 
-    public AuthenticationService(IConfiguration configuration)
+    public AuthenticationService(
+        UserManager<Account> userManager,
+        SignInManager<Account> signInManager,
+        IUnitOfWork unitOfWork,
+        ITokenService tokenService,
+        IRefreshTokenRepository refreshTokenRepository)
     {
-        _configuration = configuration;
+        _userManager = userManager;
+        _signInManager = signInManager;
+        _unitOfWork = unitOfWork;
+        _tokenService = tokenService;
+        _refreshTokenRepository = refreshTokenRepository;
     }
 
-    public Task<string> GenerateJwtToken(Account account)
+    public async Task<TokenResponseDto> RegisterAccountAsync(RegisterAccountRequestDto dto, AccountRole accountType)
     {
-        var claims = new List<Claim>
-            {
-                new Claim(JwtRegisteredClaimNames.Sub, account.Id),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.Role, account.AccountType.ToString()),
-                new Claim(ClaimTypes.NameIdentifier, account.Id),
-                new Claim(ClaimTypes.Email, account.Email!)
-            };
+        var existingUser = await _userManager.FindByEmailAsync(dto.Email);
+        if (existingUser is not null)
+            throw new AccountAlreadyExistsException(dto.Email);
 
-        // TODO (if time left): change to JwtSettingsDto
-        string secret = _configuration["JwtSettings:Secret"]!;
-        string issuer = _configuration["JwtSettings:Issuer"]!;
-        string audience = _configuration["JwtSettings:Audience"]!;
-        double expiration = Convert.ToDouble(_configuration["JwtSettings:ExpirationInMinutes"]);
+        var user = new Account
+        {
+            Email = dto.Email,
+            NormalizedEmail = dto.Email.ToUpper(),
+            UserName = dto.Email,
+            NormalizedUserName = dto.Email.ToUpper(),
+            PhoneNumber = dto.PhoneNumber,
+            IsActive = true,
+            AccountType = accountType
+        };
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        var result = await _userManager.CreateAsync(user, dto.Password);
+        if (!result.Succeeded)
+            throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
 
-        var token = new JwtSecurityToken(
-            issuer: issuer,
-            audience: audience,
-            claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(expiration),
-            signingCredentials: creds
-        );
+        await _userManager.AddToRoleAsync(user, accountType.ToString());
 
-        var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
-        return Task.FromResult(tokenString);
+        var tokenPair = await _tokenService.GenerateTokenPairAsync(user);
+        var refreshToken = new RefreshToken
+        {
+            Id = Guid.NewGuid(),
+            Token = tokenPair.RefreshToken,
+            ExpiresOnUtc = DateTime.UtcNow.AddDays(7),
+            AccountId = user.Id
+        };
+
+        await _refreshTokenRepository.AddAsync(refreshToken);
+        await _unitOfWork.SaveChangesAsync();
+
+        return tokenPair;
+    }
+
+    public async Task<TokenResponseDto> LoginAccountAsync(LoginAccountRequestDto loginDto)
+    {
+        var user = await _userManager.FindByEmailAsync(loginDto.Email);
+        if (user is null || !user.IsActive)
+            throw new AccountNotFoundException(loginDto.Email);
+
+        var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
+        if (!result.Succeeded)
+            throw new Exception("Invalid login credentials");
+
+        var tokenPair = await _tokenService.GenerateTokenPairAsync(user);
+
+        var refreshToken = new RefreshToken
+        {
+            Id = Guid.NewGuid(),
+            Token = tokenPair.RefreshToken,
+            ExpiresOnUtc = DateTime.UtcNow.AddDays(7),
+            AccountId = user.Id
+        };
+
+        await _refreshTokenRepository.AddAsync(refreshToken);
+        await _unitOfWork.SaveChangesAsync();
+
+        return tokenPair;
+    }
+
+    public async Task<TokenResponseDto> RefreshTokenAsync(RefreshTokenRequestDto request)
+    {
+        var principal = _tokenService.GetPrincipalFromExpiredToken(request.AccessToken)
+            ?? throw new UnauthorizedException("Invalid access token.");
+
+        var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)
+            ?? throw new UnauthorizedException("Invalid token claims.");
+
+        var user = await _userManager.FindByIdAsync(userId)
+            ?? throw new UnauthorizedException("User not found.");
+
+        var storedToken = await _refreshTokenRepository.GetValidTokenAsync(userId, request.RefreshToken);
+        if (storedToken == null)
+            throw new UnauthorizedException("Invalid or expired refresh token.");
+
+        // Remove the old refresh token
+        _refreshTokenRepository.Remove(storedToken);
+
+        var tokenPair = await _tokenService.GenerateTokenPairAsync(user);
+        var newRefresh = new RefreshToken
+        {
+            Id = Guid.NewGuid(),
+            Token = tokenPair.RefreshToken,
+            ExpiresOnUtc = DateTime.UtcNow.AddDays(7),
+            AccountId = user.Id
+        };
+
+        await _refreshTokenRepository.AddAsync(newRefresh);
+        await _unitOfWork.SaveChangesAsync();
+
+        return tokenPair;
+    }
+
+
+    public Task<string> GetAccountIdFromJwtTokenAsync(string jwtToken)
+    {
+        var token = new JwtSecurityTokenHandler().ReadJwtToken(jwtToken);
+        return Task.FromResult(token.Claims.First(claim => claim.Type == ClaimTypes.NameIdentifier).Value);
+    }
+
+    public async Task LogoutAsync()
+    {
+        await _signInManager.SignOutAsync();
+    }
+
+    public async Task AddClaimAsync(Account account, string type, string value)
+    {
+        var result = await _userManager.AddClaimAsync(account, new Claim(type, value));
+        if (!result.Succeeded)
+            throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
     }
 }

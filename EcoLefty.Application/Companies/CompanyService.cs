@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
-using EcoLefty.Application.Accounts;
 using EcoLefty.Application.Accounts.DTOs;
+using EcoLefty.Application.Authentication;
+using EcoLefty.Application.Authentication.Tokens.DTOs;
 using EcoLefty.Application.Companies.DTOs;
 using EcoLefty.Domain.Common.Enums;
 using EcoLefty.Domain.Common.Exceptions;
@@ -13,12 +14,12 @@ namespace EcoLefty.Application.Companies;
 public class CompanyService : ICompanyService
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IAccountService _accountService;
+    private readonly IAuthenticationService _authenticationService;
     private readonly IMapper _mapper;
 
-    public CompanyService(IUnitOfWork unitOfWork, IMapper mapper, IAccountService authService)
+    public CompanyService(IUnitOfWork unitOfWork, IMapper mapper, IAuthenticationService authenticationService)
     {
-        _accountService = authService;
+        _authenticationService = authenticationService;
         _unitOfWork = unitOfWork;
         _mapper = mapper;
     }
@@ -44,7 +45,22 @@ public class CompanyService : ICompanyService
         return _mapper.Map<CompanyDetailsResponseDto>(company);
     }
 
-    public async Task<string> CreateAsync(CreateCompanyRequestDto createCompanyDto, CancellationToken token = default)
+    public async Task<CompanyDetailsResponseDto> GetByAccountIdAsync(string accountId, CancellationToken token)
+    {
+        var company = await _unitOfWork.Companies.GetOneWhereAsync(x => x.AccountId == accountId, trackChanges: false, token: token,
+            CompanyIncludes.Account,
+            CompanyIncludes.Products
+            );
+
+        if (company is null)
+        {
+            throw new AccountNotFoundException(accountId);
+        }
+
+        return _mapper.Map<CompanyDetailsResponseDto>(company);
+    }
+
+    public async Task<TokenResponseDto> CreateAsync(CreateCompanyRequestDto createCompanyDto, CancellationToken token = default)
     {
         // We need a transaction to ensure that identity user is not added without company and vice versa
         using var transaction = await _unitOfWork.BeginTransactionAsync(token);
@@ -53,8 +69,8 @@ public class CompanyService : ICompanyService
         {
             // First, we need to register identity user
             var accountDto = _mapper.Map<RegisterAccountRequestDto>(createCompanyDto);
-            string jwtToken = await _accountService.RegisterAccountAsync(accountDto, AccountRole.Company);
-            var accountId = await _accountService.GetUserIdFromJwtTokenAsync(jwtToken);
+            TokenResponseDto tokenPair = await _authenticationService.RegisterAccountAsync(accountDto, AccountRole.Company);
+            var accountId = await _authenticationService.GetAccountIdFromJwtTokenAsync(tokenPair.AccessToken);
 
             // Then we can create the company
             var company = _mapper.Map<Company>(createCompanyDto);
@@ -65,7 +81,7 @@ public class CompanyService : ICompanyService
 
             await transaction.CommitAsync(token);
 
-            return jwtToken;
+            return tokenPair;
         }
         catch (Exception)
         {
@@ -88,6 +104,18 @@ public class CompanyService : ICompanyService
         await _unitOfWork.SaveChangesAsync(token);
 
         return _mapper.Map<CompanyResponseDto>(company);
+    }
+
+    public async Task<bool> ApproveCompanyAsync(int id, CancellationToken token = default)
+    {
+        var company = await _unitOfWork.Companies.GetByIdAsync(id, trackChanges: true, token: token);
+        if (company is null)
+        {
+            throw new CompanyNotFoundException(id);
+        }
+
+        company.IsApproved = true;
+        return await _unitOfWork.SaveChangesAsync(token) > 0;
     }
 
     /// <summary>

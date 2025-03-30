@@ -1,5 +1,32 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@using EcoLefty.Application.ApplicationUsers.DTOs;﻿
+@model CreateApplicationUserRequestDto
+
 @{
+    ViewData["Title"] = "Login";
 }
+
+<head>
+    <link rel="stylesheet" href="~/css/auth-form.css" />
+</head>
+
+<body>
+    <div class="my-form">
+        <div class="title">
+            Login
+        </div>
+        <form asp-asp-controller="Account" asp-action="Login" method="post">
+            <div class="my-field">
+                <label class="required" asp-for="Email">Email</label>
+                <input asp-for="Email" type="email" placeholder="example@gmail.com" required />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="my-field">
+                <label class="required" asp-for="Password">Password</label>
+                <input asp-for="Password" type="password" required />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            <input class="submit-button" type="submit" value="Login" />
+        </form>
+    </div>
+</body>

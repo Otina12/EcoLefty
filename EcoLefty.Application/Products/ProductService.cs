@@ -10,13 +10,11 @@ namespace EcoLefty.Application.Products;
 public class ProductService : IProductService
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly ICurrentUserContext _currentUserContext;
     private readonly IMapper _mapper;
 
-    public ProductService(IUnitOfWork unitOfWork, ICurrentUserContext currentUserContext, IMapper mapper)
+    public ProductService(IUnitOfWork unitOfWork, IMapper mapper)
     {
         _unitOfWork = unitOfWork;
-        _currentUserContext = currentUserContext;
         _mapper = mapper;
     }
 
@@ -53,15 +51,16 @@ public class ProductService : IProductService
             throw new ProductAlreadyExistsException(createProductDto.Name);
         }
 
-        var currentUserId = _currentUserContext.UserId;
+        var currentUserId = _unitOfWork.CurrentUserContext.UserId;
 
         var product = _mapper.Map<Product>(createProductDto);
         var company = await _unitOfWork.Companies.GetOneWhereAsync(x => x.AccountId == currentUserId, false, token);
 
         if (company is null)
-        {
             throw new CompanyNotFoundException($"Company attached to account with Id: {currentUserId} was not found");
-        }
+
+        if (!company.IsApproved)
+            throw new CompanyNotApprovedException(company.Id);
 
         product.CompanyId = company.Id;
 

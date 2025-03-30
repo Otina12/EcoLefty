@@ -3,19 +3,7 @@
 
 @{
     ViewData["Title"] = "Register";
-
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="alert-container">
-            <div class="alert alert-danger">
-                <ul>
-                    <li>@TempData["ErrorMessage"]</li>
-                </ul>
-            </div>
-        </div>
-    }
 }
-
 
 <head>
     <link rel="stylesheet" href="~/css/auth-form.css" />
@@ -26,7 +14,7 @@
         <div class="title">
             Register
         </div>
-        <form asp-asp-controller="Account" asp-action="Register" method="post">
+        <form asp-asp-controller="Account" asp-action="RegisterUser" method="post">
             <div class="my-field">
                 <label class="required">Name</label>
                 <div class="name-fields">
@@ -54,7 +42,7 @@
             </div>
             <div class="my-field">
                 <label asp-for="PhoneNumber">Phone number</label>
-                <input asp-for="PhoneNumber" type="text" placeholder="555123456"/>
+                <input asp-for="PhoneNumber" type="text" placeholder="555123456" />
                 <span asp-validation-for="PhoneNumber" class="text-danger"></span>
             </div>
             <div class="my-field">
@@ -63,19 +51,26 @@
                 <span asp-validation-for="Bio" class="text-danger"></span>
             </div>
             <div class="my-field">
+                <label class="required" asp-for="ProfilePictureUrl">Picture</label>
+                <input asp-for="ProfilePictureUrl" type="password" required />
+                <span asp-validation-for="ProfilePictureUrl" class="text-danger"></span>
+            </div>
+            <div class="my-field">
                 <label class="required" asp-for="Password">Password</label>
-                <input asp-for="Password" type="password" required/>
+                <input asp-for="Password" type="password" required />
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>
             <div class="my-field">
                 <label class="required" asp-for="ConfirmPassword">Confirm Password</label>
-                <input asp-for="ConfirmPassword" type="password" required/>
+                <input asp-for="ConfirmPassword" type="password" required />
                 <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
             </div>
 
             <input class="submit-button" type="submit" value="Register" />
             <div class="have-account">
                 <a asp-controller="Account" asp-action="Login">Already have an account?</a>
+                <br />
+                <a asp-controller="Account" asp-action="RegisterCompany">Register as a company</a>
             </div>
         </form>
     </div>

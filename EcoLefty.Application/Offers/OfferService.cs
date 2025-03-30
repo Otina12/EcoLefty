@@ -12,14 +12,12 @@ public class OfferService : IOfferService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPurchaseService _purchaseService;
-    private readonly ICurrentUserContext _currentUserContext;
     private readonly IMapper _mapper;
 
-    public OfferService(IUnitOfWork unitOfWork, IMapper mapper, IPurchaseService purchaseService, ICurrentUserContext currentUserContext)
+    public OfferService(IUnitOfWork unitOfWork, IMapper mapper, IPurchaseService purchaseService)
     {
         _unitOfWork = unitOfWork;
         _purchaseService = purchaseService;
-        _currentUserContext = currentUserContext;
         _mapper = mapper;
     }
 
@@ -94,10 +92,21 @@ public class OfferService : IOfferService
 
     public async Task<OfferDetailsResponseDto> CreateAsync(CreateOfferRequestDto createOfferDto, CancellationToken token = default)
     {
-        if (!await _unitOfWork.Products.ExistsAsync(createOfferDto.ProductId, token))
-        {
+        var currentUserId = _unitOfWork.CurrentUserContext.UserId;
+        var product = await _unitOfWork.Products.GetByIdAsync(createOfferDto.ProductId, false, token);
+        var company = await _unitOfWork.Companies.GetOneWhereAsync(x => x.AccountId == currentUserId, false, token);
+
+        if (product is null)
             throw new ProductNotFoundException(createOfferDto.ProductId);
-        }
+
+        if (company is null)
+            throw new CompanyNotFoundException($"Company attached to account with Id: {currentUserId} was not found");
+
+        if (!company.IsApproved)
+            throw new CompanyNotApprovedException(company.Id);
+
+        if (company.Id != product.CompanyId)
+            throw new Exception($"Product with Id: {product.Id} doesn't belong to company with Id: {company.Id}");
 
         var offer = _mapper.Map<Offer>(createOfferDto);
 
@@ -129,7 +138,7 @@ public class OfferService : IOfferService
         if (offer is null)
             throw new OfferNotFoundException(id);
 
-        var currentUserId = _currentUserContext.UserId;
+        var currentUserId = _unitOfWork.CurrentUserContext.UserId;
         var company = await _unitOfWork.Companies.GetOneWhereAsync(x => x.AccountId == currentUserId, false, token);
 
         if (company is null)

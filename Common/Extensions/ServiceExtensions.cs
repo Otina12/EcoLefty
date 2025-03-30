@@ -1,10 +1,13 @@
 ﻿using Common.Shared;
 using EcoLefty.Application;
 using EcoLefty.Application.Authentication;
+using EcoLefty.Application.Authentication.Tokens;
 using EcoLefty.Application.Contracts;
 using EcoLefty.Domain.Contracts;
+using EcoLefty.Domain.Contracts.Repositories;
 using EcoLefty.Domain.Entities.Identity;
 using EcoLefty.Infrastructure;
+using EcoLefty.Infrastructure.Repositories;
 using EcoLefty.Persistence.Context;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
@@ -32,6 +35,8 @@ public static class ServiceExtensions
     {
         services.AddHttpContextAccessor();
         services.AddScoped<IAuthenticationService, AuthenticationService>();
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddScoped<ITokenService, TokenService>();
 
         services.AddScoped<ICurrentUserContext, CurrentUserContext>();
 

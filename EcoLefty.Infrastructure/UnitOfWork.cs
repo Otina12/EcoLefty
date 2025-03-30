@@ -19,6 +19,7 @@ public class UnitOfWork : IUnitOfWork, IDisposable
     private readonly Lazy<IProductRepository> _productRepository;
     private readonly Lazy<IPurchaseRepository> _purchaseRepository;
     private readonly Lazy<IAuditLogRepository> _auditLogRepository;
+    private readonly Lazy<IRefreshTokenRepository> _refreshTokenRepository;
 
     private readonly ICurrentUserContext _currentUserContext;
 
@@ -35,6 +36,7 @@ public class UnitOfWork : IUnitOfWork, IDisposable
         _productRepository = new Lazy<IProductRepository>(() => new ProductRepository(ecoLeftyContext));
         _purchaseRepository = new Lazy<IPurchaseRepository>(() => new PurchaseRepository(ecoLeftyContext));
         _auditLogRepository = new Lazy<IAuditLogRepository>(() => new AuditLogRepository(ecoLeftyContext));
+        _refreshTokenRepository = new Lazy<IRefreshTokenRepository>(() => new RefreshTokenRepository(ecoLeftyContext));
     }
 
     public async Task<int> SaveChangesAsync(CancellationToken token, bool softDeleteEnabled = true)
@@ -67,6 +69,9 @@ public class UnitOfWork : IUnitOfWork, IDisposable
     public IProductRepository Products => _productRepository.Value;
     public IPurchaseRepository Purchases => _purchaseRepository.Value;
     public IAuditLogRepository AuditLogs => _auditLogRepository.Value;
+    public IRefreshTokenRepository RefreshTokens => _refreshTokenRepository.Value;
+
+    public ICurrentUserContext CurrentUserContext => _currentUserContext;
 
     public EntityEntry<T> Entry<T>(T entity) where T : class
     {

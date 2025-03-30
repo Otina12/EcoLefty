@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using EcoLefty.Application.Categories.DTOs;
 using EcoLefty.Domain.Common.Exceptions;
+using EcoLefty.Domain.Common.IncludeExpressions;
 using EcoLefty.Domain.Contracts;
 using EcoLefty.Domain.Entities;
 
@@ -20,6 +21,16 @@ public class CategoryService : ICategoryService
     public async Task<IEnumerable<CategoryResponseDto>> GetAllAsync(CancellationToken token = default)
     {
         var categories = await _unitOfWork.Categories.GetAllAsync(trackChanges: false, token: token);
+        return _mapper.Map<IEnumerable<CategoryResponseDto>>(categories);
+    }
+
+    public async Task<IEnumerable<CategoryResponseDto>> GetAllFollowedCategoriesByUserIdAsync(int id, CancellationToken token = default)
+    {
+        var user = await _unitOfWork.Users.GetByIdAsync(id, false, token, ApplicationUserIncludes.Categories);
+        if (user is null)
+            throw new ApplicationUserNotFoundException(id);
+
+        var categories = user.FollowedCategories;
         return _mapper.Map<IEnumerable<CategoryResponseDto>>(categories);
     }
 

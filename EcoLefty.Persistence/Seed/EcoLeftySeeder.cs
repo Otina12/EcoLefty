@@ -39,7 +39,7 @@ public static class EcoLeftySeeder
     {
         var accounts = new List<(string Email, string Password, AccountRole Type, string Role)>
         {
-            ("admin@eco.com", "Admin@1234", AccountRole.Company, nameof(AccountRole.Admin)),
+            ("admin@eco.com", "Admin@1234", AccountRole.Company, nameof(AccountRole.User)),
             ("user@eco.com", "User@1234", AccountRole.User, nameof(AccountRole.User))
         };
 

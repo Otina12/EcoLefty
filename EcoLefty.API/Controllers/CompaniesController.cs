@@ -1,5 +1,9 @@
-﻿using EcoLefty.Application.Companies.DTOs;
+﻿using EcoLefty.Application.Authentication.Tokens.DTOs;
+using EcoLefty.Application.Companies.DTOs;
+using EcoLefty.Application.Companies.Validators;
 using EcoLefty.Application.Contracts;
+using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EcoLefty.Api.Controllers;
@@ -15,6 +19,7 @@ public class CompaniesController : ControllerBase
         _serviceManager = serviceManager;
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
@@ -32,23 +37,35 @@ public class CompaniesController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateCompanyRequestDto createDto, CancellationToken cancellationToken)
     {
-        var jwtToken = await _serviceManager.CompanyService.CreateAsync(createDto, cancellationToken);
-        return Ok(new { token = jwtToken });
+        var validator = new CreateCompanyRequestDtoValidator();
+        await validator.ValidateAndThrowAsync(createDto, HttpContext.RequestAborted);
+
+        TokenResponseDto tokenPair = await _serviceManager.CompanyService.CreateAsync(createDto, cancellationToken);
+        return Ok(new { tokens = tokenPair });
     }
 
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateCompanyRequestDto updateDto, CancellationToken cancellationToken)
     {
+        var validator = new UpdateCompanyRequestDtoValidator();
+        await validator.ValidateAndThrowAsync(updateDto, HttpContext.RequestAborted);
+
         var updatedCompany = await _serviceManager.CompanyService.UpdateAsync(id, updateDto, cancellationToken);
         return Ok(updatedCompany);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPost("{id}/approve")]
+    public async Task<IActionResult> ApproveCompany(int id)
+    {
+        var result = await _serviceManager.CompanyService.ApproveCompanyAsync(id);
+        return NoContent();
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
         var deleted = await _serviceManager.CompanyService.DeleteAsync(id, cancellationToken);
-        if (deleted)
-            return NoContent();
-        return NotFound();
+        return NoContent();
     }
 }

@@ -10,7 +10,7 @@ public class Company : SoftDeletableEntity
     public string Country { get; set; }
     public string City { get; set; }
     public string Address { get; set; }
-    public string LogoUrl { get; set; }
+    public string? LogoUrl { get; set; }
     public decimal Balance { get; set; }
     public bool IsApproved { get; set; }
 

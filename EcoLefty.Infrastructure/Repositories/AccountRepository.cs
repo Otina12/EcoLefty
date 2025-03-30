@@ -1,20 +1,19 @@
 ﻿using EcoLefty.Domain.Contracts.Repositories;
+using EcoLefty.Domain.Entities.Identity;
+using EcoLefty.Infrastructure.Repositories.Common;
 using EcoLefty.Persistence.Context;
 
 namespace EcoLefty.Infrastructure.Repositories;
 
-public class AccountRepository : IAccountRepository
+public class AccountRepository : BaseRepository<Account, string>, IAccountRepository
 {
-    private readonly EcoLeftyDbContext _context;
-
-    public AccountRepository(EcoLeftyDbContext context)
+    public AccountRepository(EcoLeftyDbContext context) : base(context)
     {
-        _context = context;
     }
 
     public async Task DeactivateAsync(string id, CancellationToken token = default)
     {
-        var account = await _context.Users.FindAsync(new object?[] { id }, cancellationToken: token);
+        var account = await dbSet.FindAsync(new object?[] { id }, cancellationToken: token);
 
         if (account != null)
         {

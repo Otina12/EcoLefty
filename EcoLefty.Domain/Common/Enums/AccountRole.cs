@@ -3,6 +3,5 @@
 public enum AccountRole
 {
     User,
-    Admin,
     Company
 }
