@@ -1,0 +1,44 @@
+﻿@using EcoLefty.Application.Products.DTOs;
+@model CreateProductRequestDto
+
+@{
+    ViewData["Title"] = "Create Product";
+}
+
+<div class="my-form">
+    <div class="title">
+        Create Product
+    </div>
+    <form asp-controller="Product" asp-action="Create" method="post">
+        <div class="my-field">
+            <label asp-for="Name" class="required">Product Name</label>
+            <input asp-for="Name" type="text" placeholder="Enter product name" required />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+        <div class="my-field">
+            <label asp-for="Description" class="required">Description</label>
+            <textarea asp-for="Description" placeholder="Enter product description" required></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+        <div class="my-field">
+            <label asp-for="DefaultPrice" class="required">Price</label>
+            <input asp-for="DefaultPrice" type="number" placeholder="Enter price" step="0.01" required />
+            <span asp-validation-for="DefaultPrice" class="text-danger"></span>
+        </div>
+        <div class="my-field">
+            <label asp-for="ImageUrl">Image URL</label>
+            <input asp-for="ImageUrl" type="text" placeholder="Enter image URL" />
+            <span asp-validation-for="ImageUrl" class="text-danger"></span>
+        </div>
+        <div class="my-field">
+            <label asp-for="CategoryIds" class="required">Categories</label>
+            <select asp-for="CategoryIds"
+                    asp-items="@(new MultiSelectList(ViewBag.Categories, "Id", "Name"))"
+                    multiple="multiple" class="form-control" required>
+                <option value="">-- Select Categories --</option>
+            </select>
+            <span asp-validation-for="CategoryIds" class="text-danger"></span>
+        </div>
+        <input class="submit-button" type="submit" value="Create Product" />
+    </form>
+</div>

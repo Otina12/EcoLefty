@@ -13,7 +13,7 @@ public class AuditLog
     /// <summary>
     /// Gets or sets the ID of the user who made the change.
     /// </summary>
-    public string UserId { get; set; }
+    public string AccountId { get; set; }
 
     /// <summary>
     /// Gets or sets the type of action performed (Create, Update, Delete...).
@@ -47,7 +47,7 @@ public class AuditLog
     public override string ToString()
     {
         return $"Id: {Id}\n" +
-               $"UserId: {UserId}\n" +
+               $"UserId: {AccountId}\n" +
                $"ActionType: {ActionType}\n" +
                $"Entity: {EntityName} (Id: {EntityId})\n" +
                $"Changes: {Changes}\n" +

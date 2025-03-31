@@ -53,10 +53,26 @@ public static class ServiceExtensions
             o.Password.RequireUppercase = true;
             o.Password.RequireNonAlphanumeric = true;
             o.Password.RequiredLength = 8;
+            o.SignIn.RequireConfirmedAccount = false;
             o.User.RequireUniqueEmail = true;
         })
         .AddRoles<IdentityRole>()
         .AddEntityFrameworkStores<EcoLeftyDbContext>();
+    }
+
+    /// <summary>
+    /// WARNING: This should not allow all resources in production
+    /// </summary>
+    /// <param name="services"></param>
+    public static void ConfigureCors(this IServiceCollection services)
+    {
+        services.AddCors(options =>
+        {
+            options.AddPolicy("CorsPolicy", builder =>
+            builder.AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader());
+        });
     }
 
     public static void ConfigureValidation(this IServiceCollection services)

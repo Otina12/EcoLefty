@@ -13,7 +13,7 @@ public class Purchase : SoftDeletableEntity
 
     // Foreign keys
     public int OfferId { get; set; }
-    public int CustomerId { get; set; }
+    public string CustomerId { get; set; }
 
     // Navigation properties
     public virtual Offer Offer { get; set; }

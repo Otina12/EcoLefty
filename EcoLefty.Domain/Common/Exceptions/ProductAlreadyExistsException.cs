@@ -7,4 +7,8 @@ public sealed class ProductAlreadyExistsException : AlreadyExistsException
     public ProductAlreadyExistsException(string name) : base($"Category with Name: {name} already exists at your company.")
     {
     }
+
+    public ProductAlreadyExistsException(string? message, Exception? exception) : base(message, exception)
+    {
+    }
 }

@@ -1,0 +1,42 @@
+﻿@model IEnumerable<EcoLefty.Application.Offers.DTOs.OfferDetailsResponseDto>
+
+@{
+    ViewBag.Title = "Offers Index";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Offers</h2>
+    
+    <form method="get" class="form-inline mb-4">
+        <div class="form-group mr-2">
+            <input type="text" name="search" class="form-control" placeholder="Search offers..." />
+        </div>
+        <div class="form-group mr-2">
+            <select name="status" class="form-control">
+                <option value="">All Statuses</option>
+                <option value="Active">Active</option>
+                <option value="Expired">Expired</option>
+                <option value="Upcoming">Upcoming</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+
+    <div class="row">
+        @if (Model != null && Model.Any())
+        {
+            foreach (var offer in Model)
+            {
+                <div class="col-md-12">
+                    @await Html.PartialAsync("_OfferCard", offer)
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-md-12">
+                <p>No offers found.</p>
+            </div>
+        }
+    </div>
+</div>

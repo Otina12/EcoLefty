@@ -3,6 +3,6 @@ using EcoLefty.Domain.Entities;
 
 namespace EcoLefty.Domain.Contracts.Repositories;
 
-public interface ICompanyRepository : IBaseRepository<Company, int>
+public interface ICompanyRepository : IBaseRepository<Company, string>
 {
 }

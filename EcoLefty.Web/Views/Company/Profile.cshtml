@@ -1,0 +1,57 @@
+﻿@model EcoLefty.Application.Companies.DTOs.CompanyDetailsResponseDto
+
+@{
+    ViewBag.Title = "Company Details";
+    var company = Model;
+}
+
+<div class="profile-container">
+    <div class="company-details">
+        <img src="@company.LogoUrl" alt="@company.Name" class="company-logo" />
+        <h1>@company.Name</h1>
+        <p><strong>Email:</strong> @company.Email</p>
+        <p><strong>Phone:</strong> @company.PhoneNumber</p>
+        <p><strong>Address:</strong> @company.Address, @company.City, @company.Country</p>
+        <p><strong>Balance:</strong> @company.Balance.ToString("C")</p>
+        <p><strong>Status:</strong> @(company.IsApproved ? "Approved" : "Not Approved")</p>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <h2>Offers</h2>
+            <a href="@Url.Action("GetAll", "Offers", new { companyId = company.Id })" class="btn view-all">View All Offers</a>
+        </div>
+        <div class="items-wrapper">
+            @foreach (var offer in company.Offers.Take(3))
+            {
+                <a href="@Url.Action("Details", "Offer", new { id = offer.Id })" class="offer-item-link" style="text-decoration:none; color:inherit;">
+                    <div class="item offer-item">
+                        <h3>@offer.Title</h3>
+                        <p>@offer.Description</p>
+                        <p><strong>Price:</strong> @offer.UnitPrice.ToString("C")</p>
+                        <p><strong>Quantity:</strong> @offer.TotalQuantity</p>
+                        <p><strong>Valid:</strong> @offer.StartDateUtc.ToShortDateString() - @offer.ExpiryDateUtc.ToShortDateString()</p>
+                    </div>
+                </a>
+            }
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <h2>Products</h2>
+            <a href="@Url.Action("GetAll", "Product", new { companyId = company.Id })" class="btn view-all">View All Products</a>
+        </div>
+        <div class="items-wrapper">
+            @foreach (var product in company.Products.Take(3))
+            {
+                <div class="item product-item">
+                    <img src="@product.ImageUrl" alt="@product.Name" class="product-image" />
+                    <h3>@product.Name</h3>
+                    <p>@product.Description</p>
+                    <p><strong>Price:</strong> @product.DefaultPrice.ToString("C")</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>

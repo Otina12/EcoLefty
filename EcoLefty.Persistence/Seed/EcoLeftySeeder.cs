@@ -20,13 +20,14 @@ public static class EcoLeftySeeder
         await context.Database.MigrateAsync();
 
         await SeedRolesAsync(roleManager);
-        //var accountIds = await SeedIdentityAccountsAsync(userManager);
-        //await SeedDomainEntitiesAsync(context, accountIds);
+        var accountIds = await SeedIdentityAccountsAsync(userManager);
+        await SeedDomainEntitiesAsync(context, accountIds);
     }
 
     private static async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager)
     {
-        foreach (var roleName in Enum.GetNames(typeof(AccountRole)))
+        var roles = new[] { "Admin", "User", "Company" };
+        foreach (var roleName in roles)
         {
             if (!await roleManager.RoleExistsAsync(roleName))
             {
@@ -39,8 +40,9 @@ public static class EcoLeftySeeder
     {
         var accounts = new List<(string Email, string Password, AccountRole Type, string Role)>
         {
-            ("admin@eco.com", "Admin@1234", AccountRole.Company, nameof(AccountRole.User)),
-            ("user@eco.com", "User@1234", AccountRole.User, nameof(AccountRole.User))
+            ("admin@gmail.com", "Pass123!", AccountRole.User, "Admin"),
+            ("user@gmail.com", "Pass123!", AccountRole.User, "User"),
+            ("company@gmail.com", "Pass123!", AccountRole.Company, "Company")
         };
 
         var createdAccounts = new Dictionary<string, string>();
@@ -48,7 +50,6 @@ public static class EcoLeftySeeder
         foreach (var (email, password, type, role) in accounts)
         {
             var existing = await userManager.FindByEmailAsync(email);
-
             if (existing == null)
             {
                 var account = new Account
@@ -82,8 +83,9 @@ public static class EcoLeftySeeder
 
     private static async Task SeedDomainEntitiesAsync(EcoLeftyDbContext context, Dictionary<string, string> accountIds)
     {
-        var adminId = accountIds["admin@eco.com"];
-        var userId = accountIds["user@eco.com"];
+        var adminId = accountIds["admin@gmail.com"];
+        var userId = accountIds["user@gmail.com"];
+        var companyId = accountIds["company@gmail.com"];
 
         if (!context.Categories.Any())
         {
@@ -95,7 +97,6 @@ public static class EcoLeftySeeder
                 new Category { Name = "Dairy", CreatedAtUtc = DateTime.UtcNow },
                 new Category { Name = "Bakery", CreatedAtUtc = DateTime.UtcNow }
             });
-
             await context.SaveChangesAsync();
         }
 
@@ -103,6 +104,7 @@ public static class EcoLeftySeeder
         {
             context.Companies.Add(new Company
             {
+                Id = companyId,
                 Name = "Green Foods Co.",
                 City = "Copenhagen",
                 Country = "Denmark",
@@ -110,34 +112,30 @@ public static class EcoLeftySeeder
                 LogoUrl = "",
                 Balance = 3000,
                 IsApproved = true,
-                AccountId = adminId,
                 CreatedAtUtc = DateTime.UtcNow
             });
-
             await context.SaveChangesAsync();
         }
-
-        var companyId = context.Companies.First(c => c.Name == "Green Foods Co.").Id;
 
         if (!context.ApplicationUsers.Any())
         {
             context.ApplicationUsers.Add(new ApplicationUser
             {
+                Id = userId,
                 FirstName = "Eva",
                 LastName = "Harvest",
                 Bio = "Organic food lover",
                 BirthDate = new DateTime(1992, 3, 15),
                 ProfilePictureUrl = "",
                 Balance = 75,
-                AccountId = userId,
                 CreatedAtUtc = DateTime.UtcNow
             });
-
             await context.SaveChangesAsync();
         }
 
         if (!context.Products.Any())
         {
+            var companyEntityId = context.Companies.First(c => c.Name == "Green Foods Co.").Id;
             context.Products.AddRange(new[]
             {
                 new Product
@@ -146,7 +144,7 @@ public static class EcoLeftySeeder
                     Description = "Fresh red apples from organic farms",
                     DefaultPrice = 0.99m,
                     ImageUrl = "",
-                    CompanyId = companyId,
+                    CompanyId = companyEntityId,
                     CreatedAtUtc = DateTime.UtcNow
                 },
                 new Product
@@ -155,11 +153,10 @@ public static class EcoLeftySeeder
                     Description = "Healthy bakery product made from whole grains",
                     DefaultPrice = 2.49m,
                     ImageUrl = "",
-                    CompanyId = companyId,
+                    CompanyId = companyEntityId,
                     CreatedAtUtc = DateTime.UtcNow
                 }
             });
-
             await context.SaveChangesAsync();
         }
 
@@ -195,7 +192,6 @@ public static class EcoLeftySeeder
                     CreatedAtUtc = DateTime.UtcNow
                 }
             });
-
             await context.SaveChangesAsync();
         }
     }

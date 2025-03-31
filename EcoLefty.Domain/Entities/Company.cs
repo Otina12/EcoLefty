@@ -5,7 +5,8 @@ namespace EcoLefty.Domain.Entities;
 
 public class Company : SoftDeletableEntity
 {
-    public int Id { get; set; }
+    // Primary key and foreign key to Account at the same time
+    public string Id { get; set; }
     public string Name { get; set; }
     public string Country { get; set; }
     public string City { get; set; }
@@ -13,9 +14,6 @@ public class Company : SoftDeletableEntity
     public string? LogoUrl { get; set; }
     public decimal Balance { get; set; }
     public bool IsApproved { get; set; }
-
-    // Foreign keys
-    public string AccountId { get; set; }
 
     // Navigation properties
     public virtual Account Account { get; set; }

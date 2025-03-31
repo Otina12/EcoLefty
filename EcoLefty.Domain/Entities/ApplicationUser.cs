@@ -5,16 +5,14 @@ namespace EcoLefty.Domain.Entities;
 
 public class ApplicationUser : SoftDeletableEntity
 {
-    public int Id { get; set; }
+    // Primary key and foreign key to Account at the same time
+    public string Id { get; set; }
     public string FirstName { get; set; }
     public string LastName { get; set; }
     public string Bio { get; set; }
     public DateTime BirthDate { get; set; }
     public string? ProfilePictureUrl { get; set; }
     public decimal Balance { get; set; }
-
-    // Foreign keys
-    public string AccountId { get; set; }
 
     // Navigation properties
     public virtual Account Account { get; set; }

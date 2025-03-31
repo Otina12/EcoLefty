@@ -1,16 +1,27 @@
-﻿@{
-    var accountRole = User.FindFirst("AccountRole")?.Value;
-    var accountIntId = User.FindFirst("AccountIntId")?.Value;
+﻿@using System.Security.Claims
+@{
+    var accountRole = User.FindFirst(ClaimTypes.Role)?.Value;
     string controller = accountRole == "Company" ? "Company" : "User";
+    var isApprovedCompany = controller == "Company" && User.FindFirst("IsApproved")?.Value == "True";
 }
 
 <ul class="navbar-nav ms-auto">
     @if (User?.Identity?.IsAuthenticated ?? false)
     {
+        if (isApprovedCompany)
+        {
+            <li class="nav-item">
+                <a class="nav-link text-dark" asp-controller="Product" asp-action="Create">Add Product</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-dark" asp-controller="Offer" asp-action="Create">Add Offer</a>
+            </li>
+        }
         <li class="nav-item">
             <a class="nav-link text-dark"
                asp-controller="Account"
-               asp-action="Profile">
+               asp-action="Profile"
+               asp-route-id=@User.FindFirst(ClaimTypes.NameIdentifier)!.Value>
                 Profile
             </a>
         </li>

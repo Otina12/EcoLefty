@@ -28,14 +28,14 @@ public class ApplicationUsersController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetById(string id, CancellationToken cancellationToken)
     {
         var user = await _serviceManager.ApplicationUserService.GetByIdAsync(id, cancellationToken);
         return Ok(user);
     }
 
     [HttpGet("{id}/categories")]
-    public async Task<IActionResult> GetFollowedCategoriesByUserId(int id, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetFollowedCategoriesByUserId(string id, CancellationToken cancellationToken)
     {
         var user = await _serviceManager.CategoryService.GetAllFollowedCategoriesByUserIdAsync(id, cancellationToken);
         return Ok(user);
@@ -52,7 +52,7 @@ public class ApplicationUsersController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] UpdateApplicationUserRequestDto updateDto, CancellationToken cancellationToken)
+    public async Task<IActionResult> Update(string id, [FromBody] UpdateApplicationUserRequestDto updateDto, CancellationToken cancellationToken)
     {
         var validator = new UpdateApplicationUserRequestDtoValidator();
         await validator.ValidateAndThrowAsync(updateDto, HttpContext.RequestAborted);
@@ -62,7 +62,7 @@ public class ApplicationUsersController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
+    public async Task<IActionResult> Delete(string id, CancellationToken cancellationToken)
     {
         var deleted = await _serviceManager.ApplicationUserService.DeleteAsync(id, cancellationToken);
         return NoContent();

@@ -2,6 +2,7 @@
 using EcoLefty.Application.Offers.DTOs;
 using EcoLefty.Application.Purchases;
 using EcoLefty.Domain.Common.Exceptions;
+using EcoLefty.Domain.Common.Exceptions.Base;
 using EcoLefty.Domain.Common.IncludeExpressions;
 using EcoLefty.Domain.Contracts;
 using EcoLefty.Domain.Entities;
@@ -49,7 +50,7 @@ public class OfferService : IOfferService
 
         return _mapper.Map<IEnumerable<OfferDetailsResponseDto>>(activeOffers);
     }
-    public async Task<IEnumerable<OfferDetailsResponseDto>> GetAllOffersOfCompanyAsync(int companyId, CancellationToken token = default)
+    public async Task<IEnumerable<OfferDetailsResponseDto>> GetAllOffersOfCompanyAsync(string companyId, CancellationToken token = default)
     {
         var offers = await _unitOfWork.Offers.GetAllWhereAsync(
             o => o.Product.CompanyId == companyId,
@@ -63,7 +64,7 @@ public class OfferService : IOfferService
         return _mapper.Map<IEnumerable<OfferDetailsResponseDto>>(offers);
     }
 
-    public async Task<IEnumerable<OfferDetailsResponseDto>> GetActiveOffersOfCompanyAsync(int companyId, CancellationToken token = default)
+    public async Task<IEnumerable<OfferDetailsResponseDto>> GetActiveOffersOfCompanyAsync(string companyId, CancellationToken token = default)
     {
         var now = DateTime.UtcNow;
 
@@ -81,7 +82,14 @@ public class OfferService : IOfferService
 
     public async Task<OfferDetailsResponseDto> GetByIdAsync(int id, CancellationToken token = default)
     {
-        var offer = await _unitOfWork.Offers.GetByIdAsync(id, false, token);
+        var offer = await _unitOfWork.Offers.GetByIdAsync(
+            id,
+            trackChanges: false,
+            token: token,
+            OfferIncludes.Product,
+            OfferIncludes.Product_Company,
+            OfferIncludes.Product_Categories);
+
         if (offer is null)
         {
             throw new OfferNotFoundException(id);
@@ -93,22 +101,27 @@ public class OfferService : IOfferService
     public async Task<OfferDetailsResponseDto> CreateAsync(CreateOfferRequestDto createOfferDto, CancellationToken token = default)
     {
         var currentUserId = _unitOfWork.CurrentUserContext.UserId;
+
+        if (currentUserId is null)
+            throw new UnauthorizedException();
+
         var product = await _unitOfWork.Products.GetByIdAsync(createOfferDto.ProductId, false, token);
-        var company = await _unitOfWork.Companies.GetOneWhereAsync(x => x.AccountId == currentUserId, false, token);
+        var company = await _unitOfWork.Companies.GetByIdAsync(currentUserId, false, token);
 
         if (product is null)
             throw new ProductNotFoundException(createOfferDto.ProductId);
 
         if (company is null)
-            throw new CompanyNotFoundException($"Company attached to account with Id: {currentUserId} was not found");
+            throw new CompanyNotFoundException($"Company attached to account with Id: {currentUserId} was not found.");
 
         if (!company.IsApproved)
             throw new CompanyNotApprovedException(company.Id);
 
         if (company.Id != product.CompanyId)
-            throw new Exception($"Product with Id: {product.Id} doesn't belong to company with Id: {company.Id}");
+            throw new Exception($"Product with Id: {product.Id} doesn't belong to company with Id: {company.Id}.");
 
         var offer = _mapper.Map<Offer>(createOfferDto);
+        offer.QuantityAvailable = offer.TotalQuantity;
 
         await _unitOfWork.Offers.CreateAsync(offer, token);
         await _unitOfWork.SaveChangesAsync(token);
@@ -139,18 +152,19 @@ public class OfferService : IOfferService
             throw new OfferNotFoundException(id);
 
         var currentUserId = _unitOfWork.CurrentUserContext.UserId;
-        var company = await _unitOfWork.Companies.GetOneWhereAsync(x => x.AccountId == currentUserId, false, token);
+        if (currentUserId is null)
+            throw new UnauthorizedException();
+
+        var company = await _unitOfWork.Companies.GetByIdAsync(currentUserId, false, token);
 
         if (company is null)
-        {
             throw new CompanyNotFoundException($"Company attached to account with Id: {currentUserId} was not found");
-        }
 
-        if ((DateTime.UtcNow - offer.StartDateUtc) > TimeSpan.FromMinutes(10))
-            throw new InvalidOperationException("Offer cannot be cancelled after 10 minutes of its creation.");
+        if (DateTime.UtcNow - offer.CreatedAtUtc > TimeSpan.FromMinutes(10))
+            throw new InvalidOperationException("Offer cancellations are only permitted within the first 10 minutes following the request.");
 
-        // update balances
-        await _purchaseService.CancelPurchasesByOfferAsync(offer.Id, token);
+        // cancel all purchases and update balances
+        await _purchaseService.CancelAllPurchasesByOfferAsync(offer.Id, token);
 
         _unitOfWork.Offers.Delete(offer);
 

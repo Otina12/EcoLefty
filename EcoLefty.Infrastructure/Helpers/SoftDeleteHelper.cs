@@ -46,10 +46,6 @@ internal static class SoftDeleteHelper
 
             switch (entry.State)
             {
-                case EntityState.Added:
-                    softDeletable.CreatedAtUtc = timestamp;
-                    break;
-
                 case EntityState.Modified:
                     softDeletable.UpdatedAtUtc = timestamp;
                     break;

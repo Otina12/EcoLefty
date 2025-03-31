@@ -5,7 +5,7 @@ namespace EcoLefty.Application.Categories;
 public interface ICategoryService
 {
     Task<IEnumerable<CategoryResponseDto>> GetAllAsync(CancellationToken token = default);
-    Task<IEnumerable<CategoryResponseDto>> GetAllFollowedCategoriesByUserIdAsync(int id, CancellationToken token = default);
+    Task<IEnumerable<CategoryResponseDto>> GetAllFollowedCategoriesByUserIdAsync(string userId, CancellationToken token = default);
     Task<CategoryResponseDto> GetByIdAsync(int id, CancellationToken token = default);
     Task<CategoryResponseDto> CreateAsync(CreateCategoryRequestDto dto, CancellationToken token = default);
     Task<CategoryResponseDto> UpdateAsync(int id, UpdateCategoryRequestDto dto, CancellationToken token = default);

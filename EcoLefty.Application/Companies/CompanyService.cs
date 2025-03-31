@@ -3,6 +3,7 @@ using EcoLefty.Application.Accounts.DTOs;
 using EcoLefty.Application.Authentication;
 using EcoLefty.Application.Authentication.Tokens.DTOs;
 using EcoLefty.Application.Companies.DTOs;
+using EcoLefty.Application.Offers;
 using EcoLefty.Domain.Common.Enums;
 using EcoLefty.Domain.Common.Exceptions;
 using EcoLefty.Domain.Common.IncludeExpressions;
@@ -14,13 +15,15 @@ namespace EcoLefty.Application.Companies;
 public class CompanyService : ICompanyService
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IOfferService _offerService;
     private readonly IAuthenticationService _authenticationService;
     private readonly IMapper _mapper;
 
-    public CompanyService(IUnitOfWork unitOfWork, IMapper mapper, IAuthenticationService authenticationService)
+    public CompanyService(IUnitOfWork unitOfWork, IOfferService offerService, IMapper mapper, IAuthenticationService authenticationService)
     {
-        _authenticationService = authenticationService;
         _unitOfWork = unitOfWork;
+        _offerService = offerService;
+        _authenticationService = authenticationService;
         _mapper = mapper;
     }
 
@@ -30,7 +33,7 @@ public class CompanyService : ICompanyService
         return _mapper.Map<IEnumerable<CompanyResponseDto>>(companies);
     }
 
-    public async Task<CompanyDetailsResponseDto> GetByIdAsync(int id, CancellationToken token)
+    public async Task<CompanyDetailsResponseDto> GetByIdAsync(string id, CancellationToken token = default, bool includeArchivedOffers = false)
     {
         var company = await _unitOfWork.Companies.GetByIdAsync(id, trackChanges: false, token: token,
             CompanyIncludes.Account,
@@ -42,22 +45,14 @@ public class CompanyService : ICompanyService
             throw new CompanyNotFoundException(id);
         }
 
-        return _mapper.Map<CompanyDetailsResponseDto>(company);
-    }
+        var companyDetailsDto = _mapper.Map<CompanyDetailsResponseDto>(company);
 
-    public async Task<CompanyDetailsResponseDto> GetByAccountIdAsync(string accountId, CancellationToken token)
-    {
-        var company = await _unitOfWork.Companies.GetOneWhereAsync(x => x.AccountId == accountId, trackChanges: false, token: token,
-            CompanyIncludes.Account,
-            CompanyIncludes.Products
-            );
+        var companyOffers = includeArchivedOffers ?
+            await _offerService.GetAllOffersOfCompanyAsync(id, token)
+            : await _offerService.GetActiveOffersOfCompanyAsync(id, token);
 
-        if (company is null)
-        {
-            throw new AccountNotFoundException(accountId);
-        }
-
-        return _mapper.Map<CompanyDetailsResponseDto>(company);
+        companyDetailsDto.Offers = companyOffers;
+        return companyDetailsDto;
     }
 
     public async Task<TokenResponseDto> CreateAsync(CreateCompanyRequestDto createCompanyDto, CancellationToken token = default)
@@ -74,7 +69,7 @@ public class CompanyService : ICompanyService
 
             // Then we can create the company
             var company = _mapper.Map<Company>(createCompanyDto);
-            company.AccountId = accountId;
+            company.Id = accountId;
 
             await _unitOfWork.Companies.CreateAsync(company);
             await _unitOfWork.SaveChangesAsync(token);
@@ -90,7 +85,7 @@ public class CompanyService : ICompanyService
         }
     }
 
-    public async Task<CompanyResponseDto> UpdateAsync(int id, UpdateCompanyRequestDto updateCompanyDto, CancellationToken token = default)
+    public async Task<CompanyResponseDto> UpdateAsync(string id, UpdateCompanyRequestDto updateCompanyDto, CancellationToken token = default)
     {
         var company = await _unitOfWork.Companies.GetByIdAsync(id, trackChanges: true, token: token);
         if (company is null)
@@ -106,7 +101,7 @@ public class CompanyService : ICompanyService
         return _mapper.Map<CompanyResponseDto>(company);
     }
 
-    public async Task<bool> ApproveCompanyAsync(int id, CancellationToken token = default)
+    public async Task<bool> ApproveCompanyAsync(string id, CancellationToken token = default)
     {
         var company = await _unitOfWork.Companies.GetByIdAsync(id, trackChanges: true, token: token);
         if (company is null)
@@ -115,6 +110,15 @@ public class CompanyService : ICompanyService
         }
 
         company.IsApproved = true;
+
+        var account = await _unitOfWork.Accounts.GetByIdAsync(id, false, token);
+        if (account is null)
+        {
+            throw new CompanyNotFoundException(id);
+        }
+
+        await _authenticationService.AddClaimAsync(account, "IsApproved", "True");
+
         return await _unitOfWork.SaveChangesAsync(token) > 0;
     }
 
@@ -125,7 +129,7 @@ public class CompanyService : ICompanyService
     /// <param name="token"></param>
     /// <returns></returns>
     /// <exception cref="CompanyNotFoundException"></exception>
-    public async Task<bool> DeleteAsync(int id, CancellationToken token = default)
+    public async Task<bool> DeleteAsync(string id, CancellationToken token = default)
     {
         var company = await _unitOfWork.Companies.GetByIdAsync(id, trackChanges: false, token: token);
         if (company is null)
@@ -137,7 +141,7 @@ public class CompanyService : ICompanyService
 
         // Because of soft delete, we need deactivate related account manually. Account entity is not soft-deletable (by choice).
         // Other entities will be soft deleted using custom cascading soft delete when saving changes.
-        await _unitOfWork.Accounts.DeactivateAsync(company.AccountId, token);
+        await _unitOfWork.Accounts.DeactivateAsync(company.Id, token);
 
         var deleted = await _unitOfWork.SaveChangesAsync(token);
         return deleted > 0;

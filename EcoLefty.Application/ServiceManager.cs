@@ -32,7 +32,7 @@ public class ServiceManager : IServiceManager
         _accountService = new Lazy<IAccountService>(() => new AccountService(unitOfWork));
         _applicationUserService = new Lazy<IApplicationUserService>(() => new ApplicationUserService(unitOfWork, mapper, authService));
         _categoryService = new Lazy<ICategoryService>(() => new CategoryService(unitOfWork, mapper));
-        _companyService = new Lazy<ICompanyService>(() => new CompanyService(unitOfWork, mapper, authService));
+        _companyService = new Lazy<ICompanyService>(() => new CompanyService(unitOfWork, OfferService, mapper, authService));
         _offerService = new Lazy<IOfferService>(() => new OfferService(unitOfWork, mapper, PurchaseService));
         _productService = new Lazy<IProductService>(() => new ProductService(unitOfWork, mapper));
         _purchaseService = new Lazy<IPurchaseService>(() => new PurchaseService(unitOfWork, mapper));

@@ -1,0 +1,407 @@
+﻿/* Forms */
+
+﻿.alert-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.alert {
+    display: flex;
+    align-items: center;
+    width: 50%;
+    padding: 5px;
+    height: fit-content;
+}
+
+    .alert ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 8px;
+        width: 100%;
+    }
+
+.my-form {
+    width: 800px;
+    padding: 35px 35px 25px 35px;
+    margin: auto;
+    margin-top: 50px;
+    border-radius: 8px;
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgba(0, 255, 144, 0.25);
+    backdrop-filter: blur(35px);
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
+    color: white;
+}
+
+.auth-form {
+    width: 580px;
+    padding: 35px 35px 25px 35px;
+    margin: auto;
+    margin-top: 50px;
+    border-radius: 8px;
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgba(0, 255, 144, 0.25);
+    backdrop-filter: blur(35px);
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
+    color: white;
+}
+
+.title {
+    color: black;
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.my-field {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+    .my-field label {
+        background-color: transparent;
+        color: black;
+        display: block;
+        padding: 0;
+        font-size: 16px;
+        margin-bottom: 5px;
+        border: none;
+    }
+
+    .my-field input[type="text"],
+    .my-field input[type="email"],
+    .my-field input[type="password"],
+    .my-field input[type="number"],
+    .my-field textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+        font-size: 16px;
+        background-color: rgba(255, 255, 255, 0.1);
+        color: black;
+        transition: border-color 0.3s ease;
+    }
+
+        .my-field input[type="text"]:focus,
+        .my-field input[type="email"]:focus,
+        .my-field input[type="password"]:focus,
+        .my-field input[type="number"]:focus {
+            border-color: #4290f5;
+            outline: none;
+        }
+
+
+        .my-field input[type="text"]::placeholder,
+        .my-field input[type="email"]::placeholder,
+        .my-field input[type="password"]::placeholder,
+        .my-field input[type="number"]::placeholder {
+            color: rgba(0, 0, 0, 0.5);
+        }
+
+.birthdate-fields {
+    display: flex;
+}
+
+    .birthdate-fields .birthdate-input {
+        width: 33.33%;
+        margin-right: 7.5px;
+        padding: 3px;
+        -webkit-appearance: none;
+    }
+
+birthdate-fields .birthdate-input::placeholder {
+    color: black;
+}
+
+
+.name-fields {
+    display: flex;
+}
+
+    .name-fields .name-input {
+        width: 50%;
+        margin-right: 7.5px;
+        padding: 3px;
+        -webkit-appearance: none;
+    }
+
+        .name-fields .name-input::placeholder {
+            color: black;
+        }
+
+.submit-button {
+    margin-top: 15px;
+    margin-bottom: 15px;
+    width: 100%;
+    padding: 8px 10px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    background-color: #4290f5;
+    font-size: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+    .submit-button:hover {
+        background-color: #156bcf;
+    }
+
+.forgot-pass,
+.have-account {
+    text-align: center;
+}
+
+    .forgot-pass a,
+    .have-account a {
+        text-decoration: none;
+        color: #4290f5;
+        transition: color 0.2s ease;
+    }
+
+        .forgot-pass a:hover,
+        .have-account a:hover {
+            color: #156bcf;
+        }
+
+
+/* Profile page */
+
+.profile-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.company-details {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.company-logo {
+    max-width: 150px;
+    margin-bottom: 20px;
+}
+
+.section {
+    margin-bottom: 40px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.btn.view-all {
+    text-decoration: none;
+    font-size: 0.9rem;
+    background: #007bff;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 4px;
+}
+
+    .btn.view-all:hover {
+        background: #0056b3;
+    }
+
+.items-wrapper {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.item {
+    flex: 1;
+    border: 1px solid #ccc;
+    padding: 15px;
+    background: #f9f9f9;
+    min-width: 250px;
+    border-radius: 2px;
+}
+
+    .item p {
+        color: black;
+    }
+
+    .item h3 {
+        color: black;
+    }
+
+
+/* Offer index */
+
+.product-image {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 10px;
+}
+
+.offer-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    overflow: hidden;
+    transition: box-shadow 0.3s;
+}
+
+    .offer-card:hover {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+.offer-product-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.company-info {
+    font-size: 0.85rem;
+}
+
+.company-logo {
+    border-radius: 50%;
+}
+
+.old-price {
+    color: #888;
+}
+
+.new-price {
+    color: green;
+    font-size: 1.1rem;
+}
+
+
+/* Product index */
+
+.products-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.products-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.card.product-card {
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    overflow: hidden;
+    transition: box-shadow 0.3s;
+    flex: 1 1 calc(33.33% - 30px);
+    min-width: 250px;
+    background: #fff;
+}
+
+    .card.product-card:hover {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .card.product-card .product-image {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+
+    .card.product-card .card-body {
+        padding: 15px;
+    }
+
+    .card.product-card .card-title {
+        margin-bottom: 10px;
+        font-size: 1.25em;
+        color: #333;
+    }
+
+    .card.product-card .card-text {
+        font-size: 0.9em;
+        color: #555;
+    }
+
+
+/* Offer details */
+
+.offer-details-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}
+
+.offer-details-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.offer-image {
+    flex: 1 1 40%;
+    max-width: 40%;
+}
+
+    .offer-image img {
+        width: 100%;
+        border-radius: 8px;
+        object-fit: cover;
+    }
+
+.offer-info {
+    flex: 1 1 55%;
+    max-width: 55%;
+}
+
+.offer-title {
+    font-size: 2em;
+    margin-bottom: 10px;
+}
+
+.product-name {
+    font-size: 1.5em;
+    color: #555;
+    margin-bottom: 15px;
+}
+
+.offer-description {
+    font-size: 1em;
+    margin-bottom: 15px;
+    line-height: 1.5;
+}
+
+.offer-price,
+.product-price,
+.offer-quantity,
+.offer-validity,
+.offer-categories {
+    font-size: 1.1em;
+    margin-bottom: 10px;
+}
+
+.offer-company {
+    margin-top: 20px;
+    border-top: 1px solid #ccc;
+    padding-top: 15px;
+}
+
+.company-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.company-logo {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+}

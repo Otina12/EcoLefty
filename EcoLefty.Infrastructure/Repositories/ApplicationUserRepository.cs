@@ -5,7 +5,7 @@ using EcoLefty.Persistence.Context;
 
 namespace EcoLefty.Infrastructure.Repositories;
 
-public class ApplicationUserRepository : BaseRepository<ApplicationUser, int>, IApplicationUserRepository
+public class ApplicationUserRepository : BaseRepository<ApplicationUser, string>, IApplicationUserRepository
 {
     public ApplicationUserRepository(EcoLeftyDbContext context) : base(context)
     {

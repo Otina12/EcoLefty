@@ -1,0 +1,53 @@
+﻿@model EcoLefty.Application.Products.DTOs.ProductDetailsResponseDto
+
+@{
+    ViewBag.Title = Model.Name;
+}
+
+<div class="product-details-container">
+    <div class="product-details-row">
+        <div class="product-image">
+            <img src="@Model.ImageUrl" alt="@Model.Name" />
+        </div>
+        <div class="product-info">
+            <h1>@Model.Name</h1>
+            <p class="description">@Model.Description</p>
+            <p class="price"><strong>Price:</strong> @Model.DefaultPrice.ToString("C")</p>
+            <div class="categories">
+                @if (Model.Categories != null && Model.Categories.Any())
+                {
+                    @foreach (var category in Model.Categories)
+                    {
+                        <span class="tag">@category.Name</span>
+                    }
+                }
+            </div>
+            <div class="company-info">
+                <h3>Provided by:</h3>
+                <img src="@Model.Company.LogoUrl" alt="@Model.Company.Name" class="company-logo" />
+                <span>@Model.Company.Name</span>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.Offers != null && Model.Offers.Any())
+    {
+        <div class="product-offers">
+            <h2>Offers for this Product</h2>
+            <div class="offers-list">
+                @foreach (var offer in Model.Offers)
+                {
+                    <a href="@Url.Action("Details", "Offer", new { id = offer.Id })" class="offer-item-link" style="text-decoration:none; color:inherit;">
+                        <div class="offer-card">
+                            <h4>@offer.Title</h4>
+                            <p>@offer.Description</p>
+                            <p><strong>Offer Price:</strong> @offer.UnitPrice.ToString("C")</p>
+                            <p><strong>Quantity:</strong> @offer.TotalQuantity</p>
+                            <p><strong>Valid:</strong> @offer.StartDateUtc.ToShortDateString() - @offer.ExpiryDateUtc.ToShortDateString()</p>
+                        </div>
+                    </a>
+                }
+            </div>
+        </div>
+    }
+</div>

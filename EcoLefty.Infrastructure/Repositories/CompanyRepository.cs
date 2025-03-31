@@ -5,7 +5,7 @@ using EcoLefty.Persistence.Context;
 
 namespace EcoLefty.Infrastructure.Repositories;
 
-public class CompanyRepository : BaseRepository<Company, int>, ICompanyRepository
+public class CompanyRepository : BaseRepository<Company, string>, ICompanyRepository
 {
     public CompanyRepository(EcoLeftyDbContext context) : base(context)
     {

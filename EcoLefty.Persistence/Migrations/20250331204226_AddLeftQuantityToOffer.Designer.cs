@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EcoLefty.Persistence.Migrations
 {
     [DbContext(typeof(EcoLeftyDbContext))]
-    [Migration("20250326041821_addPurchaseJointTable")]
-    partial class addPurchaseJointTable
+    [Migration("20250331204226_AddLeftQuantityToOffer")]
+    partial class AddLeftQuantityToOffer
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -30,8 +30,8 @@ namespace EcoLefty.Persistence.Migrations
                     b.Property<int>("FollowedCategoriesId")
                         .HasColumnType("int");
 
-                    b.Property<int>("FollowingUsersId")
-                        .HasColumnType("int");
+                    b.Property<string>("FollowingUsersId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("FollowedCategoriesId", "FollowingUsersId");
 
@@ -57,14 +57,8 @@ namespace EcoLefty.Persistence.Migrations
 
             modelBuilder.Entity("EcoLefty.Domain.Entities.ApplicationUser", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AccountId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<decimal>("Balance")
@@ -96,16 +90,12 @@ namespace EcoLefty.Persistence.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("ProfilePictureUrl")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAtUtc")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AccountId")
-                        .IsUnique();
 
                     b.ToTable("Users", "ecolefty");
                 });
@@ -117,6 +107,10 @@ namespace EcoLefty.Persistence.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AccountId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ActionType")
                         .IsRequired()
@@ -138,13 +132,37 @@ namespace EcoLefty.Persistence.Migrations
                     b.Property<DateTime>("Timestamp")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
                     b.ToTable("AuditLogs", "ecolefty");
+                });
+
+            modelBuilder.Entity("EcoLefty.Domain.Entities.Auth.RefreshToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AccountId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("ExpiresOnUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.HasIndex("Token")
+                        .IsUnique();
+
+                    b.ToTable("RefreshTokens", "auth");
                 });
 
             modelBuilder.Entity("EcoLefty.Domain.Entities.Category", b =>
@@ -176,14 +194,8 @@ namespace EcoLefty.Persistence.Migrations
 
             modelBuilder.Entity("EcoLefty.Domain.Entities.Company", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AccountId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Address")
@@ -215,7 +227,6 @@ namespace EcoLefty.Persistence.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("LogoUrl")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
@@ -227,9 +238,6 @@ namespace EcoLefty.Persistence.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AccountId")
-                        .IsUnique();
 
                     b.ToTable("Companies", "ecolefty");
                 });
@@ -336,6 +344,9 @@ namespace EcoLefty.Persistence.Migrations
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
+                    b.Property<int>("QuantityAvailable")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("StartDateUtc")
                         .HasColumnType("datetime2");
 
@@ -369,8 +380,9 @@ namespace EcoLefty.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CompanyId")
-                        .HasColumnType("int");
+                    b.Property<string>("CompanyId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("datetime2");
@@ -417,8 +429,9 @@ namespace EcoLefty.Persistence.Migrations
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("CustomerId")
-                        .HasColumnType("int");
+                    b.Property<string>("CustomerId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime?>("DeletedAtUtc")
                         .HasColumnType("datetime2");
@@ -428,6 +441,9 @@ namespace EcoLefty.Persistence.Migrations
 
                     b.Property<DateTime>("PurchaseDateUtc")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("PurchaseStatus")
+                        .HasColumnType("int");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -615,7 +631,18 @@ namespace EcoLefty.Persistence.Migrations
                 {
                     b.HasOne("EcoLefty.Domain.Entities.Identity.Account", "Account")
                         .WithOne()
-                        .HasForeignKey("EcoLefty.Domain.Entities.ApplicationUser", "AccountId")
+                        .HasForeignKey("EcoLefty.Domain.Entities.ApplicationUser", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
+                });
+
+            modelBuilder.Entity("EcoLefty.Domain.Entities.Auth.RefreshToken", b =>
+                {
+                    b.HasOne("EcoLefty.Domain.Entities.Identity.Account", "Account")
+                        .WithMany()
+                        .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -626,7 +653,7 @@ namespace EcoLefty.Persistence.Migrations
                 {
                     b.HasOne("EcoLefty.Domain.Entities.Identity.Account", "Account")
                         .WithOne()
-                        .HasForeignKey("EcoLefty.Domain.Entities.Company", "AccountId")
+                        .HasForeignKey("EcoLefty.Domain.Entities.Company", "Id")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 

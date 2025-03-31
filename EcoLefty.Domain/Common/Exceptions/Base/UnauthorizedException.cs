@@ -2,13 +2,15 @@
 
 public class UnauthorizedException : Exception
 {
-    public UnauthorizedException(string message) : base(message)
+    public UnauthorizedException() : base("Unauthorized to perform this action.")
     {
-
     }
 
-    public UnauthorizedException() : base("Not authorized for this action.")
+    public UnauthorizedException(string? message) : base(message)
     {
+    }
 
+    protected UnauthorizedException(string? message, Exception? exception) : base(message, exception)
+    {
     }
 }

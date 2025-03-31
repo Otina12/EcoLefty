@@ -21,18 +21,26 @@ internal static class AuditLogWriter
             return null;
         }
 
-        var id = entry.CurrentValues["Id"]?.ToString() ?? "N/A";
+        string id;
+        try
+        {
+            id = entry.CurrentValues["Id"]!.ToString()!;
+        }
+        catch
+        {
+            id = "N/A";
+        }
+
 
         var log = new AuditLog
         {
-            UserId = userId ?? string.Empty,
+            AccountId = userId ?? string.Empty,
             ActionType = actionType.ToString()!,
             EntityName = entry.Entity.GetType().Name,
             EntityId = id,
             Timestamp = timestamp,
             Changes = actionType switch
             {
-                ActionType.Created => SerializeValues(entry.CurrentValues.Properties, entry.CurrentValues),
                 ActionType.Updated => SerializeDifferences(entry),
                 ActionType.Deleted => SerializeValues(entry.OriginalValues.Properties, entry.OriginalValues),
                 _ => "{}"
@@ -55,7 +63,6 @@ internal static class AuditLogWriter
     {
         return state switch
         {
-            EntityState.Added => ActionType.Created,
             EntityState.Modified => ActionType.Updated,
             EntityState.Deleted => ActionType.Deleted,
             _ => null

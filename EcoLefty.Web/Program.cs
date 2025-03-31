@@ -15,6 +15,8 @@ services.AddControllersWithViews();
 services.ConfigureValidators();
 services.AddAutoMapper(typeof(MappingProfile));
 
+services.ConfigureCors();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -29,6 +31,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

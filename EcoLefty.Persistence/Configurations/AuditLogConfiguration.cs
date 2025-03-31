@@ -16,7 +16,7 @@ public class AuditLogConfiguration : IEntityTypeConfiguration<AuditLog>
         builder.Property(x => x.Id)
                .ValueGeneratedOnAdd();
 
-        builder.Property(x => x.UserId)
+        builder.Property(x => x.AccountId)
                .IsRequired();
 
         builder.Property(x => x.EntityName)

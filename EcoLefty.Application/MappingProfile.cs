@@ -5,6 +5,7 @@ using EcoLefty.Application.Categories.DTOs;
 using EcoLefty.Application.Companies.DTOs;
 using EcoLefty.Application.Offers.DTOs;
 using EcoLefty.Application.Products.DTOs;
+using EcoLefty.Application.Purchases.DTOs;
 using EcoLefty.Domain.Entities;
 
 namespace EcoLefty.Application;
@@ -63,5 +64,8 @@ public class MappingProfile : Profile
         CreateMap<CreateOfferRequestDto, Offer>();
         CreateMap<UpdateOfferRequestDto, Offer>();
 
+        // Purchase
+        CreateMap<Purchase, PurchaseDetailsResponseDto>();
+        CreateMap<CreatePurchaseRequestDto, Purchase>();
     }
 }

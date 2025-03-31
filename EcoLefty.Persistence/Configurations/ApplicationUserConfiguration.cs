@@ -37,7 +37,7 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
 
         builder.HasOne(x => x.Account)
                .WithOne()
-               .HasForeignKey<ApplicationUser>(x => x.AccountId);
+               .HasForeignKey<ApplicationUser>(x => x.Id);
 
         builder.HasMany(x => x.FollowedCategories)
                .WithMany(x => x.FollowingUsers)

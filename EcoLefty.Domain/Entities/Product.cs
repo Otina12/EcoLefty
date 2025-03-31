@@ -11,7 +11,7 @@ public class Product : SoftDeletableEntity
     public string ImageUrl { get; set; }
 
     // Foreign keys
-    public int CompanyId { get; set; }
+    public string CompanyId { get; set; }
 
     // Navigation properties
     public virtual Company Company { get; set; }

@@ -28,7 +28,7 @@ public class CompaniesController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetById(string id, CancellationToken cancellationToken)
     {
         var company = await _serviceManager.CompanyService.GetByIdAsync(id, cancellationToken);
         return Ok(company);
@@ -45,7 +45,7 @@ public class CompaniesController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] UpdateCompanyRequestDto updateDto, CancellationToken cancellationToken)
+    public async Task<IActionResult> Update(string id, [FromBody] UpdateCompanyRequestDto updateDto, CancellationToken cancellationToken)
     {
         var validator = new UpdateCompanyRequestDtoValidator();
         await validator.ValidateAndThrowAsync(updateDto, HttpContext.RequestAborted);
@@ -56,14 +56,14 @@ public class CompaniesController : ControllerBase
 
     [Authorize(Roles = "Admin")]
     [HttpPost("{id}/approve")]
-    public async Task<IActionResult> ApproveCompany(int id)
+    public async Task<IActionResult> ApproveCompany(string id)
     {
         var result = await _serviceManager.CompanyService.ApproveCompanyAsync(id);
         return NoContent();
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
+    public async Task<IActionResult> Delete(string id, CancellationToken cancellationToken)
     {
         var deleted = await _serviceManager.CompanyService.DeleteAsync(id, cancellationToken);
         return NoContent();

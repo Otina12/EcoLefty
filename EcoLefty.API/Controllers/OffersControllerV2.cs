@@ -57,7 +57,7 @@ public class OffersControllerV2 : ControllerBase
         OperationId = "Offers.GetAllOfCompany"
     )]
     [SwaggerResponse(StatusCodes.Status200OK, "List of offers retrieved successfully.", typeof(IEnumerable<OfferDetailsResponseDto>))]
-    public async Task<IActionResult> GetAllOfCompany(int id, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAllOfCompany(string id, CancellationToken cancellationToken)
     {
         IEnumerable<OfferDetailsResponseDto> offers = await _serviceManager.OfferService.GetAllOffersOfCompanyAsync(id, cancellationToken);
         return Ok(offers);
@@ -70,7 +70,7 @@ public class OffersControllerV2 : ControllerBase
         OperationId = "Offers.GetAllActiveOfCompany"
     )]
     [SwaggerResponse(StatusCodes.Status200OK, "List of offers retrieved successfully.", typeof(IEnumerable<OfferDetailsResponseDto>))]
-    public async Task<IActionResult> GetAllOfActiveCompany(int id, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAllOfActiveCompany(string id, CancellationToken cancellationToken)
     {
         IEnumerable<OfferDetailsResponseDto> offers = await _serviceManager.OfferService.GetActiveOffersOfCompanyAsync(id, cancellationToken);
         return Ok(offers);

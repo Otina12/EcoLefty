@@ -30,7 +30,7 @@ public class ApplicationUserService : IApplicationUserService
         return _mapper.Map<IEnumerable<ApplicationUserResponseDto>>(users);
     }
 
-    public async Task<ApplicationUserDetailsResponseDto> GetByIdAsync(int id, CancellationToken token)
+    public async Task<ApplicationUserDetailsResponseDto> GetByIdAsync(string id, CancellationToken token)
     {
         var user = await _unitOfWork.Users.GetByIdAsync(id, trackChanges: false, token: token,
             ApplicationUserIncludes.Account,
@@ -39,20 +39,6 @@ public class ApplicationUserService : IApplicationUserService
         if (user is null)
         {
             throw new ApplicationUserNotFoundException(id);
-        }
-
-        return _mapper.Map<ApplicationUserDetailsResponseDto>(user);
-    }
-
-    public async Task<ApplicationUserDetailsResponseDto> GetByAccountIdAsync(string accountId, CancellationToken token)
-    {
-        var user = await _unitOfWork.Users.GetOneWhereAsync(x => x.AccountId == accountId, trackChanges: false, token: token,
-            ApplicationUserIncludes.Account,
-            ApplicationUserIncludes.Categories);
-
-        if (user is null)
-        {
-            throw new AccountNotFoundException(accountId);
         }
 
         return _mapper.Map<ApplicationUserDetailsResponseDto>(user);
@@ -72,7 +58,7 @@ public class ApplicationUserService : IApplicationUserService
 
             // Then we can create the application user
             var applicationUser = _mapper.Map<ApplicationUser>(createUserDto);
-            applicationUser.AccountId = accountId;
+            applicationUser.Id = accountId;
 
             await _unitOfWork.Users.CreateAsync(applicationUser, token);
             await _unitOfWork.SaveChangesAsync(token);
@@ -88,7 +74,7 @@ public class ApplicationUserService : IApplicationUserService
         }
     }
 
-    public async Task<ApplicationUserResponseDto> UpdateAsync(int id, UpdateApplicationUserRequestDto updateUserDto, CancellationToken token = default)
+    public async Task<ApplicationUserResponseDto> UpdateAsync(string id, UpdateApplicationUserRequestDto updateUserDto, CancellationToken token = default)
     {
         var user = await _unitOfWork.Users.GetByIdAsync(id, trackChanges: true, token: token);
         if (user is null)
@@ -111,7 +97,7 @@ public class ApplicationUserService : IApplicationUserService
     /// <param name="token"></param>
     /// <returns></returns>
     /// <exception cref="ApplicationUserNotFoundException"></exception>
-    public async Task<bool> DeleteAsync(int id, CancellationToken token = default)
+    public async Task<bool> DeleteAsync(string id, CancellationToken token = default)
     {
         var user = await _unitOfWork.Users.GetByIdAsync(id, trackChanges: false, token: token);
         if (user is null)
@@ -123,7 +109,7 @@ public class ApplicationUserService : IApplicationUserService
 
         // Because of soft delete, we need deactivate related account manually.
         // Other entities will be soft deleted using custom cascading soft delete when saving changes. Account entity is not soft-deletable (by choice).
-        await _unitOfWork.Accounts.DeactivateAsync(user.AccountId, token);
+        await _unitOfWork.Accounts.DeactivateAsync(user.Id, token);
 
         var result = await _unitOfWork.SaveChangesAsync(token);
         return result > 0;

@@ -42,7 +42,7 @@ public class AuthenticationService : IAuthenticationService
         if (existingUser is not null)
             throw new AccountAlreadyExistsException(dto.Email);
 
-        var user = new Account
+        var account = new Account
         {
             Email = dto.Email,
             NormalizedEmail = dto.Email.ToUpper(),
@@ -53,20 +53,22 @@ public class AuthenticationService : IAuthenticationService
             AccountType = accountType
         };
 
-        var result = await _userManager.CreateAsync(user, dto.Password);
+        var result = await _userManager.CreateAsync(account, dto.Password);
         if (!result.Succeeded)
             throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
 
-        await _userManager.AddToRoleAsync(user, accountType.ToString());
+        await _userManager.AddToRoleAsync(account, accountType.ToString());
 
-        var tokenPair = await _tokenService.GenerateTokenPairAsync(user);
+        var tokenPair = await _tokenService.GenerateTokenPairAsync(account);
         var refreshToken = new RefreshToken
         {
             Id = Guid.NewGuid(),
             Token = tokenPair.RefreshToken,
             ExpiresOnUtc = DateTime.UtcNow.AddDays(7),
-            AccountId = user.Id
+            AccountId = account.Id
         };
+
+        await _signInManager.SignInAsync(account, isPersistent: false);
 
         await _refreshTokenRepository.AddAsync(refreshToken);
         await _unitOfWork.SaveChangesAsync();
@@ -76,23 +78,34 @@ public class AuthenticationService : IAuthenticationService
 
     public async Task<TokenResponseDto> LoginAccountAsync(LoginAccountRequestDto loginDto)
     {
-        var user = await _userManager.FindByEmailAsync(loginDto.Email);
-        if (user is null || !user.IsActive)
+        var account = await _userManager.FindByEmailAsync(loginDto.Email);
+        if (account is null || !account.IsActive)
             throw new AccountNotFoundException(loginDto.Email);
 
-        var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
+        var result = await _signInManager.CheckPasswordSignInAsync(account, loginDto.Password, false);
         if (!result.Succeeded)
             throw new Exception("Invalid login credentials");
 
-        var tokenPair = await _tokenService.GenerateTokenPairAsync(user);
+        await _signInManager.SignInAsync(account, isPersistent: false);
+
+        var tokenPair = await _tokenService.GenerateTokenPairAsync(account);
 
         var refreshToken = new RefreshToken
         {
             Id = Guid.NewGuid(),
             Token = tokenPair.RefreshToken,
             ExpiresOnUtc = DateTime.UtcNow.AddDays(7),
-            AccountId = user.Id
+            AccountId = account.Id
         };
+
+        if (account.AccountType == AccountRole.Company)
+        {
+            var company = await _unitOfWork.Companies.GetByIdAsync(account.Id, false);
+            if (company is null)
+                throw new CompanyNotFoundException(account.Id);
+
+            await AddClaimAsync(account, "IsApproved", company!.IsApproved.ToString());
+        }
 
         await _refreshTokenRepository.AddAsync(refreshToken);
         await _unitOfWork.SaveChangesAsync();
@@ -132,7 +145,6 @@ public class AuthenticationService : IAuthenticationService
 
         return tokenPair;
     }
-
 
     public Task<string> GetAccountIdFromJwtTokenAsync(string jwtToken)
     {

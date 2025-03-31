@@ -2,8 +2,11 @@
 
 public class CompanyNotApprovedException : Exception
 {
-    public CompanyNotApprovedException(int id) : base($"Company with Id: {id} has not been approved by an administator yet.")
+    public CompanyNotApprovedException(string? id) : base($"Company with Id: {id} has not been approved by an administator.")
     {
+    }
 
+    public CompanyNotApprovedException(string? message, Exception? exception) : base(message, exception)
+    {
     }
 }

@@ -1,8 +1,14 @@
-﻿namespace EcoLefty.Domain.Common.Exceptions;
+﻿using EcoLefty.Domain.Common.Exceptions.Base;
 
-public sealed class AccountAlreadyExistsException : Exception
+namespace EcoLefty.Domain.Common.Exceptions;
+
+public sealed class AccountAlreadyExistsException : AlreadyExistsException
 {
     public AccountAlreadyExistsException(string email) : base($"An account with Email: {email} already exists.")
+    {
+    }
+
+    public AccountAlreadyExistsException(string? message, Exception? exception) : base(message, exception)
     {
     }
 }

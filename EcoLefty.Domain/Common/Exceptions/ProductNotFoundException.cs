@@ -7,4 +7,8 @@ public sealed class ProductNotFoundException : NotFoundException
     public ProductNotFoundException(int id) : base($"A product with Id: {id} does not exist.")
     {
     }
+
+    public ProductNotFoundException(string? message, Exception? exception) : base(message, exception)
+    {
+    }
 }

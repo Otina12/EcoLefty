@@ -41,10 +41,9 @@ public class UnitOfWork : IUnitOfWork, IDisposable
 
     public async Task<int> SaveChangesAsync(CancellationToken token, bool softDeleteEnabled = true)
     {
-        var now = DateTime.UtcNow;
-
         if (softDeleteEnabled)
         {
+            var now = DateTime.UtcNow;
             SoftDeleteHelper.ProcessChanges(_context, _currentUserContext, now);
         }
 

@@ -1,0 +1,40 @@
+﻿@model EcoLefty.Application.Offers.DTOs.OfferDetailsResponseDto
+
+<a href="@Url.Action("Details", "Offer", new { id = Model.Id })" class="offer-card-link" style="text-decoration:none; color:inherit;">
+    <div class="card offer-card mb-4">
+        <div class="row no-gutters">
+            <div class="col-md-3">
+                <img src="@Model.Product.ImageUrl" class="offer-product-image" alt="@Model.Product.Name" />
+            </div>
+            <div class="col-md-9">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <h5 class="card-title mb-1">@Model.Title</h5>
+                        <div class="company-info d-flex align-items-center">
+                            <img src="@Model.Company.LogoUrl" alt="@Model.Company.Name" class="company-logo mr-2" style="width: 30px; height: 30px;" />
+                            <span>@Model.Company.Name</span>
+                        </div>
+                    </div>
+                    <p class="card-text text-truncate">@Model.Description</p>
+                    @if (Model.Categories != null && Model.Categories.Any())
+                    {
+                        <p class="card-text">
+                            <small class="text-muted">
+                                Categories: @string.Join(", ", Model.Categories.Select(c => c.Name))
+                            </small>
+                        </p>
+                    }
+                    <p class="card-text">
+                        <span class="old-price"><del>@Model.Product.DefaultPrice.ToString("C")</del></span>
+                        <span class="new-price ml-2">@Model.UnitPrice.ToString("C")</span>
+                    </p>
+                    <p class="card-text">
+                        <small class="text-muted">
+                            Valid from @Model.StartDateUtc.ToShortDateString() to @Model.ExpiryDateUtc.ToShortDateString()
+                        </small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</a>

@@ -1,0 +1,15 @@
+﻿@model IEnumerable<EcoLefty.Application.Products.DTOs.ProductResponseDto>
+
+@{
+    ViewBag.Title = "Products";
+}
+
+<div class="products-container">
+    <h1>Products</h1>
+    <div class="products-grid">
+        @foreach (var product in Model)
+        {
+            @await Html.PartialAsync("_ProductCard", product)
+        }
+    </div>
+</div>

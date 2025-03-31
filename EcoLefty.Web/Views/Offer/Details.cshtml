@@ -1,0 +1,57 @@
+﻿@model EcoLefty.Application.Offers.DTOs.OfferDetailsResponseDto
+
+@{
+    ViewBag.Title = Model.Title;
+}
+
+<div class="offer-details-container">
+    <div class="offer-details-row">
+        <div class="offer-image">
+            <img src="@Model.Product.ImageUrl" alt="@Model.Product.Name" />
+        </div>
+
+        <div class="offer-info">
+            <h1 class="offer-title">@Model.Title</h1>
+            <h2 class="product-name">Product: @Model.Product.Name</h2>
+            <p class="offer-description">@Model.Description</p>
+            <p class="offer-price">
+                <strong>Price:</strong>
+                <span class="old-price"><del>@Model.Product.DefaultPrice.ToString("C")</del></span>
+                <span class="new-price ml-2">@Model.UnitPrice.ToString("C")</span>
+            </p>
+            <p class="offer-quantity">
+                <strong>Quantity available: </strong>@Model.QuantityAvailable
+            </p>
+            <p class="offer-validity">
+                <strong>Valid: </strong> @Model.StartDateUtc.ToShortDateString() to @Model.ExpiryDateUtc.ToShortDateString()
+            </p>
+            @if (Model.Categories != null && Model.Categories.Any())
+            {
+                <p class="offer-categories">
+                    <strong>Categories: </strong> @string.Join(", ", Model.Categories.Select(c => c.Name))
+                </p>
+            }
+            <div class="offer-company">
+                <h3>Offered by</h3>
+                <div class="company-info">
+                    <img src="@Model.Company.LogoUrl" alt="@Model.Company.Name" class="company-logo" />
+                    <span>@Model.Company.Name</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (User.IsInRole("User"))
+    {
+        <div class="purchase-section">
+            <form asp-controller="Purchases" asp-action="Create" method="post">
+                <input type="hidden" name="OfferId" value="@Model.Id" />
+                <div class="my-field">
+                    <label for="Quantity" class="required">Quantity</label>
+                    <input id="Quantity" name="Quantity" type="number" min="1" max="@Model.TotalQuantity" value="1" required />
+                </div>
+                <button type="submit" class="purchase-button">Purchase</button>
+            </form>
+        </div>
+    }
+</div>

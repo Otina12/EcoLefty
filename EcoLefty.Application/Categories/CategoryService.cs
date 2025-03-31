@@ -24,11 +24,11 @@ public class CategoryService : ICategoryService
         return _mapper.Map<IEnumerable<CategoryResponseDto>>(categories);
     }
 
-    public async Task<IEnumerable<CategoryResponseDto>> GetAllFollowedCategoriesByUserIdAsync(int id, CancellationToken token = default)
+    public async Task<IEnumerable<CategoryResponseDto>> GetAllFollowedCategoriesByUserIdAsync(string userId, CancellationToken token = default)
     {
-        var user = await _unitOfWork.Users.GetByIdAsync(id, false, token, ApplicationUserIncludes.Categories);
+        var user = await _unitOfWork.Users.GetByIdAsync(userId, false, token, ApplicationUserIncludes.Categories);
         if (user is null)
-            throw new ApplicationUserNotFoundException(id);
+            throw new ApplicationUserNotFoundException(userId);
 
         var categories = user.FollowedCategories;
         return _mapper.Map<IEnumerable<CategoryResponseDto>>(categories);

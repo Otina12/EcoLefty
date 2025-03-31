@@ -13,7 +13,7 @@ internal class AccountService : IAccountService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<Account> GetAccountByIdAsync(string id, CancellationToken token)
+    public async Task<Account> GetAccountByIdAsync(string id, CancellationToken token = default)
     {
         var account = await _unitOfWork.Accounts.GetByIdAsync(id, false, token);
         if (account is null)

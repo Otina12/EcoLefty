@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace EcoLefty.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class initialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -52,7 +52,7 @@ namespace EcoLefty.Persistence.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AccountId = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ActionType = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     EntityName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     EntityId = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -168,16 +168,14 @@ namespace EcoLefty.Persistence.Migrations
                 schema: "ecolefty",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Country = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     City = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Address = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
-                    LogoUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    LogoUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Balance = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     IsApproved = table.Column<bool>(type: "bit", nullable: false),
-                    AccountId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true)
@@ -186,8 +184,8 @@ namespace EcoLefty.Persistence.Migrations
                 {
                     table.PrimaryKey("PK_Companies", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Companies_Accounts_AccountId",
-                        column: x => x.AccountId,
+                        name: "FK_Companies_Accounts_Id",
+                        column: x => x.Id,
                         principalSchema: "auth",
                         principalTable: "Accounts",
                         principalColumn: "Id",
@@ -195,19 +193,39 @@ namespace EcoLefty.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "RefreshTokens",
+                schema: "auth",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Token = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    ExpiresOnUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    AccountId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RefreshTokens", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_RefreshTokens_Accounts_AccountId",
+                        column: x => x.AccountId,
+                        principalSchema: "auth",
+                        principalTable: "Accounts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Users",
                 schema: "ecolefty",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     FirstName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     LastName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Bio = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
                     BirthDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ProfilePictureUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ProfilePictureUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Balance = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    AccountId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true)
@@ -216,8 +234,8 @@ namespace EcoLefty.Persistence.Migrations
                 {
                     table.PrimaryKey("PK_Users", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Users_Accounts_AccountId",
-                        column: x => x.AccountId,
+                        name: "FK_Users_Accounts_Id",
+                        column: x => x.Id,
                         principalSchema: "auth",
                         principalTable: "Accounts",
                         principalColumn: "Id",
@@ -285,7 +303,7 @@ namespace EcoLefty.Persistence.Migrations
                     Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
                     DefaultPrice = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CompanyId = table.Column<int>(type: "int", nullable: false),
+                    CompanyId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true)
@@ -308,7 +326,7 @@ namespace EcoLefty.Persistence.Migrations
                 columns: table => new
                 {
                     FollowedCategoriesId = table.Column<int>(type: "int", nullable: false),
-                    FollowingUsersId = table.Column<int>(type: "int", nullable: false)
+                    FollowingUsersId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -387,6 +405,42 @@ namespace EcoLefty.Persistence.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Purchases",
+                schema: "ecolefty",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    PurchaseStatus = table.Column<int>(type: "int", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    TotalPrice = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    PurchaseDateUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    OfferId = table.Column<int>(type: "int", nullable: false),
+                    CustomerId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Purchases", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Purchases_Offers_OfferId",
+                        column: x => x.OfferId,
+                        principalSchema: "ecolefty",
+                        principalTable: "Offers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Purchases_Users_CustomerId",
+                        column: x => x.CustomerId,
+                        principalSchema: "ecolefty",
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AccountClaims_UserId",
                 schema: "auth",
@@ -420,13 +474,6 @@ namespace EcoLefty.Persistence.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Companies_AccountId",
-                schema: "ecolefty",
-                table: "Companies",
-                column: "AccountId",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Offers_ProductId",
                 schema: "ecolefty",
                 table: "Offers",
@@ -443,6 +490,31 @@ namespace EcoLefty.Persistence.Migrations
                 schema: "ecolefty",
                 table: "Products",
                 column: "CompanyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Purchases_CustomerId",
+                schema: "ecolefty",
+                table: "Purchases",
+                column: "CustomerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Purchases_OfferId",
+                schema: "ecolefty",
+                table: "Purchases",
+                column: "OfferId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RefreshTokens_AccountId",
+                schema: "auth",
+                table: "RefreshTokens",
+                column: "AccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RefreshTokens_Token",
+                schema: "auth",
+                table: "RefreshTokens",
+                column: "Token",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_RoleClaims_RoleId",
@@ -463,13 +535,6 @@ namespace EcoLefty.Persistence.Migrations
                 schema: "ecolefty",
                 table: "UserFollowedCategories",
                 column: "FollowingUsersId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Users_AccountId",
-                schema: "ecolefty",
-                table: "Users",
-                column: "AccountId",
-                unique: true);
         }
 
         /// <inheritdoc />
@@ -496,12 +561,16 @@ namespace EcoLefty.Persistence.Migrations
                 schema: "ecolefty");
 
             migrationBuilder.DropTable(
-                name: "Offers",
+                name: "ProductCategories",
                 schema: "ecolefty");
 
             migrationBuilder.DropTable(
-                name: "ProductCategories",
+                name: "Purchases",
                 schema: "ecolefty");
+
+            migrationBuilder.DropTable(
+                name: "RefreshTokens",
+                schema: "auth");
 
             migrationBuilder.DropTable(
                 name: "RoleClaims",
@@ -512,7 +581,7 @@ namespace EcoLefty.Persistence.Migrations
                 schema: "ecolefty");
 
             migrationBuilder.DropTable(
-                name: "Products",
+                name: "Offers",
                 schema: "ecolefty");
 
             migrationBuilder.DropTable(
@@ -525,6 +594,10 @@ namespace EcoLefty.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "Users",
+                schema: "ecolefty");
+
+            migrationBuilder.DropTable(
+                name: "Products",
                 schema: "ecolefty");
 
             migrationBuilder.DropTable(

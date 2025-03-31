@@ -3,7 +3,6 @@ using Common.Extensions;
 using EcoLefty.API.Infrastructure;
 using EcoLefty.API.Infrastructure.Extensions;
 using EcoLefty.Application;
-using EcoLefty.Persistence.Seed;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -35,6 +34,7 @@ services.AddEndpointsApiExplorer();
 services.ConfigureSwaggerGen();
 services.ConfigureValidation();
 
+services.ConfigureCors();
 
 services.AddApiVersioning(options =>
 {
@@ -72,7 +72,7 @@ app.UseExceptionHandler();
 app.UseStatusCodePages();
 
 // seed data
-await EcoLeftySeeder.SeedAsync(app.Services);
+//await EcoLeftySeeder.SeedAsync(app.Services);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
