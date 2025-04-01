@@ -1,0 +1,46 @@
+﻿@model EcoLefty.Application.ApplicationUsers.DTOs.UpdateApplicationUserRequestDto
+
+@{
+    ViewBag.Title = "Edit Profile";
+}
+
+<div class="my-form">
+    <div class="title">
+        Edit Profile
+    </div>
+    <form asp-controller="User" asp-action="Edit" method="post" enctype="multipart/form-data">
+        <div class="my-field">
+            <label asp-for="FirstName" class="required">First Name</label>
+            <input asp-for="FirstName" type="text" placeholder="Enter first name" required />
+            <span asp-validation-for="FirstName" class="text-danger"></span>
+        </div>
+
+        <div class="my-field">
+            <label asp-for="LastName" class="required">Last Name</label>
+            <input asp-for="LastName" type="text" placeholder="Enter last name" required />
+            <span asp-validation-for="LastName" class="text-danger"></span>
+        </div>
+
+        <div class="my-field">
+            <label asp-for="Bio">Bio</label>
+            <textarea asp-for="Bio" placeholder="Write a short bio about yourself"></textarea>
+            <span asp-validation-for="Bio" class="text-danger"></span>
+        </div>
+
+        <div class="my-field">
+            <label asp-for="ProfilePictureFile">Profile Picture</label>
+            <input asp-for="ProfilePictureFile" type="file" accept="image/*" />
+            <span asp-validation-for="ProfilePictureFile" class="text-danger"></span>
+
+            @if (!string.IsNullOrEmpty(Model.ProfilePictureUrl))
+            {
+                <div class="current-image">
+                    <p>Current Picture:</p>
+                    <img src="~/@Model.ProfilePictureUrl" alt="Current Profile Picture" style="max-width:200px;" />
+                </div>
+            }
+        </div>
+
+        <input class="submit-button" type="submit" value="Update Profile" />
+    </form>
+</div>

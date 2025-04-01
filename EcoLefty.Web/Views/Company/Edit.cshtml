@@ -1,0 +1,46 @@
+﻿@model EcoLefty.Application.Companies.DTOs.UpdateCompanyRequestDto
+
+@{
+    ViewBag.Title = "Edit Company";
+}
+
+<div class="my-form">
+    <div class="title">
+        Edit Company
+    </div>
+    <form asp-controller="Company" asp-action="Edit" method="post" enctype="multipart/form-data">
+        <div class="my-field">
+            <label asp-for="Name" class="required">Company Name</label>
+            <input asp-for="Name" type="text" placeholder="Enter company name" required />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+        <div class="my-field">
+            <label asp-for="Country" class="required">Country</label>
+            <input asp-for="Country" type="text" placeholder="Enter country" required />
+            <span asp-validation-for="Country" class="text-danger"></span>
+        </div>
+        <div class="my-field">
+            <label asp-for="City" class="required">City</label>
+            <input asp-for="City" type="text" placeholder="Enter city" required />
+            <span asp-validation-for="City" class="text-danger"></span>
+        </div>
+        <div class="my-field">
+            <label asp-for="Address" class="required">Address</label>
+            <input asp-for="Address" type="text" placeholder="Enter address" required />
+            <span asp-validation-for="Address" class="text-danger"></span>
+        </div>
+        <div class="my-field">
+            <label asp-for="LogoFile">Company Logo</label>
+            <input asp-for="LogoFile" type="file" accept="image/*" />
+            <span asp-validation-for="LogoFile" class="text-danger"></span>
+            @if (!string.IsNullOrEmpty(Model.LogoUrl))
+            {
+                <div class="current-image">
+                    <p>Current Logo:</p>
+                    <img src="~/@Model.LogoUrl" alt="@Model.Name" style="max-width:200px;" />
+                </div>
+            }
+        </div>
+        <input class="submit-button" type="submit" value="Update Company" />
+    </form>
+</div>

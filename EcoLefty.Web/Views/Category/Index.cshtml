@@ -1,0 +1,88 @@
+﻿@model IEnumerable<EcoLefty.Application.Categories.DTOs.CategoryResponseDto>
+
+@{
+    ViewBag.Title = "Categories";
+    // If you stored the followed IDs in the ViewBag, convert them to a HashSet:
+    var followedIds = (ViewBag.FollowedCategoryIDs as IEnumerable<int>)?.ToHashSet()
+                      ?? new HashSet<int>();
+}
+
+<h2>Categories</h2>
+
+<div class="category-tags">
+    @foreach (var category in Model)
+    {
+        bool isFollowed = followedIds.Contains(category.Id);
+
+        <div class="category-tag" data-category-id="@category.Id">
+            <span>@category.Name</span>
+
+            @if (isFollowed)
+            {
+                <button type="button" class="follow-btn followed" title="Unfollow" onclick="unfollowCategory(@category.Id, this)">
+                    &#10003;
+                </button>
+            }
+            else
+            {
+                <button type="button" class="follow-btn" title="Follow" onclick="followCategory(@category.Id, this)">
+                    +
+                </button>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        async function followCategory(categoryId, btn) {
+            try {
+                const response = await fetch('/Category/Follow', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    body: JSON.stringify({ categoryId })
+                });
+
+                if (response.ok) {
+                    btn.innerText = "✓";
+                    btn.title = "Unfollow";
+                    btn.classList.add("followed");
+                    btn.setAttribute("onclick", `unfollowCategory(${categoryId}, this)`);
+                } else {
+                    alert("Failed to follow category.");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Error occurred.");
+            }
+        }
+
+        async function unfollowCategory(categoryId, btn) {
+            try {
+                const response = await fetch('/Category/Unfollow', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    body: JSON.stringify({ categoryId })
+                });
+
+                if (response.ok) {
+                    btn.innerText = "+";
+                    btn.title = "Follow";
+                    btn.classList.remove("followed");
+                    btn.setAttribute("onclick", `followCategory(${categoryId}, this)`);
+                } else {
+                    alert("Failed to unfollow category.");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Error occurred.");
+            }
+        }
+    </script>
+}

@@ -1,4 +1,6 @@
-﻿namespace EcoLefty.Application.ApplicationUsers.DTOs;
+﻿using Microsoft.AspNetCore.Http;
+
+namespace EcoLefty.Application.ApplicationUsers.DTOs;
 
 public record CreateApplicationUserRequestDto
 {
@@ -12,5 +14,5 @@ public record CreateApplicationUserRequestDto
     public int BirthDay { get; set; }
     public int BirthMonth { get; set; }
     public int BirthYear { get; set; }
-    public string? ProfilePictureUrl { get; set; }
+    public IFormFile? ProfilePictureFile { get; set; }
 }

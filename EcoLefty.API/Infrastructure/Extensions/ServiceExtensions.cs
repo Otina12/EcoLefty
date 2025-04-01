@@ -1,7 +1,7 @@
 ﻿using Common.Shared;
 using EcoLefty.API.Infrastructure.Middlewares;
 using EcoLefty.API.Infrastructure.Swagger;
-using EcoLefty.Application.Contracts;
+using EcoLefty.Application.Common.Logger;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.Extensions.Options;

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using EcoLefty.Application.Categories.DTOs;
 using EcoLefty.Domain.Common.Exceptions;
+using EcoLefty.Domain.Common.Exceptions.Base;
 using EcoLefty.Domain.Common.IncludeExpressions;
 using EcoLefty.Domain.Contracts;
 using EcoLefty.Domain.Entities;
@@ -43,6 +44,42 @@ public class CategoryService : ICategoryService
         }
 
         return _mapper.Map<CategoryResponseDto>(category);
+    }
+
+    public async Task<bool> FollowCategory(int categoryId, CancellationToken token = default)
+    {
+        var currentUserId = _unitOfWork.CurrentUserContext.UserId;
+        if (currentUserId is null)
+            throw new UnauthorizedException();
+
+        var user = await _unitOfWork.Users.GetByIdAsync(currentUserId, true, token, ApplicationUserIncludes.Categories);
+        if (user is null)
+            throw new ApplicationUserNotFoundException(currentUserId);
+
+        var category = await _unitOfWork.Categories.GetByIdAsync(categoryId, true, token);
+        if (category is null)
+            throw new CategoryNotFoundException(categoryId);
+
+        user.FollowedCategories.Add(category);
+        return await _unitOfWork.SaveChangesAsync() > 0;
+    }
+
+    public async Task<bool> UnfollowCategory(int categoryId, CancellationToken token = default)
+    {
+        var currentUserId = _unitOfWork.CurrentUserContext.UserId;
+        if (currentUserId is null)
+            throw new UnauthorizedException();
+
+        var user = await _unitOfWork.Users.GetByIdAsync(currentUserId, true, token, ApplicationUserIncludes.Categories);
+        if (user is null)
+            throw new ApplicationUserNotFoundException(currentUserId);
+
+        var category = await _unitOfWork.Categories.GetByIdAsync(categoryId, true, token);
+        if (category is null)
+            throw new CategoryNotFoundException(categoryId);
+
+        user.FollowedCategories.Remove(category);
+        return await _unitOfWork.SaveChangesAsync() > 0;
     }
 
     public async Task<CategoryResponseDto> CreateAsync(CreateCategoryRequestDto createCategoryDto, CancellationToken token = default)

@@ -40,7 +40,7 @@ public class OfferService : IOfferService
         var now = DateTime.UtcNow;
 
         var activeOffers = await _unitOfWork.Offers.GetAllWhereAsync(
-            o => now >= o.StartDateUtc && now <= o.ExpiryDateUtc,
+            o => now >= o.StartDateUtc && now <= o.ExpiryDateUtc && DateTime.UtcNow >= o.StartDateUtc,
             trackChanges: false,
             token: token,
             OfferIncludes.Product,

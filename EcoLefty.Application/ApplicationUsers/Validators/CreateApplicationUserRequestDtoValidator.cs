@@ -46,10 +46,6 @@ public class CreateApplicationUserRequestDtoValidator : AbstractValidator<Create
         RuleFor(x => x)
                 .Must(x => BirthdayIsValid(x.BirthYear, x.BirthMonth, x.BirthDay))
                 .WithMessage("Birthdate is not valid.");
-
-        //RuleFor(x => x.ProfilePictureUrl)
-        //    .Must(url => string.IsNullOrEmpty(url))
-        //    .WithMessage("Profile picture URL must be a valid absolute URL.");
     }
 
     private bool BirthdayIsValid(int year, int month, int day)

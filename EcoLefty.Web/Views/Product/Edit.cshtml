@@ -1,0 +1,41 @@
+﻿@model EcoLefty.Application.Products.DTOs.UpdateProductRequestDto
+
+@{
+    ViewBag.Title = "Edit Product";
+}
+
+<div class="my-form">
+    <div class="title">
+        Edit Product
+    </div>
+    <form asp-controller="Product" asp-action="Edit" method="post" enctype="multipart/form-data">
+        <div class="my-field">
+            <label asp-for="Name" class="required">Product Name</label>
+            <input asp-for="Name" type="text" placeholder="Enter product name" required />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+        <div class="my-field">
+            <label asp-for="Description" class="required">Description</label>
+            <textarea asp-for="Description" placeholder="Enter product description" required></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+        <div class="my-field">
+            <label asp-for="DefaultPrice" class="required">Price</label>
+            <input asp-for="DefaultPrice" type="number" placeholder="Enter price" step="0.01" required />
+            <span asp-validation-for="DefaultPrice" class="text-danger"></span>
+        </div>
+        <div class="my-field">
+            <label asp-for="ImageFile">Product Image</label>
+            <input asp-for="ImageFile" type="file" accept="image/*" />
+            <span asp-validation-for="ImageFile" class="text-danger"></span>
+            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+            {
+                <div class="current-image">
+                    <p>Current Image:</p>
+                    <img src="~/@Model.ImageUrl" alt="@Model.Name" style="max-width:200px;" />
+                </div>
+            }
+        </div>
+        <input class="submit-button" type="submit" value="Update Product" />
+    </form>
+</div>

@@ -1,4 +1,4 @@
-﻿using EcoLefty.Application.Contracts;
+﻿using EcoLefty.Application.Common.Logger;
 using ILogger = Serilog.ILogger;
 
 namespace Common.Shared;

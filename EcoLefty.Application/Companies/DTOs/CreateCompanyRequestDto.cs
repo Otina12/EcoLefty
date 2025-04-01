@@ -1,4 +1,6 @@
-﻿namespace EcoLefty.Application.Companies.DTOs;
+﻿using Microsoft.AspNetCore.Http;
+
+namespace EcoLefty.Application.Companies.DTOs;
 
 public record CreateCompanyRequestDto
 {
@@ -8,7 +10,7 @@ public record CreateCompanyRequestDto
     public string Country { get; set; }
     public string City { get; set; }
     public string Address { get; set; }
-    public string? LogoUrl { get; set; }
+    public IFormFile? LogoFile { get; set; }
     public string Password { get; set; }
     public string ConfirmPassword { get; set; }
 }

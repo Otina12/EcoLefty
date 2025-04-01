@@ -1,13 +1,23 @@
-﻿@model EcoLefty.Application.Companies.DTOs.CompanyDetailsResponseDto
+﻿@using System.Security.Claims
+@model EcoLefty.Application.Companies.DTOs.CompanyDetailsResponseDto
 
 @{
     ViewBag.Title = "Company Details";
+    var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    var userIsOwner = currentUserId == Model.Id;
     var company = Model;
 }
 
 <div class="profile-container">
-    <div class="company-details">
-        <img src="@company.LogoUrl" alt="@company.Name" class="company-logo" />
+    @if (userIsOwner)
+    {
+        <a href="@Url.Action("Edit", "Company", new { id = Model.Id })" class="edit-icon" title="Edit Company">
+            &#9998;
+        </a>
+    }
+
+    <div class="profile-details">
+        <img src="@Url.Content("~/" + company.LogoUrl)" alt="@company.Name" class="profile-logo" />
         <h1>@company.Name</h1>
         <p><strong>Email:</strong> @company.Email</p>
         <p><strong>Phone:</strong> @company.PhoneNumber</p>
@@ -45,12 +55,16 @@
         <div class="items-wrapper">
             @foreach (var product in company.Products.Take(3))
             {
-                <div class="item product-item">
-                    <img src="@product.ImageUrl" alt="@product.Name" class="product-image" />
-                    <h3>@product.Name</h3>
-                    <p>@product.Description</p>
-                    <p><strong>Price:</strong> @product.DefaultPrice.ToString("C")</p>
-                </div>
+                <a href="@Url.Action("Details", "Product", new { id = product.Id })" class="product-card-link">
+                    <div class="card product-card mb-4">
+                        <img src="@Url.Content("~/" + @product.ImageUrl)" alt="@product.Name" class="product-card-image" />
+                        <div class="card-body">
+                            <h5 class="card-title">@product.Name</h5>
+                            <p class="card-text"><strong>Price:</strong> @product.DefaultPrice.ToString("C")</p>
+                            <p class="card-text"><strong>By:</strong> @product.Company.Name</p>
+                        </div>
+                    </div>
+                </a>
             }
         </div>
     </div>

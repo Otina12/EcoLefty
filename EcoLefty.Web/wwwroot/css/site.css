@@ -361,10 +361,6 @@ input[readonly] {
     font-size: 16px;
 }
 
-.card-title {
-    color: white;
-}
-
 .filter-radio-group input[type="radio"] {
     margin-right: 5px;
 }
@@ -609,12 +605,6 @@ input[readonly] {
 
 .card-body {
     padding: 15px;
-}
-
-.card-title {
-    color: white;
-    font-size: 18px;
-    font-weight: 500;
 }
 
 .card-footer {

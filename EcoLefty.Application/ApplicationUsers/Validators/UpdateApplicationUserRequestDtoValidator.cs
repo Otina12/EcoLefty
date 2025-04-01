@@ -18,9 +18,5 @@ public class UpdateApplicationUserRequestDtoValidator : AbstractValidator<Update
         RuleFor(x => x.Bio)
             .MaximumLength(1000).WithMessage("Bio cannot exceed 1000 characters.")
             .When(x => !string.IsNullOrEmpty(x.Bio));
-
-        //RuleFor(x => x.ProfilePictureUrl)
-        //    .Must(url => string.IsNullOrEmpty(url) || Uri.IsWellFormedUriString(url, UriKind.Absolute))
-        //    .WithMessage("Profile picture URL must be a valid absolute URL.");
     }
 }

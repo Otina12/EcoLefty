@@ -17,10 +17,5 @@ public class UpdateProductRequestDtoValidator : AbstractValidator<UpdateProductR
 
         RuleFor(x => x.DefaultPrice)
             .GreaterThan(0).WithMessage("Default price must be greater than 0.");
-
-        RuleFor(x => x.ImageUrl)
-            .NotEmpty().WithMessage("Image URL is required.")
-            //.Must(url => Uri.IsWellFormedUriString(url, UriKind.Absolute))
-            .WithMessage("Image URL must be a valid absolute URL.");
     }
 }

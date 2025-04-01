@@ -1,13 +1,23 @@
-﻿@model EcoLefty.Application.Products.DTOs.ProductDetailsResponseDto
+﻿@using System.Security.Claims
+@model EcoLefty.Application.Products.DTOs.ProductDetailsResponseDto
 
 @{
     ViewBag.Title = Model.Name;
+    var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    var userIsOwner = currentUserId == Model.Company.Id;
 }
 
 <div class="product-details-container">
+    @if (userIsOwner)
+    {
+        <a href="@Url.Action("Edit", "Product", new { id = Model.Id })" class="edit-icon" title="Edit Product">
+            &#9998;
+        </a>
+    }
+
     <div class="product-details-row">
         <div class="product-image">
-            <img src="@Model.ImageUrl" alt="@Model.Name" />
+            <img src="@Url.Content("~/" + Model.ImageUrl)" alt="@Model.Name" />
         </div>
         <div class="product-info">
             <h1>@Model.Name</h1>
@@ -22,11 +32,16 @@
                     }
                 }
             </div>
-            <div class="company-info">
-                <h3>Provided by:</h3>
-                <img src="@Model.Company.LogoUrl" alt="@Model.Company.Name" class="company-logo" />
-                <span>@Model.Company.Name</span>
+            <div class="product-company">
+                <h3>Offered by</h3>
+                <a href='@Url.Action("Profile", "Company", new { id = Model.Company.Id })' class="company-info-link">
+                    <div class="company-info">
+                        <img src='@Url.Content("~/" + Model.Company.LogoUrl)' alt='@Model.Company.Name' class="card-company-logo" />
+                        <span>@Model.Company.Name</span>
+                    </div>
+                </a>
             </div>
+
         </div>
     </div>
 

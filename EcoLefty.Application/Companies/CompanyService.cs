@@ -2,8 +2,10 @@
 using EcoLefty.Application.Accounts.DTOs;
 using EcoLefty.Application.Authentication;
 using EcoLefty.Application.Authentication.Tokens.DTOs;
+using EcoLefty.Application.Common.Images;
 using EcoLefty.Application.Companies.DTOs;
 using EcoLefty.Application.Offers;
+using EcoLefty.Domain.Common;
 using EcoLefty.Domain.Common.Enums;
 using EcoLefty.Domain.Common.Exceptions;
 using EcoLefty.Domain.Common.IncludeExpressions;
@@ -16,13 +18,20 @@ public class CompanyService : ICompanyService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IOfferService _offerService;
+    private readonly IImageService _imageService;
     private readonly IAuthenticationService _authenticationService;
     private readonly IMapper _mapper;
 
-    public CompanyService(IUnitOfWork unitOfWork, IOfferService offerService, IMapper mapper, IAuthenticationService authenticationService)
+    public CompanyService(
+        IUnitOfWork unitOfWork,
+        IOfferService offerService,
+        IImageService imageService,
+        IMapper mapper,
+        IAuthenticationService authenticationService)
     {
         _unitOfWork = unitOfWork;
         _offerService = offerService;
+        _imageService = imageService;
         _authenticationService = authenticationService;
         _mapper = mapper;
     }
@@ -71,6 +80,11 @@ public class CompanyService : ICompanyService
             var company = _mapper.Map<Company>(createCompanyDto);
             company.Id = accountId;
 
+            var imageUrl = createCompanyDto.LogoFile is null ?
+                Constants.DEFAULT_PROFILE_PICTURE_PATH : await _imageService.UploadImageAsync(createCompanyDto.LogoFile, token);
+
+            company.LogoUrl = imageUrl;
+
             await _unitOfWork.Companies.CreateAsync(company);
             await _unitOfWork.SaveChangesAsync(token);
 
@@ -94,6 +108,12 @@ public class CompanyService : ICompanyService
         }
 
         _mapper.Map(updateCompanyDto, company);
+
+        if (updateCompanyDto.LogoFile is not null)
+        {
+            var imageUrl = await _imageService.UploadImageAsync(updateCompanyDto.LogoFile, token);
+            company.LogoUrl = imageUrl;
+        }
 
         _unitOfWork.Companies.Update(company);
         await _unitOfWork.SaveChangesAsync(token);

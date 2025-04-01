@@ -3,6 +3,8 @@ using EcoLefty.Application.Accounts.DTOs;
 using EcoLefty.Application.ApplicationUsers.DTOs;
 using EcoLefty.Application.Authentication;
 using EcoLefty.Application.Authentication.Tokens.DTOs;
+using EcoLefty.Application.Common.Images;
+using EcoLefty.Domain.Common;
 using EcoLefty.Domain.Common.Enums;
 using EcoLefty.Domain.Common.Exceptions;
 using EcoLefty.Domain.Common.IncludeExpressions;
@@ -16,12 +18,14 @@ public class ApplicationUserService : IApplicationUserService
     private readonly IUnitOfWork _unitOfWork;
     private readonly IAuthenticationService _authenticationService;
     private readonly IMapper _mapper;
+    private readonly IImageService _imageService;
 
-    public ApplicationUserService(IUnitOfWork unitOfWork, IMapper mapper, IAuthenticationService authenticationService)
+    public ApplicationUserService(IUnitOfWork unitOfWork, IMapper mapper, IImageService imageService, IAuthenticationService authenticationService)
     {
         _authenticationService = authenticationService;
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _imageService = imageService;
     }
 
     public async Task<IEnumerable<ApplicationUserResponseDto>> GetAllAsync(CancellationToken token = default)
@@ -34,6 +38,7 @@ public class ApplicationUserService : IApplicationUserService
     {
         var user = await _unitOfWork.Users.GetByIdAsync(id, trackChanges: false, token: token,
             ApplicationUserIncludes.Account,
+            ApplicationUserIncludes.Purchases,
             ApplicationUserIncludes.Categories);
 
         if (user is null)
@@ -60,6 +65,11 @@ public class ApplicationUserService : IApplicationUserService
             var applicationUser = _mapper.Map<ApplicationUser>(createUserDto);
             applicationUser.Id = accountId;
 
+            var imageUrl = createUserDto.ProfilePictureFile is null ?
+               Constants.DEFAULT_PROFILE_PICTURE_PATH : await _imageService.UploadImageAsync(createUserDto.ProfilePictureFile, token);
+
+            applicationUser.ProfilePictureUrl = imageUrl;
+
             await _unitOfWork.Users.CreateAsync(applicationUser, token);
             await _unitOfWork.SaveChangesAsync(token);
 
@@ -81,8 +91,13 @@ public class ApplicationUserService : IApplicationUserService
         {
             throw new ApplicationUserNotFoundException(id);
         }
-
         _mapper.Map(updateUserDto, user);
+
+        if (updateUserDto.ProfilePictureFile is not null)
+        {
+            var imageUrl = await _imageService.UploadImageAsync(updateUserDto.ProfilePictureFile, token);
+            user.ProfilePictureUrl = imageUrl;
+        }
 
         _unitOfWork.Users.Update(user);
         await _unitOfWork.SaveChangesAsync(token);

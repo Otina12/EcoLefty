@@ -24,8 +24,5 @@ public class UpdateOfferRequestDtoValidator : AbstractValidator<UpdateOfferReque
         RuleFor(x => x.StartDateUtc)
             .LessThan(x => x.ExpiryDateUtc)
             .WithMessage("Start date must be before the expiry date.");
-
-        RuleFor(x => x.ProductId)
-            .GreaterThan(0).WithMessage("Product id must be greater than 0.");
     }
 }

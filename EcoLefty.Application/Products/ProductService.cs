@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
+using EcoLefty.Application.Common.Images;
 using EcoLefty.Application.Products.DTOs;
+using EcoLefty.Domain.Common;
 using EcoLefty.Domain.Common.Exceptions;
 using EcoLefty.Domain.Common.Exceptions.Base;
 using EcoLefty.Domain.Common.IncludeExpressions;
@@ -11,23 +13,25 @@ namespace EcoLefty.Application.Products;
 public class ProductService : IProductService
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IImageService _imageService;
     private readonly IMapper _mapper;
 
-    public ProductService(IUnitOfWork unitOfWork, IMapper mapper)
+    public ProductService(IUnitOfWork unitOfWork, IImageService imageService, IMapper mapper)
     {
         _unitOfWork = unitOfWork;
+        _imageService = imageService;
         _mapper = mapper;
     }
 
     public async Task<IEnumerable<ProductResponseDto>> GetAllAsync(CancellationToken token = default)
     {
-        var products = await _unitOfWork.Products.GetAllAsync(trackChanges: false, token: token);
+        var products = await _unitOfWork.Products.GetAllAsync(trackChanges: false, token: token, ProductIncludes.Company);
         return _mapper.Map<IEnumerable<ProductResponseDto>>(products);
     }
 
     public async Task<IEnumerable<ProductResponseDto>> GetAllProductsOfCompanyAsync(string id, CancellationToken token = default)
     {
-        var products = await _unitOfWork.Products.GetAllWhereAsync(x => x.CompanyId == id, trackChanges: false, token: token);
+        var products = await _unitOfWork.Products.GetAllWhereAsync(x => x.CompanyId == id, trackChanges: false, token: token, ProductIncludes.Company);
         return _mapper.Map<IEnumerable<ProductResponseDto>>(products);
     }
 
@@ -86,6 +90,11 @@ public class ProductService : IProductService
             }
         }
 
+        var imageUrl = createProductDto.ImageFile is null ?
+            Constants.DEFAULT_PROFILE_PICTURE_PATH : await _imageService.UploadImageAsync(createProductDto.ImageFile, token);
+
+        product.ImageUrl = imageUrl;
+
         await _unitOfWork.Products.CreateAsync(product, token);
         await _unitOfWork.SaveChangesAsync(token);
 
@@ -101,6 +110,12 @@ public class ProductService : IProductService
         }
 
         _mapper.Map(updateProductDto, product);
+
+        if (updateProductDto.ImageFile is not null)
+        {
+            var imageUrl = await _imageService.UploadImageAsync(updateProductDto.ImageFile, token);
+            product.ImageUrl = imageUrl;
+        }
 
         _unitOfWork.Products.Update(product);
         await _unitOfWork.SaveChangesAsync(token);

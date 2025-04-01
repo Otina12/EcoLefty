@@ -2,6 +2,7 @@
 using EcoLefty.Application;
 using EcoLefty.Application.Authentication;
 using EcoLefty.Application.Authentication.Tokens;
+using EcoLefty.Application.Common.Images;
 using EcoLefty.Application.Contracts;
 using EcoLefty.Domain.Contracts;
 using EcoLefty.Domain.Contracts.Repositories;
@@ -37,6 +38,7 @@ public static class ServiceExtensions
         services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<IImageService, ImageService>();
 
         services.AddScoped<ICurrentUserContext, CurrentUserContext>();
 

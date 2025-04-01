@@ -1,5 +1,4 @@
-﻿@using EcoLefty.Application.ApplicationUsers.DTOs;﻿
-@model CreateApplicationUserRequestDto
+﻿@model EcoLefty.Application.ApplicationUsers.DTOs.CreateApplicationUserRequestDto
 
 @{
     ViewBag.Title = "Register";
@@ -47,9 +46,9 @@
                 <span asp-validation-for="Bio" class="text-danger"></span>
             </div>
             <div class="my-field">
-                <label class="required" asp-for="ProfilePictureUrl">Picture</label>
-                <input asp-for="ProfilePictureUrl" type="password" required />
-                <span asp-validation-for="ProfilePictureUrl" class="text-danger"></span>
+                <label asp-for="ProfilePictureFile">Profile picture</label>
+                <input asp-for="ProfilePictureFile" type="file" accept="image/*" />
+                <span asp-validation-for="ProfilePictureFile" class="text-danger"></span>
             </div>
             <div class="my-field">
                 <label class="required" asp-for="Password">Password</label>
@@ -65,7 +64,7 @@
             <input class="submit-button" type="submit" value="Register" />
             <div class="have-account">
                 <a asp-controller="Account" asp-action="Login">Already have an account?</a>
-                <br />
+                <br /><br />
                 <a asp-controller="Account" asp-action="RegisterCompany">Register as a company</a>
             </div>
         </form>

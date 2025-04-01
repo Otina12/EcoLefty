@@ -1,4 +1,6 @@
-﻿namespace EcoLefty.Application.Companies.DTOs;
+﻿using Microsoft.AspNetCore.Http;
+
+namespace EcoLefty.Application.Companies.DTOs;
 
 public record UpdateCompanyRequestDto
 {
@@ -7,4 +9,5 @@ public record UpdateCompanyRequestDto
     public string City { get; set; }
     public string Address { get; set; }
     public string? LogoUrl { get; set; }
+    public IFormFile? LogoFile { get; set; }
 }

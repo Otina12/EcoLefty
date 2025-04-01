@@ -30,11 +30,6 @@ public class CreateCompanyRequestDtoValidator : AbstractValidator<CreateCompanyR
             .NotEmpty().WithMessage("Address is required.")
             .MaximumLength(300).WithMessage("Address cannot exceed 300 characters.");
 
-        RuleFor(x => x.LogoUrl)
-            .NotEmpty().WithMessage("Logo URL is required.")
-            .Must(url => Uri.IsWellFormedUriString(url, UriKind.Absolute))
-            .WithMessage("Logo URL must be a valid absolute URL.");
-
         RuleFor(x => x.Password)
             .NotEmpty().WithMessage("Password is required.")
             .MinimumLength(6).WithMessage("Password must be at least 6 characters long.");

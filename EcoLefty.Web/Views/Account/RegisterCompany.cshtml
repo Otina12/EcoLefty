@@ -42,9 +42,9 @@
                 <span asp-validation-for="Address" class="text-danger"></span>
             </div>
             <div class="my-field">
-                <label asp-for="LogoUrl">Logo URL</label>
-                <input asp-for="LogoUrl" type="text" placeholder="Logo URL" />
-                <span asp-validation-for="LogoUrl" class="text-danger"></span>
+                <label asp-for="LogoFile">Company Logo</label>
+                <input asp-for="LogoFile" type="file" accept="image/*" />
+                <span asp-validation-for="LogoFile" class="text-danger"></span>
             </div>
             <div class="my-field">
                 <label class="required" asp-for="Password">Password</label>

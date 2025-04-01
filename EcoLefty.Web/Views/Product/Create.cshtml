@@ -2,7 +2,7 @@
 @model CreateProductRequestDto
 
 @{
-    ViewData["Title"] = "Create Product";
+    ViewBag.Title = "Create Product";
 }
 
 <div class="my-form">
@@ -24,11 +24,6 @@
             <label asp-for="DefaultPrice" class="required">Price</label>
             <input asp-for="DefaultPrice" type="number" placeholder="Enter price" step="0.01" required />
             <span asp-validation-for="DefaultPrice" class="text-danger"></span>
-        </div>
-        <div class="my-field">
-            <label asp-for="ImageUrl">Image URL</label>
-            <input asp-for="ImageUrl" type="text" placeholder="Enter image URL" />
-            <span asp-validation-for="ImageUrl" class="text-danger"></span>
         </div>
         <div class="my-field">
             <label asp-for="CategoryIds" class="required">Categories</label>

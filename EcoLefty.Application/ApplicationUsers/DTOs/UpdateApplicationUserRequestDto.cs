@@ -1,4 +1,6 @@
-﻿namespace EcoLefty.Application.ApplicationUsers.DTOs;
+﻿using Microsoft.AspNetCore.Http;
+
+namespace EcoLefty.Application.ApplicationUsers.DTOs;
 
 public record UpdateApplicationUserRequestDto
 {
@@ -6,4 +8,5 @@ public record UpdateApplicationUserRequestDto
     public string LastName { get; set; }
     public string Bio { get; set; }
     public string? ProfilePictureUrl { get; set; }
+    public IFormFile? ProfilePictureFile { get; set; }
 }

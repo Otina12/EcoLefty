@@ -8,5 +8,4 @@ public record UpdateOfferRequestDto
     public int TotalQuantity { get; set; } // quantity of a product
     public DateTime StartDateUtc { get; set; }
     public DateTime ExpiryDateUtc { get; set; }
-    public int ProductId { get; set; }
 }

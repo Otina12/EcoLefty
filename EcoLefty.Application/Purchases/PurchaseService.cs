@@ -20,30 +20,35 @@ public class PurchaseService : IPurchaseService
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<Purchase>> GetAllAsync(CancellationToken token = default)
+    public async Task<IEnumerable<PurchaseDetailsResponseDto>> GetAllAsync(CancellationToken token = default)
     {
-        return await _unitOfWork.Purchases.GetAllAsync(trackChanges: false, token: token);
+        var purchases = await _unitOfWork.Purchases.GetAllAsync(trackChanges: false, token: token);
+        return _mapper.Map<IEnumerable<PurchaseDetailsResponseDto>>(purchases);
     }
 
-    public async Task<Purchase> GetByIdAsync(int purchaseId, CancellationToken token = default)
+    public async Task<PurchaseDetailsResponseDto> GetByIdAsync(int purchaseId, CancellationToken token = default)
     {
-        var purchase = await _unitOfWork.Purchases.GetByIdAsync(purchaseId, trackChanges: false, token: token);
+        var purchase = await _unitOfWork.Purchases.GetByIdAsync(purchaseId, trackChanges: false, token: token,
+            PurchaseIncludes.Customer_Account,
+            PurchaseIncludes.Offer);
         if (purchase is null)
         {
             throw new PurchaseNotFoundException(purchaseId);
         }
 
-        return purchase;
+        return _mapper.Map<PurchaseDetailsResponseDto>(purchase);
     }
 
-    public async Task<IEnumerable<Purchase>> GetPurchasesByOfferAsync(int offerId, CancellationToken token = default)
+    public async Task<IEnumerable<PurchaseDetailsResponseDto>> GetPurchasesByOfferAsync(int offerId, CancellationToken token = default)
     {
-        return await _unitOfWork.Purchases.GetAllWhereAsync(p => p.OfferId == offerId, trackChanges: false, token: token);
+        var purchases = await _unitOfWork.Purchases.GetAllWhereAsync(p => p.OfferId == offerId, trackChanges: false, token: token);
+        return _mapper.Map<IEnumerable<PurchaseDetailsResponseDto>>(purchases);
     }
 
-    public async Task<IEnumerable<Purchase>> GetPurchasesByCustomerAsync(string customerId, CancellationToken token = default)
+    public async Task<IEnumerable<PurchaseDetailsResponseDto>> GetPurchasesByCustomerAsync(string customerId, CancellationToken token = default)
     {
-        return await _unitOfWork.Purchases.GetAllWhereAsync(p => p.CustomerId == customerId, trackChanges: false, token: token);
+        var purchases = await _unitOfWork.Purchases.GetAllWhereAsync(p => p.CustomerId == customerId, trackChanges: false, token: token);
+        return _mapper.Map<IEnumerable<PurchaseDetailsResponseDto>>(purchases);
     }
 
     public async Task<PurchaseDetailsResponseDto> CreatePurchaseAsync(CreatePurchaseRequestDto createPurchaseDto, CancellationToken token = default)

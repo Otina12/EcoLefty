@@ -1,4 +1,5 @@
 ﻿using EcoLefty.Application.Categories.DTOs;
+using EcoLefty.Application.Purchases.DTOs;
 
 namespace EcoLefty.Application.ApplicationUsers.DTOs;
 
@@ -13,5 +14,6 @@ public record ApplicationUserDetailsResponseDto
     public string ProfilePictureUrl { get; set; }
     public decimal Balance { get; set; }
     public IEnumerable<CategoryResponseDto> FollowedCategories { get; set; } = [];
+    public IEnumerable<PurchaseDetailsResponseDto> Purchases { get; set; } = [];
 
 }

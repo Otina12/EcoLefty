@@ -3,6 +3,7 @@ using EcoLefty.Application.Accounts;
 using EcoLefty.Application.ApplicationUsers;
 using EcoLefty.Application.Authentication;
 using EcoLefty.Application.Categories;
+using EcoLefty.Application.Common.Images;
 using EcoLefty.Application.Companies;
 using EcoLefty.Application.Contracts;
 using EcoLefty.Application.Offers;
@@ -22,19 +23,21 @@ public class ServiceManager : IServiceManager
     private readonly Lazy<IOfferService> _offerService;
     private readonly Lazy<IProductService> _productService;
     private readonly Lazy<IPurchaseService> _purchaseService;
+    private readonly IImageService _imageService;
 
     public ServiceManager(IUnitOfWork unitOfWork,
         IMapper mapper,
         IServiceProvider serviceProvider)
     {
+        _imageService = serviceProvider.GetRequiredService<IImageService>();
         var authService = serviceProvider.GetRequiredService<IAuthenticationService>();
 
         _accountService = new Lazy<IAccountService>(() => new AccountService(unitOfWork));
-        _applicationUserService = new Lazy<IApplicationUserService>(() => new ApplicationUserService(unitOfWork, mapper, authService));
+        _applicationUserService = new Lazy<IApplicationUserService>(() => new ApplicationUserService(unitOfWork, mapper, ImageService, authService));
         _categoryService = new Lazy<ICategoryService>(() => new CategoryService(unitOfWork, mapper));
-        _companyService = new Lazy<ICompanyService>(() => new CompanyService(unitOfWork, OfferService, mapper, authService));
+        _companyService = new Lazy<ICompanyService>(() => new CompanyService(unitOfWork, OfferService, ImageService, mapper, authService));
         _offerService = new Lazy<IOfferService>(() => new OfferService(unitOfWork, mapper, PurchaseService));
-        _productService = new Lazy<IProductService>(() => new ProductService(unitOfWork, mapper));
+        _productService = new Lazy<IProductService>(() => new ProductService(unitOfWork, ImageService, mapper));
         _purchaseService = new Lazy<IPurchaseService>(() => new PurchaseService(unitOfWork, mapper));
     }
 
@@ -45,4 +48,5 @@ public class ServiceManager : IServiceManager
     public IOfferService OfferService => _offerService.Value;
     public IProductService ProductService => _productService.Value;
     public IPurchaseService PurchaseService => _purchaseService.Value;
+    public IImageService ImageService => _imageService;
 }

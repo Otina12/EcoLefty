@@ -1,0 +1,35 @@
+﻿@model EcoLefty.Application.Purchases.DTOs.PurchaseDetailsResponseDto
+
+@{
+    ViewBag.Title = "Purchase Details";
+    var offer = Model.Offer;
+    var customer = Model.Customer;
+}
+
+<div class="purchase-details-container">
+
+    <h2>Purchase #@Model.Id</h2>
+
+    <div class="purchase-info">
+        <p><strong>Status:</strong> @Model.PurchaseStatus</p>
+        <p><strong>Quantity:</strong> @Model.Quantity</p>
+        <p><strong>Total Price:</strong> @Model.TotalPrice.ToString("C")</p>
+        <p><strong>Date:</strong> @Model.PurchaseDateUtc.ToLocalTime().ToString("f")</p>
+    </div>
+
+    <div class="offer-info">
+        <h3>Offer Info</h3>
+        <p><strong>Title:</strong> @offer.Title</p>
+        <p><strong>Description:</strong> @offer.Description</p>
+        <p><strong>Unit Price:</strong> @offer.UnitPrice.ToString("C")</p>
+        <p><strong>Available Quantity:</strong> @offer.TotalQuantity</p>
+        <p><strong>Valid From:</strong> @offer.StartDateUtc.ToShortDateString()</p>
+        <p><strong>Valid Until:</strong> @offer.ExpiryDateUtc.ToShortDateString()</p>
+    </div>
+
+    <div class="customer-info">
+        <h3>Customer Info</h3>
+        <p><strong>Name:</strong> @customer.FirstName @customer.LastName</p>
+        <p><strong>Email:</strong> @customer.Email</p>
+    </div>
+</div>

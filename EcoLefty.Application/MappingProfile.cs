@@ -31,7 +31,10 @@ public class MappingProfile : Profile
         CreateMap<CreateApplicationUserRequestDto, ApplicationUser>()
             .ForMember(dest => dest.BirthDate, src => src.MapFrom(src => new DateTime(src.BirthYear, src.BirthMonth, src.BirthDay)));
 
-        CreateMap<UpdateApplicationUserRequestDto, ApplicationUser>();
+        CreateMap<UpdateApplicationUserRequestDto, ApplicationUser>()
+            .ForMember(dest => dest.ProfilePictureUrl, opt => opt.Ignore());
+
+        CreateMap<ApplicationUserDetailsResponseDto, UpdateApplicationUserRequestDto>();
 
         // Company
         CreateMap<Company, CompanyResponseDto>()
@@ -42,7 +45,9 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.PhoneNumber, src => src.MapFrom(src => src.Account.PhoneNumber));
 
         CreateMap<CreateCompanyRequestDto, Company>();
-        CreateMap<UpdateCompanyRequestDto, Company>();
+        CreateMap<UpdateCompanyRequestDto, Company>()
+            .ForMember(dest => dest.LogoUrl, opt => opt.Ignore());
+        CreateMap<CompanyDetailsResponseDto, UpdateCompanyRequestDto>();
 
         // Category
         CreateMap<Category, CategoryResponseDto>();
@@ -53,7 +58,10 @@ public class MappingProfile : Profile
         CreateMap<Product, ProductResponseDto>();
         CreateMap<Product, ProductDetailsResponseDto>();
         CreateMap<CreateProductRequestDto, Product>();
-        CreateMap<UpdateProductRequestDto, Product>();
+        CreateMap<UpdateProductRequestDto, Product>()
+            .ForMember(dest => dest.ImageUrl, opt => opt.Ignore());
+
+        CreateMap<ProductDetailsResponseDto, UpdateProductRequestDto>();
 
         // Offer
         CreateMap<Offer, OfferResponseDto>();
@@ -63,6 +71,7 @@ public class MappingProfile : Profile
 
         CreateMap<CreateOfferRequestDto, Offer>();
         CreateMap<UpdateOfferRequestDto, Offer>();
+        CreateMap<OfferDetailsResponseDto, UpdateOfferRequestDto>();
 
         // Purchase
         CreateMap<Purchase, PurchaseDetailsResponseDto>();

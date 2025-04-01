@@ -2,11 +2,11 @@
 
 <a href="@Url.Action("Details", "Product", new { id = Model.Id })" class="product-card-link">
     <div class="card product-card mb-4">
-        <img src="@Model.ImageUrl" alt="@Model.Name" class="product-image" />
+        <img src="@Url.Content("~/" + Model.ImageUrl)" alt="@Model.Name" class="product-card-image" />
         <div class="card-body">
             <h5 class="card-title">@Model.Name</h5>
-            <p class="card-text text-truncate">@Model.Description</p>
             <p class="card-text"><strong>Price:</strong> @Model.DefaultPrice.ToString("C")</p>
+            <p class="card-text"><strong>By:</strong> @Model.Company.Name</p>
         </div>
     </div>
 </a>
