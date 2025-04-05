@@ -7,11 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AspNetCore.HealthChecks.SqlServer" Version="8.0.2" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.14" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.3" />
     <PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
   </ItemGroup>
 
@@ -19,6 +17,7 @@
     <ProjectReference Include="..\EcoLefty.Application\EcoLefty.Application.csproj" />
     <ProjectReference Include="..\EcoLefty.Infrastructure\EcoLefty.Infrastructure.csproj" />
     <ProjectReference Include="..\EcoLefty.Persistence\EcoLefty.Persistence.csproj" />
+    <ProjectReference Include="..\EcoLefty.Workers\EcoLefty.Workers.csproj" />
   </ItemGroup>
 
 </Project>

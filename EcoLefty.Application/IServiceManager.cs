@@ -7,7 +7,7 @@ using EcoLefty.Application.Offers;
 using EcoLefty.Application.Products;
 using EcoLefty.Application.Purchases;
 
-namespace EcoLefty.Application.Contracts;
+namespace EcoLefty.Application;
 
 public interface IServiceManager
 {

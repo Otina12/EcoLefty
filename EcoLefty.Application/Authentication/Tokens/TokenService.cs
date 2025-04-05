@@ -43,6 +43,7 @@ public class TokenService : ITokenService
             new Claim(ClaimTypes.Email, account.Email!)
         };
 
+        //claims.Add(new Claim(ClaimTypes.Role, "Admin"));
         var roles = await _userManager.GetRolesAsync(account);
         claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 

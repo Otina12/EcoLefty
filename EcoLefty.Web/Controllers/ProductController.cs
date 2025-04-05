@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using EcoLefty.Application.Contracts;
+using EcoLefty.Application;
 using EcoLefty.Application.Products.DTOs;
 using EcoLefty.Domain.Common.Exceptions.Base;
 using EcoLefty.Web.Attributes;
@@ -52,10 +52,11 @@ public class ProductController : Controller
     {
         if (!ModelState.IsValid)
         {
+            ViewBag.Categories = await _serviceManager.CategoryService.GetAllAsync(); // reinitialize categories dropdown
             return View(createProductDto);
         }
 
-        var result = await _serviceManager.ProductService.CreateAsync(createProductDto, token);
+        await _serviceManager.ProductService.CreateAsync(createProductDto, token);
         return RedirectToAction("Index");
     }
 
@@ -66,7 +67,7 @@ public class ProductController : Controller
         var productDetails = await _serviceManager.ProductService.GetByIdAsync(id, token);
 
         if (User.FindFirst(ClaimTypes.NameIdentifier)!.Value != productDetails.Company.Id)
-            throw new BadRequestException();
+            throw new ForbiddenException();
 
         var updateProductDto = _mapper.Map<UpdateProductRequestDto>(productDetails);
         return View(updateProductDto);
@@ -78,10 +79,18 @@ public class ProductController : Controller
     {
         if (!ModelState.IsValid)
         {
+            ViewBag.Categories = await _serviceManager.CategoryService.GetAllAsync(); // reinitialize categories dropdown
             return View(updateProductDto);
         }
 
-        var result = await _serviceManager.ProductService.UpdateAsync(id, updateProductDto, token);
+        await _serviceManager.ProductService.UpdateAsync(id, updateProductDto, token);
+        return RedirectToAction("Index");
+    }
+
+    [AuthorizeApprovedCompany]
+    public async Task<IActionResult> Delete(int id, CancellationToken token)
+    {
+        await _serviceManager.ProductService.DeleteAsync(id, token);
         return RedirectToAction("Index");
     }
 }

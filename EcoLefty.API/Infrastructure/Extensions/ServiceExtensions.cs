@@ -1,13 +1,9 @@
-﻿using Common.Shared;
-using EcoLefty.API.Infrastructure.Middlewares;
+﻿using EcoLefty.API.Infrastructure.Middlewares;
 using EcoLefty.API.Infrastructure.Swagger;
-using EcoLefty.Application.Common.Logger;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Serilog;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
 using System.Text;
@@ -16,35 +12,6 @@ namespace EcoLefty.API.Infrastructure.Extensions;
 
 public static class ServiceExtensions
 {
-    public static void ConfigureSerilogILogger(this ConfigureHostBuilder host)
-    {
-        host.UseSerilog((context, loggerConfig) =>
-            loggerConfig.ReadFrom.Configuration(context.Configuration));
-    }
-
-    public static void ConfigureLoggerService(this IServiceCollection services)
-    {
-        services.AddSingleton<ILoggerService, LoggerService>();
-    }
-
-    public static void ConfigureHttpLogging(this IServiceCollection services)
-    {
-        services.AddHttpLogging(options =>
-        {
-            options.LoggingFields =
-                HttpLoggingFields.RequestPath |
-                HttpLoggingFields.RequestBody |
-                HttpLoggingFields.ResponseStatusCode |
-                HttpLoggingFields.ResponseBody |
-                HttpLoggingFields.Duration;
-            options.MediaTypeOptions.AddText("application/json");
-            options.MediaTypeOptions.AddText("text/plain");
-            options.RequestBodyLogLimit = 4096;
-            options.ResponseBodyLogLimit = 4096;
-            options.CombineLogs = true;
-        });
-    }
-
     public static void ConfigureSwaggerGen(this IServiceCollection services)
     {
         services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();

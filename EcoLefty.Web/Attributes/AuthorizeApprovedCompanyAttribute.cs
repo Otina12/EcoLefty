@@ -25,7 +25,7 @@ public class AuthorizeApprovedCompanyAttribute : ActionFilterAttribute
         var company = await dbContext.Companies.FirstOrDefaultAsync(c => c.Id == accountId);
 
         if (company is null)
-            throw new UnauthorizedException();
+            throw new CompanyNotFoundException(accountId);
 
         if (!company.IsApproved)
             throw new CompanyNotApprovedException(accountId);

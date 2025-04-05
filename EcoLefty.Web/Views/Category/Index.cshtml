@@ -2,9 +2,8 @@
 
 @{
     ViewBag.Title = "Categories";
-    // If you stored the followed IDs in the ViewBag, convert them to a HashSet:
-    var followedIds = (ViewBag.FollowedCategoryIDs as IEnumerable<int>)?.ToHashSet()
-                      ?? new HashSet<int>();
+    var followedIds = (ViewBag.FollowedCategoryIDs as IEnumerable<int>)?.ToHashSet() ?? new HashSet<int>();
+    var isAdmin = User.IsInRole("Admin");
 }
 
 <h2>Categories</h2>
@@ -29,6 +28,13 @@
                     +
                 </button>
             }
+        </div>
+    }
+
+    @if (isAdmin)
+    {
+        <div class="category-tag create-tag">
+            <span onclick="createCategory()" style="cursor:pointer;">Create +</span>
         </div>
     }
 </div>
@@ -78,6 +84,31 @@
                     btn.setAttribute("onclick", `followCategory(${categoryId}, this)`);
                 } else {
                     alert("Failed to unfollow category.");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Error occurred.");
+            }
+        }
+
+        async function createCategory() {
+            var categoryName = prompt("Enter new category name:");
+            if (!categoryName) return;
+
+            try {
+                const response = await fetch('/Category/Create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    body: JSON.stringify({ Name: categoryName })
+                });
+
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    alert("Failed to create category.");
                 }
             } catch (err) {
                 console.error(err);

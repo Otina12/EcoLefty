@@ -7,6 +7,7 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
+var configuration = builder.Configuration;
 
 builder.Host.ConfigureSerilogILogger();
 services.ConfigureLoggerService();
@@ -23,9 +24,16 @@ else
     services.AddProblemDetails();
 }
 
-services.ConfigureContext(builder.Configuration);
+services.ConfigureContext(configuration);
 services.ConfigureServices();
+
 services.ConfigureIdentity();
+
+services.ConfigureHealthChecks(configuration);
+
+services.ConfigureQuartz();
+services.ConfigureOfferStatusUpdaterWorker();
+services.ConfigureHealthCheckWorker();
 
 services.AddAutoMapper(typeof(MappingProfile));
 services.AddControllers();
@@ -49,21 +57,14 @@ services.AddApiVersioning(options =>
     options.SubstituteApiVersionInUrl = true;
 });
 
-//services.ConfigureApplicationCookie(options =>
-//{
-//    options.Events.OnRedirectToLogin = context =>
-//    {
-//        context.Response.StatusCode = 401;
-//        return Task.CompletedTask;
-//    };
-//});
-
 builder.Services.ConfigureJwtAuthentication(builder.Configuration);
 
 services.AddAuthorization();
 
 
 var app = builder.Build();
+
+app.MapHealthChecks("health");
 
 app.UseRequestContextLogging();
 app.UseSerilogRequestLogging();

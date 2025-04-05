@@ -57,6 +57,12 @@
                 <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
             </div>
             <input class="submit-button" type="submit" value="Register Company" />
+            <br /><br />
+            <div class="have-account">
+                <a asp-controller="Account" asp-action="Login">Already have an account?</a>
+                <br /><br />
+                <a asp-controller="Account" asp-action="RegisterUser">Register as a user</a>
+            </div>
         </form>
     </div>
 </body>

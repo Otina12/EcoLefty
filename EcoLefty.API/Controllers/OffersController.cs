@@ -1,5 +1,5 @@
 ﻿using Asp.Versioning;
-using EcoLefty.Application.Contracts;
+using EcoLefty.Application;
 using EcoLefty.Application.Offers.DTOs;
 using EcoLefty.Application.Offers.Validators;
 using FluentValidation;
@@ -31,7 +31,7 @@ public class OffersController : ControllerBase
         OperationId = "Offers.GetAll"
     )]
     [SwaggerResponse(StatusCodes.Status200OK, "List of offers retrieved successfully.", typeof(IEnumerable<OfferDetailsResponseDto>))]
-    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+    public async Task<ActionResult<IEnumerable<OfferDetailsResponseDto>>> GetAll(CancellationToken cancellationToken)
     {
         IEnumerable<OfferDetailsResponseDto> offers = await _serviceManager.OfferService.GetAllAsync(cancellationToken);
         return Ok(offers);
@@ -44,7 +44,7 @@ public class OffersController : ControllerBase
         OperationId = "Offers.GetAll"
     )]
     [SwaggerResponse(StatusCodes.Status200OK, "List of offers retrieved successfully.", typeof(IEnumerable<OfferDetailsResponseDto>))]
-    public async Task<IActionResult> GetAllActive(CancellationToken cancellationToken)
+    public async Task<ActionResult<IEnumerable<OfferDetailsResponseDto>>> GetAllActive(CancellationToken cancellationToken)
     {
         IEnumerable<OfferDetailsResponseDto> offers = await _serviceManager.OfferService.GetActiveOffersAsync(cancellationToken);
         return Ok(offers);
@@ -57,7 +57,7 @@ public class OffersController : ControllerBase
         OperationId = "Offers.GetAllOfCompany"
     )]
     [SwaggerResponse(StatusCodes.Status200OK, "List of offers retrieved successfully.", typeof(IEnumerable<OfferDetailsResponseDto>))]
-    public async Task<IActionResult> GetAllOfCompany(string id, CancellationToken cancellationToken)
+    public async Task<ActionResult<IEnumerable<OfferDetailsResponseDto>>> GetAllOfCompany(string id, CancellationToken cancellationToken)
     {
         IEnumerable<OfferDetailsResponseDto> offers = await _serviceManager.OfferService.GetAllOffersOfCompanyAsync(id, cancellationToken);
         return Ok(offers);
@@ -70,7 +70,7 @@ public class OffersController : ControllerBase
         OperationId = "Offers.GetAllActiveOfCompany"
     )]
     [SwaggerResponse(StatusCodes.Status200OK, "List of offers retrieved successfully.", typeof(IEnumerable<OfferDetailsResponseDto>))]
-    public async Task<IActionResult> GetAllOfActiveCompany(string id, CancellationToken cancellationToken)
+    public async Task<ActionResult<IEnumerable<OfferDetailsResponseDto>>> GetAllOfActiveCompany(string id, CancellationToken cancellationToken)
     {
         IEnumerable<OfferDetailsResponseDto> offers = await _serviceManager.OfferService.GetActiveOffersOfCompanyAsync(id, cancellationToken);
         return Ok(offers);
@@ -84,7 +84,7 @@ public class OffersController : ControllerBase
     )]
     [SwaggerResponse(StatusCodes.Status200OK, "Offer retrieved successfully.", typeof(OfferDetailsResponseDto))]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Offer not found.")]
-    public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
+    public async Task<ActionResult<OfferDetailsResponseDto>> GetById(int id, CancellationToken cancellationToken)
     {
         OfferDetailsResponseDto offer = await _serviceManager.OfferService.GetByIdAsync(id, cancellationToken);
         return Ok(offer);
@@ -99,7 +99,7 @@ public class OffersController : ControllerBase
     )]
     [SwaggerResponse(StatusCodes.Status201Created, "Offer created successfully.", typeof(OfferDetailsResponseDto))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid offer data.")]
-    public async Task<IActionResult> Create([FromBody] CreateOfferRequestDto createDto, CancellationToken cancellationToken)
+    public async Task<ActionResult<OfferDetailsResponseDto>> Create([FromBody] CreateOfferRequestDto createDto, CancellationToken cancellationToken)
     {
         var validator = new CreateOfferRequestDtoValidator();
         await validator.ValidateAndThrowAsync(createDto, HttpContext.RequestAborted);
@@ -118,7 +118,7 @@ public class OffersController : ControllerBase
     [SwaggerResponse(StatusCodes.Status200OK, "Offer updated successfully.", typeof(OfferDetailsResponseDto))]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Offer not found.")]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid offer update data.")]
-    public async Task<IActionResult> Update(int id, [FromBody] UpdateOfferRequestDto updateDto, CancellationToken cancellationToken)
+    public async Task<ActionResult<OfferDetailsResponseDto>> Update(int id, [FromBody] UpdateOfferRequestDto updateDto, CancellationToken cancellationToken)
     {
         var validator = new UpdateOfferRequestDtoValidator();
         await validator.ValidateAndThrowAsync(updateDto, HttpContext.RequestAborted);
@@ -127,6 +127,7 @@ public class OffersController : ControllerBase
         return Ok(updatedOffer);
     }
 
+    [ApiVersion(1.0, Deprecated = true)]
     [Authorize(Roles = "Company")]
     [HttpPost("cancel/{id}")]
     [SwaggerOperation(
@@ -138,11 +139,11 @@ public class OffersController : ControllerBase
     [SwaggerResponse(StatusCodes.Status404NotFound, "Offer not found.")]
     public async Task<IActionResult> Cancel(int id, CancellationToken cancellationToken)
     {
-        var cancelled = await _serviceManager.OfferService.CancelAsync(id, cancellationToken);
+        await _serviceManager.OfferService.CancelAsync(id, cancellationToken);
         return NoContent();
     }
 
-    [Authorize(Roles = "Company")]
+    [Authorize(Roles = "Admin,Company")]
     [HttpDelete("{id}")]
     [SwaggerOperation(
         Summary = "Delete an offer",
@@ -153,7 +154,7 @@ public class OffersController : ControllerBase
     [SwaggerResponse(StatusCodes.Status404NotFound, "Offer not found.")]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
-        var deleted = await _serviceManager.OfferService.DeleteAsync(id, cancellationToken);
+        await _serviceManager.OfferService.DeleteAsync(id, cancellationToken);
         return NoContent();
     }
 }

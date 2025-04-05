@@ -5,7 +5,6 @@ using EcoLefty.Application.Authentication;
 using EcoLefty.Application.Categories;
 using EcoLefty.Application.Common.Images;
 using EcoLefty.Application.Companies;
-using EcoLefty.Application.Contracts;
 using EcoLefty.Application.Offers;
 using EcoLefty.Application.Products;
 using EcoLefty.Application.Purchases;

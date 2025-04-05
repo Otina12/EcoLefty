@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
+using EcoLefty.Application;
 using EcoLefty.Application.Companies.DTOs;
-using EcoLefty.Application.Contracts;
 using EcoLefty.Web.Attributes;
 using Microsoft.AspNetCore.Mvc;
 

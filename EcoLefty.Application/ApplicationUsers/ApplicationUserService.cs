@@ -7,6 +7,7 @@ using EcoLefty.Application.Common.Images;
 using EcoLefty.Domain.Common;
 using EcoLefty.Domain.Common.Enums;
 using EcoLefty.Domain.Common.Exceptions;
+using EcoLefty.Domain.Common.Exceptions.Base;
 using EcoLefty.Domain.Common.IncludeExpressions;
 using EcoLefty.Domain.Contracts;
 using EcoLefty.Domain.Entities;
@@ -36,10 +37,10 @@ public class ApplicationUserService : IApplicationUserService
 
     public async Task<ApplicationUserDetailsResponseDto> GetByIdAsync(string id, CancellationToken token)
     {
-        var user = await _unitOfWork.Users.GetByIdAsync(id, trackChanges: false, token: token,
-            ApplicationUserIncludes.Account,
-            ApplicationUserIncludes.Purchases,
-            ApplicationUserIncludes.Categories);
+        var user = await _unitOfWork.Users.GetByIdIncludeStringsAsync(id, trackChanges: false, token: token,
+            ApplicationUserStringIncludes.Account_string,
+            ApplicationUserStringIncludes.Purchases_Offer_string,
+            ApplicationUserStringIncludes.Categories_string);
 
         if (user is null)
         {
@@ -66,7 +67,7 @@ public class ApplicationUserService : IApplicationUserService
             applicationUser.Id = accountId;
 
             var imageUrl = createUserDto.ProfilePictureFile is null ?
-               Constants.DEFAULT_PROFILE_PICTURE_PATH : await _imageService.UploadImageAsync(createUserDto.ProfilePictureFile, token);
+               Constants.DEFAULT_USER_IMAGE_PATH : await _imageService.UploadImageAsync(createUserDto.ProfilePictureFile, token);
 
             applicationUser.ProfilePictureUrl = imageUrl;
 
@@ -84,13 +85,19 @@ public class ApplicationUserService : IApplicationUserService
         }
     }
 
-    public async Task<ApplicationUserResponseDto> UpdateAsync(string id, UpdateApplicationUserRequestDto updateUserDto, CancellationToken token = default)
+    public async Task<ApplicationUserResponseDto> UpdateAsync(string userId, UpdateApplicationUserRequestDto updateUserDto, CancellationToken token = default)
     {
-        var user = await _unitOfWork.Users.GetByIdAsync(id, trackChanges: true, token: token);
+        var user = await _unitOfWork.Users.GetByIdAsync(userId, trackChanges: true, token: token);
         if (user is null)
         {
-            throw new ApplicationUserNotFoundException(id);
+            throw new ApplicationUserNotFoundException(userId);
         }
+
+        if (userId != _unitOfWork.CurrentUserContext.UserId)
+        {
+            throw new ForbiddenException();
+        }
+
         _mapper.Map(updateUserDto, user);
 
         if (updateUserDto.ProfilePictureFile is not null)
@@ -108,16 +115,25 @@ public class ApplicationUserService : IApplicationUserService
     /// <summary>
     /// Soft deletes an entity and all related entities.
     /// </summary>
-    /// <param name="id"></param>
+    /// <param name="userId"></param>
     /// <param name="token"></param>
     /// <returns></returns>
+    /// <exception cref="ForbiddenException"></exception>
     /// <exception cref="ApplicationUserNotFoundException"></exception>
-    public async Task<bool> DeleteAsync(string id, CancellationToken token = default)
+    public async Task<bool> DeleteAsync(string userId, CancellationToken token = default)
     {
-        var user = await _unitOfWork.Users.GetByIdAsync(id, trackChanges: false, token: token);
+        bool isAdmin = _unitOfWork.CurrentUserContext.IsInRole("Admin");
+        bool isOwner = userId == _unitOfWork.CurrentUserContext.UserId;
+
+        if (!isAdmin && !isOwner)
+        {
+            throw new ForbiddenException();
+        }
+
+        var user = await _unitOfWork.Users.GetByIdAsync(userId, trackChanges: false, token: token);
         if (user is null)
         {
-            throw new ApplicationUserNotFoundException(id);
+            throw new ApplicationUserNotFoundException(userId);
         }
 
         _unitOfWork.Users.Delete(user);

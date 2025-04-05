@@ -58,7 +58,7 @@ public class ProductService : IProductService
             throw new UnauthorizedException();
 
         var existingProduct = await _unitOfWork.Products.GetOneWhereAsync(
-        x => x.Name == createProductDto.Name && x.CompanyId == currentCompanyId,
+        x => x.Name.ToLower() == createProductDto.Name.ToLower() && x.CompanyId == currentCompanyId,
         trackChanges: false,
         token: token);
 
@@ -91,7 +91,7 @@ public class ProductService : IProductService
         }
 
         var imageUrl = createProductDto.ImageFile is null ?
-            Constants.DEFAULT_PROFILE_PICTURE_PATH : await _imageService.UploadImageAsync(createProductDto.ImageFile, token);
+            Constants.DEFAULT_PRODUCT_IMAGE_PATH : await _imageService.UploadImageAsync(createProductDto.ImageFile, token);
 
         product.ImageUrl = imageUrl;
 
@@ -107,6 +107,11 @@ public class ProductService : IProductService
         if (product is null)
         {
             throw new ProductNotFoundException(id);
+        }
+
+        if (product.CompanyId != _unitOfWork.CurrentUserContext.UserId)
+        {
+            throw new ForbiddenException();
         }
 
         _mapper.Map(updateProductDto, product);
@@ -138,8 +143,16 @@ public class ProductService : IProductService
             throw new ProductNotFoundException(id);
         }
 
-        _unitOfWork.Products.Delete(product);
+        // check if user is an admin OR the company that created the product
+        bool isAdmin = _unitOfWork.CurrentUserContext.IsInRole("Admin");
+        bool isOwner = product.CompanyId == _unitOfWork.CurrentUserContext.UserId;
 
+        if (!isAdmin && !isOwner)
+        {
+            throw new ForbiddenException();
+        }
+
+        _unitOfWork.Products.Delete(product);
         var deleted = await _unitOfWork.SaveChangesAsync(token);
         return deleted > 0;
     }

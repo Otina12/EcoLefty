@@ -1,4 +1,4 @@
-﻿using EcoLefty.Application.Contracts;
+﻿using EcoLefty.Application;
 using EcoLefty.Application.Products.DTOs;
 using EcoLefty.Application.Products.Validators;
 using FluentValidation;
@@ -19,14 +19,14 @@ public class ProductsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+    public async Task<ActionResult<IEnumerable<ProductResponseDto>>> GetAll(CancellationToken cancellationToken)
     {
         var products = await _serviceManager.ProductService.GetAllAsync(cancellationToken);
         return Ok(products);
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
+    public async Task<ActionResult<ProductDetailsResponseDto>> GetById(int id, CancellationToken cancellationToken)
     {
         var product = await _serviceManager.ProductService.GetByIdAsync(id, cancellationToken);
         return Ok(product);
@@ -34,7 +34,7 @@ public class ProductsController : ControllerBase
 
     [Authorize(Roles = "Company")]
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateProductRequestDto createDto, CancellationToken cancellationToken)
+    public async Task<ActionResult<ProductResponseDto>> Create([FromBody] CreateProductRequestDto createDto, CancellationToken cancellationToken)
     {
         var validator = new CreateProductRequestDtoValidator();
         await validator.ValidateAndThrowAsync(createDto, HttpContext.RequestAborted);
@@ -45,7 +45,7 @@ public class ProductsController : ControllerBase
 
     [Authorize(Roles = "Company")]
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] UpdateProductRequestDto updateDto, CancellationToken cancellationToken)
+    public async Task<ActionResult<ProductResponseDto>> Update(int id, [FromBody] UpdateProductRequestDto updateDto, CancellationToken cancellationToken)
     {
         var validator = new UpdateProductRequestDtoValidator();
         await validator.ValidateAndThrowAsync(updateDto, HttpContext.RequestAborted);
@@ -54,13 +54,14 @@ public class ProductsController : ControllerBase
         return Ok(updatedProduct);
     }
 
-    [Authorize(Roles = "Company")]
+    [Authorize(Roles = "Admin,Company")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
         var deleted = await _serviceManager.ProductService.DeleteAsync(id, cancellationToken);
         if (deleted)
             return NoContent();
+
         return NotFound();
     }
 }

@@ -16,7 +16,7 @@ public interface IApplicationUserService
     /// <returns>A JWT token</returns>
     /// <exception cref="ApplicationUserNotFoundException"></exception>
     Task<TokenResponseDto> CreateAsync(CreateApplicationUserRequestDto createUserDto, CancellationToken token = default);
-    Task<ApplicationUserResponseDto> UpdateAsync(string id, UpdateApplicationUserRequestDto updateUserDto, CancellationToken token = default);
+    Task<ApplicationUserResponseDto> UpdateAsync(string userId, UpdateApplicationUserRequestDto updateUserDto, CancellationToken token = default);
     /// <summary>
     /// Soft deletes an entity and all related entities.
     /// </summary>
@@ -24,5 +24,5 @@ public interface IApplicationUserService
     /// <param name="token"></param>
     /// <returns></returns>
     /// <exception cref="ApplicationUserNotFoundException"></exception>
-    Task<bool> DeleteAsync(string id, CancellationToken token = default);
+    Task<bool> DeleteAsync(string userId, CancellationToken token = default);
 }

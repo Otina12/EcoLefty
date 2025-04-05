@@ -3,7 +3,7 @@
 public enum OfferStatus
 {
     Active,
-    Expired,
-    Canceled,
-    Archived
+    Archived,
+    Incoming,
+    Canceled
 }

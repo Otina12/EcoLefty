@@ -29,6 +29,7 @@ public class AuthenticationController : ControllerBase
         return Ok(new { Tokens = tokenPair });
     }
 
+    [Authorize]
     [HttpPost("Logout")]
     public async Task<IActionResult> Logout()
     {

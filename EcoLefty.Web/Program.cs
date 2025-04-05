@@ -1,25 +1,43 @@
 using Common.Extensions;
 using EcoLefty.API.Infrastructure.Extensions;
 using EcoLefty.Application;
+using EcoLefty.Application.Common.Logger;
+using EcoLefty.Web.Infrastructure.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 var configuration = builder.Configuration;
 
-// Add services to the container.
+builder.Host.ConfigureSerilogILogger();
+services.ConfigureLoggerService();
+services.ConfigureHttpLogging();
+
+services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 services.ConfigureContext(configuration);
 services.ConfigureServices();
 services.ConfigureIdentity();
 services.AddControllersWithViews();
 
+services.ConfigureQuartz();
+services.ConfigureHealthCheckWorker();
+
 services.ConfigureValidators();
 services.AddAutoMapper(typeof(MappingProfile));
-
 services.ConfigureCors();
 
 var app = builder.Build();
+var logger = app.Services.GetRequiredService<ILoggerService>();
 
-// Configure the HTTP request pipeline.
+app.UseSession();
+
+app.ConfigureExceptionHandler(logger);
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");

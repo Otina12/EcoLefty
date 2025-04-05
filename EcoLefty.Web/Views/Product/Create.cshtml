@@ -9,7 +9,8 @@
     <div class="title">
         Create Product
     </div>
-    <form asp-controller="Product" asp-action="Create" method="post">
+    <form asp-controller="Product" asp-action="Create" method="post" enctype="multipart/form-data">
+        >
         <div class="my-field">
             <label asp-for="Name" class="required">Product Name</label>
             <input asp-for="Name" type="text" placeholder="Enter product name" required />
@@ -30,9 +31,13 @@
             <select asp-for="CategoryIds"
                     asp-items="@(new MultiSelectList(ViewBag.Categories, "Id", "Name"))"
                     multiple="multiple" class="form-control" required>
-                <option value="">-- Select Categories --</option>
             </select>
             <span asp-validation-for="CategoryIds" class="text-danger"></span>
+        </div>
+        <div class="my-field">
+            <label asp-for="ImageFile">Product Image</label>
+            <input asp-for="ImageFile" type="file" accept="image/*" />
+            <span asp-validation-for="ImageFile" class="text-danger"></span>
         </div>
         <input class="submit-button" type="submit" value="Create Product" />
     </form>

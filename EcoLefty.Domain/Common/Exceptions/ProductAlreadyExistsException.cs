@@ -4,7 +4,7 @@ namespace EcoLefty.Domain.Common.Exceptions;
 
 public sealed class ProductAlreadyExistsException : AlreadyExistsException
 {
-    public ProductAlreadyExistsException(string name) : base($"Category with Name: {name} already exists at your company.")
+    public ProductAlreadyExistsException(string name) : base($"Product with Name: {name} already exists at your company.")
     {
     }
 

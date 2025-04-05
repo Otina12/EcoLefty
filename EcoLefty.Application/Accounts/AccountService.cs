@@ -4,7 +4,7 @@ using EcoLefty.Domain.Entities.Identity;
 
 namespace EcoLefty.Application.Accounts;
 
-internal class AccountService : IAccountService
+public class AccountService : IAccountService
 {
     private readonly IUnitOfWork _unitOfWork;
 

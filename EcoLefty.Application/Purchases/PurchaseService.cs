@@ -100,6 +100,9 @@ public class PurchaseService : IPurchaseService
         if (purchase is null)
             throw new PurchaseNotFoundException(purchaseId);
 
+        if (purchase.CustomerId != _unitOfWork.CurrentUserContext.UserId)
+            throw new ForbiddenException();
+
         if (purchase.PurchaseStatus != PurchaseStatus.Active)
             throw new BadRequestException($"Purchase cannot be cancelled. Its status is: {purchase.PurchaseStatus}");
 
@@ -107,12 +110,12 @@ public class PurchaseService : IPurchaseService
         var company = purchase.Offer.Product.Company;
 
         if (customer is null)
-            throw new Exception($"Associated customer not found for purchase id {purchase.Id}.");
+            throw new ApplicationUserNotFoundException(purchase.CustomerId);
 
         if (company is null)
-            throw new Exception($"Associated company not found for purchase id {purchase.Id}.");
+            throw new CompanyNotFoundException(purchase.Offer.Product.CompanyId);
 
-        if (DateTime.UtcNow - purchase.CreatedAtUtc > TimeSpan.FromMinutes(5))
+        if (DateTime.UtcNow - purchase.PurchaseDateUtc > TimeSpan.FromMinutes(5))
             throw new InvalidOperationException("Purchase cancellations are only permitted within the first 5 minutes following the request.");
 
         customer.Balance += purchase.TotalPrice;
@@ -143,14 +146,10 @@ public class PurchaseService : IPurchaseService
             var company = purchase.Offer.Product.Company;
 
             if (customer is null)
-            {
-                throw new Exception($"Associated customer not found for purchase id {purchase.Id}.");
-            }
+                throw new ApplicationUserNotFoundException(purchase.CustomerId);
 
             if (company is null)
-            {
-                throw new Exception($"Associated company not found for purchase id {purchase.Id}.");
-            }
+                throw new CompanyNotFoundException(purchase.Offer.Product.CompanyId);
 
             customer.Balance += purchase.TotalPrice;
             company.Balance -= purchase.TotalPrice;
@@ -182,14 +181,10 @@ public class PurchaseService : IPurchaseService
             var company = purchase.Offer.Product.Company;
 
             if (customer is null)
-            {
-                throw new Exception($"Associated customer not found for purchase id {purchase.Id}.");
-            }
+                throw new ApplicationUserNotFoundException(purchase.CustomerId);
 
             if (company is null)
-            {
-                throw new Exception($"Associated company not found for purchase id {purchase.Id}.");
-            }
+                throw new CompanyNotFoundException(purchase.Offer.Product.CompanyId);
 
             customer.Balance += purchase.TotalPrice;
             company.Balance -= purchase.TotalPrice;

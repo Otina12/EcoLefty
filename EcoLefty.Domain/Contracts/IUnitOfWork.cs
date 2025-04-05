@@ -5,7 +5,6 @@ namespace EcoLefty.Domain.Contracts;
 
 public interface IUnitOfWork
 {
-    void ShowAllTracked();
     Task<int> SaveChangesAsync(CancellationToken token = default, bool softDeleteEnabled = true);
     Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken token = default);
 

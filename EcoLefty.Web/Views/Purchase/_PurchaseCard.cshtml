@@ -1,11 +1,11 @@
 ﻿@model EcoLefty.Application.Purchases.DTOs.PurchaseDetailsResponseDto
 
-<a href="@Url.Action("Details", "Purchase", new { id = Model.Id })" class="purchase-card-link" style="text-decoration:none; color:inherit;">
-    <div class="card purchase-card mb-4">
+<a href="@Url.Action("Details", "Purchase", new { id = Model.Id })" class="purchase-card-link text-decoration-none text-dark">
+    <div class="card purchase-card mb-4" style="max-width: 18rem;">
         <div class="card-body">
-            @* <h5 class="card-title">@Model.Offer.Title</h5> *@
+            <h5 class="card-title">@Model.Offer.Title</h5>
             <p class="card-text"><strong>Status:</strong> @Model.PurchaseStatus</p>
-            @* <p class="card-text"><strong>Price per unit:</strong> @Model.Offer.UnitPrice.ToString("C")</p> *@
+            <p class="card-text"><strong>Price per unit:</strong> @Model.Offer.UnitPrice.ToString("C")</p>
             <p class="card-text"><strong>Quantity:</strong> @Model.Quantity</p>
             <p class="card-text"><strong>Total:</strong> @Model.TotalPrice.ToString("C")</p>
             <p class="card-text"><strong>Date:</strong> @Model.PurchaseDateUtc.ToLocalTime().ToString("g")</p>
@@ -13,3 +13,4 @@
         </div>
     </div>
 </a>
+

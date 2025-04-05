@@ -50,11 +50,6 @@ public class UnitOfWork : IUnitOfWork, IDisposable
         return await _context.SaveChangesAsync(token);
     }
 
-    public void ShowAllTracked()
-    {
-        var entries = _context.ChangeTracker.Entries();
-    }
-
     public async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken token)
     {
         return await _context.Database.BeginTransactionAsync(token);

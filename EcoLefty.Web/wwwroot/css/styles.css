@@ -109,19 +109,35 @@
             color: rgba(0, 0, 0, 0.5);
         }
 
-.edit-icon {
+.action-icons {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    font-size: 2.5em;
-    color: black;
-    text-decoration: none;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    gap: 10px;
 }
 
-    .edit-icon:hover {
+    .action-icons a {
+        text-decoration: none;
+        color: rgb(80, 80, 80);
+        transition: all 0.3s ease;
+        font-size: 2em;
+    }
+
+        .action-icons a:hover {
+            text-decoration: none;
+            color: grey;
+        }
+
+.edit-icon, .delete-icon {
+    color: black;
+}
+
+    .edit-icon:hover, .delete-icon:hover {
         text-decoration: none;
         color: #333;
     }
+
 
 .birthdate-fields {
     display: flex;
@@ -531,6 +547,7 @@ birthdate-fields .birthdate-input::placeholder {
     line-height: 1.5;
 }
 
+.offer-status,
 .offer-price,
 .product-price,
 .offer-quantity,

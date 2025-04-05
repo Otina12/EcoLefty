@@ -46,6 +46,10 @@ internal static class SoftDeleteHelper
 
             switch (entry.State)
             {
+                case EntityState.Added:
+                    softDeletable.CreatedAtUtc = timestamp;
+                    break;
+
                 case EntityState.Modified:
                     softDeletable.UpdatedAtUtc = timestamp;
                     break;
@@ -83,7 +87,6 @@ internal static class SoftDeleteHelper
                 continue;
 
             if (navigationMetadata.IsCollection && navigation.CurrentValue is IEnumerable<object> children)
-
             {
                 foreach (var child in children)
                 {

@@ -20,5 +20,6 @@ public interface IOfferService
     /// <param name="token"></param>
     /// <returns></returns>
     /// <exception cref="OfferNotFoundException"></exception>
-    Task<bool> DeleteAsync(int id, CancellationToken token = default);
+    Task<bool> DeleteAsync(int offerId, CancellationToken token = default);
+    Task UpdateStatuses(CancellationToken token);
 }

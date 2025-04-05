@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
+using EcoLefty.Application;
 using EcoLefty.Application.Categories.DTOs;
-using EcoLefty.Application.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -29,6 +29,19 @@ public class CategoryController : Controller
 
         var categories = await _serviceManager.CategoryService.GetAllAsync();
         return View(categories);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] CreateCategoryRequestDto createCategoryDto, CancellationToken token)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        await _serviceManager.CategoryService.CreateAsync(createCategoryDto, token);
+        return Ok();
     }
 
     [Authorize]

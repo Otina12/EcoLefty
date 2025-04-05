@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using EcoLefty.Application.Contracts;
+using EcoLefty.Application;
 using EcoLefty.Application.Offers.DTOs;
 using EcoLefty.Domain.Common.Exceptions.Base;
 using EcoLefty.Web.Attributes;
@@ -18,7 +18,6 @@ public class OfferController : Controller
         _serviceManager = serviceManager;
         _mapper = mapper;
     }
-
     public IActionResult Index()
     {
         return View();
@@ -53,10 +52,12 @@ public class OfferController : Controller
     {
         if (!ModelState.IsValid)
         {
+            var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+            ViewBag.Products = await _serviceManager.ProductService.GetAllProductsOfCompanyAsync(currentUserId, token); // reinitialize products dropdown
             return View(createOfferDto);
         }
 
-        var result = await _serviceManager.OfferService.CreateAsync(createOfferDto, token);
+        await _serviceManager.OfferService.CreateAsync(createOfferDto, token);
         return RedirectToAction("Index");
     }
 
@@ -67,7 +68,7 @@ public class OfferController : Controller
         var offerDetails = await _serviceManager.OfferService.GetByIdAsync(id, token);
 
         if (User.FindFirst(ClaimTypes.NameIdentifier)!.Value != offerDetails.Company.Id)
-            throw new BadRequestException();
+            throw new ForbiddenException();
 
         var updateOfferDto = _mapper.Map<UpdateOfferRequestDto>(offerDetails);
         return View(updateOfferDto);
@@ -79,10 +80,20 @@ public class OfferController : Controller
     {
         if (!ModelState.IsValid)
         {
+            var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+            ViewBag.Products = await _serviceManager.ProductService.GetAllProductsOfCompanyAsync(currentUserId, token); // reinitialize products dropdown
             return View(updateOfferDto);
         }
 
-        var result = await _serviceManager.OfferService.UpdateAsync(id, updateOfferDto, token);
+        await _serviceManager.OfferService.UpdateAsync(id, updateOfferDto, token);
         return RedirectToAction("Index");
     }
+
+    [AuthorizeApprovedCompany]
+    public async Task<IActionResult> Delete(int id, CancellationToken token)
+    {
+        await _serviceManager.OfferService.DeleteAsync(id, token);
+        return RedirectToAction("Index");
+    }
+
 }

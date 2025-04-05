@@ -19,11 +19,11 @@ public class AllowOnlyOwnerAccountAttribute : ActionFilterAttribute
             string currentAccountId = account.FindFirst(ClaimTypes.NameIdentifier)!.Value;
 
             if (id != currentAccountId)
-                throw new UnauthorizedException("You are not authorized to access this account.");
+                throw new ForbiddenException();
         }
         else
         {
-            throw new UnauthorizedException("Id not provided.");
+            throw new BadRequestException("Id not provided.");
         }
 
         await next();

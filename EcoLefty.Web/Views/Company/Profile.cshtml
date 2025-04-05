@@ -11,9 +11,11 @@
 <div class="profile-container">
     @if (userIsOwner)
     {
-        <a href="@Url.Action("Edit", "Company", new { id = Model.Id })" class="edit-icon" title="Edit Company">
-            &#9998;
-        </a>
+        <div class="action-icons">
+            <a href="@Url.Action("Edit", "Company", new { id = Model.Id })" class="edit-icon" title="Edit Company">
+                <i class="fa fa-edit"></i>
+            </a>
+        </div>
     }
 
     <div class="profile-details">
@@ -22,14 +24,17 @@
         <p><strong>Email:</strong> @company.Email</p>
         <p><strong>Phone:</strong> @company.PhoneNumber</p>
         <p><strong>Address:</strong> @company.Address, @company.City, @company.Country</p>
-        <p><strong>Balance:</strong> @company.Balance.ToString("C")</p>
+        @if (userIsOwner)
+        {
+            <p><strong>Balance:</strong> @company.Balance.ToString("C")</p>
+        }
         <p><strong>Status:</strong> @(company.IsApproved ? "Approved" : "Not Approved")</p>
     </div>
 
     <div class="section">
         <div class="section-header">
             <h2>Offers</h2>
-            <a href="@Url.Action("GetAll", "Offers", new { companyId = company.Id })" class="btn view-all">View All Offers</a>
+            <a href="@Url.Action("GetAll", "Offer", new { companyId = company.Id })" class="btn view-all">View All Offers</a>
         </div>
         <div class="items-wrapper">
             @foreach (var offer in company.Offers.Take(3))

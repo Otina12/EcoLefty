@@ -8,6 +8,7 @@ using EcoLefty.Application.Offers;
 using EcoLefty.Domain.Common;
 using EcoLefty.Domain.Common.Enums;
 using EcoLefty.Domain.Common.Exceptions;
+using EcoLefty.Domain.Common.Exceptions.Base;
 using EcoLefty.Domain.Common.IncludeExpressions;
 using EcoLefty.Domain.Contracts;
 using EcoLefty.Domain.Entities;
@@ -81,7 +82,7 @@ public class CompanyService : ICompanyService
             company.Id = accountId;
 
             var imageUrl = createCompanyDto.LogoFile is null ?
-                Constants.DEFAULT_PROFILE_PICTURE_PATH : await _imageService.UploadImageAsync(createCompanyDto.LogoFile, token);
+                Constants.DEFAULT_COMPANY_IMAGE_PATH : await _imageService.UploadImageAsync(createCompanyDto.LogoFile, token);
 
             company.LogoUrl = imageUrl;
 
@@ -99,12 +100,17 @@ public class CompanyService : ICompanyService
         }
     }
 
-    public async Task<CompanyResponseDto> UpdateAsync(string id, UpdateCompanyRequestDto updateCompanyDto, CancellationToken token = default)
+    public async Task<CompanyResponseDto> UpdateAsync(string companyId, UpdateCompanyRequestDto updateCompanyDto, CancellationToken token = default)
     {
-        var company = await _unitOfWork.Companies.GetByIdAsync(id, trackChanges: true, token: token);
+        var company = await _unitOfWork.Companies.GetByIdAsync(companyId, trackChanges: true, token: token);
         if (company is null)
         {
-            throw new CompanyNotFoundException(id);
+            throw new CompanyNotFoundException(companyId);
+        }
+
+        if (companyId != _unitOfWork.CurrentUserContext.UserId)
+        {
+            throw new ForbiddenException();
         }
 
         _mapper.Map(updateCompanyDto, company);
@@ -145,16 +151,25 @@ public class CompanyService : ICompanyService
     /// <summary>
     /// Soft deletes an entity and all related entities.
     /// </summary>
-    /// <param name="id"></param>
+    /// <param name="companyId"></param>
     /// <param name="token"></param>
     /// <returns></returns>
+    /// <exception cref="UnauthorizedException"></exception>
     /// <exception cref="CompanyNotFoundException"></exception>
-    public async Task<bool> DeleteAsync(string id, CancellationToken token = default)
+    public async Task<bool> DeleteAsync(string companyId, CancellationToken token = default)
     {
-        var company = await _unitOfWork.Companies.GetByIdAsync(id, trackChanges: false, token: token);
+        bool isAdmin = _unitOfWork.CurrentUserContext.IsInRole("Admin");
+        bool isOwner = companyId == _unitOfWork.CurrentUserContext.UserId;
+
+        if (!isAdmin && !isOwner)
+        {
+            throw new UnauthorizedException();
+        }
+
+        var company = await _unitOfWork.Companies.GetByIdAsync(companyId, trackChanges: false, token: token);
         if (company is null)
         {
-            throw new CompanyNotFoundException(id);
+            throw new CompanyNotFoundException(companyId);
         }
 
         _unitOfWork.Companies.Delete(company);

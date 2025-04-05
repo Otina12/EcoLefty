@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using EcoLefty.Application.Offers.DTOs;
 using EcoLefty.Application.Purchases;
+using EcoLefty.Domain.Common.Enums;
 using EcoLefty.Domain.Common.Exceptions;
 using EcoLefty.Domain.Common.Exceptions.Base;
 using EcoLefty.Domain.Common.IncludeExpressions;
@@ -131,10 +132,15 @@ public class OfferService : IOfferService
 
     public async Task<OfferDetailsResponseDto> UpdateAsync(int id, UpdateOfferRequestDto updateOfferDto, CancellationToken token = default)
     {
-        var offer = await _unitOfWork.Offers.GetByIdAsync(id, trackChanges: true, token);
+        var offer = await _unitOfWork.Offers.GetByIdAsync(id, trackChanges: true, token, OfferIncludes.Product);
         if (offer is null)
         {
             throw new OfferNotFoundException(id);
+        }
+
+        if (offer.Product.CompanyId != _unitOfWork.CurrentUserContext.UserId)
+        {
+            throw new ForbiddenException();
         }
 
         _mapper.Map(updateOfferDto, offer);
@@ -155,6 +161,9 @@ public class OfferService : IOfferService
         if (currentUserId is null)
             throw new UnauthorizedException();
 
+        if (currentUserId != offer.Product.CompanyId)
+            throw new ForbiddenException();
+
         var company = await _unitOfWork.Companies.GetByIdAsync(currentUserId, false, token);
 
         if (company is null)
@@ -172,17 +181,45 @@ public class OfferService : IOfferService
         return updated > 0;
     }
 
-    public async Task<bool> DeleteAsync(int id, CancellationToken token = default) // This is different from cancelling. Balances are not updated. Only the offer is deleted (soft).
+    public async Task<bool> DeleteAsync(int offerId, CancellationToken token = default) // This is different from cancelling. Balances are not updated. Only the offer is deleted (soft).
     {
-        var offer = await _unitOfWork.Offers.GetByIdAsync(id, true, token);
+        var offer = await _unitOfWork.Offers.GetByIdAsync(offerId, true, token, OfferIncludes.Product);
         if (offer is null)
         {
-            throw new OfferNotFoundException(id);
+            throw new OfferNotFoundException(offerId);
+        }
+
+        // check if user is an admin OR the company that created the offer
+        bool isAdmin = _unitOfWork.CurrentUserContext.IsInRole("Admin");
+        bool isOwner = offer.Product.CompanyId == _unitOfWork.CurrentUserContext.UserId;
+
+        if (!isAdmin && !isOwner)
+        {
+            throw new ForbiddenException();
         }
 
         _unitOfWork.Offers.Delete(offer);
 
         var deleted = await _unitOfWork.SaveChangesAsync(token);
         return deleted > 0;
+    }
+
+    public async Task UpdateStatuses(CancellationToken token)
+    {
+        var offersQuery = _unitOfWork.Offers.GetAllAsQueryable(true);
+
+        foreach (var offer in offersQuery)
+        {
+            if (offer.StartDateUtc > DateTime.UtcNow)
+            {
+                offer.OfferStatus = OfferStatus.Incoming;
+            }
+            else if (offer.ExpiryDateUtc <= DateTime.UtcNow)
+            {
+                offer.OfferStatus = OfferStatus.Archived;
+            }
+        }
+
+        await _unitOfWork.SaveChangesAsync(token);
     }
 }

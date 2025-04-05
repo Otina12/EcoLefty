@@ -1,8 +1,8 @@
-﻿using EcoLefty.Application.Accounts.DTOs;
+﻿using EcoLefty.Application;
+using EcoLefty.Application.Accounts.DTOs;
 using EcoLefty.Application.ApplicationUsers.DTOs;
 using EcoLefty.Application.Authentication;
 using EcoLefty.Application.Companies.DTOs;
-using EcoLefty.Application.Contracts;
 using EcoLefty.Domain.Common.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

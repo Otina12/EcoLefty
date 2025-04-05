@@ -16,7 +16,7 @@ public interface ICompanyService
     /// <returns>A JWT token</returns>
     /// <exception cref="ApplicationUserNotFoundException"></exception>
     Task<TokenResponseDto> CreateAsync(CreateCompanyRequestDto createCompanyDto, CancellationToken token = default);
-    Task<CompanyResponseDto> UpdateAsync(string id, UpdateCompanyRequestDto updateCompanyDto, CancellationToken token = default);
+    Task<CompanyResponseDto> UpdateAsync(string companyId, UpdateCompanyRequestDto updateCompanyDto, CancellationToken token = default);
     Task<bool> ApproveCompanyAsync(string id, CancellationToken token = default);
     /// <summary>
     /// Soft deletes an entity and all related entities.
@@ -25,5 +25,5 @@ public interface ICompanyService
     /// <param name="token"></param>
     /// <returns></returns>
     /// <exception cref="CompanyNotFoundException"></exception>
-    Task<bool> DeleteAsync(string id, CancellationToken token = default);
+    Task<bool> DeleteAsync(string companyId, CancellationToken token = default);
 }

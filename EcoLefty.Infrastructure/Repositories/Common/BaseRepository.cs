@@ -98,6 +98,25 @@ public abstract class BaseRepository<T, TKey> : IBaseRepository<T, TKey> where T
     }
 
     /// <summary>
+    /// Retrieves a single entity by its ID.
+    /// </summary>
+    /// <param name="id">The ID of the entity.</param>
+    /// <param name="trackChanges">Indicates whether tracking is enabled for the retrieved entity.</param>
+    /// <param name="token">Cancellation token.</param>
+    /// <param name="includes">Navigation properties to include.</param>
+    /// <returns>The entity if found, otherwise null.</returns>
+    public virtual async Task<T?> GetByIdIncludeStringsAsync(TKey id, bool trackChanges = false, CancellationToken token = default, params string[] includes)
+    {
+        IQueryable<T> query = trackChanges ? dbSet : dbSet.AsNoTracking();
+
+        if (includes != null && includes.Length != 0)
+            query = includes.Aggregate(query, (current, include) => current.Include(include));
+
+        return await query.FirstOrDefaultAsync(e => EF.Property<TKey>(e, "Id").Equals(id), token);
+
+    }
+
+    /// <summary>
     /// Retrieves a single entity matching the specified condition. Preferable to use with unique, or supposedly unique columns.
     /// </summary>
     /// <param name="where">The filter condition.</param>

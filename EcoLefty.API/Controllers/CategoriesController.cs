@@ -1,6 +1,6 @@
-﻿using EcoLefty.Application.Categories.DTOs;
+﻿using EcoLefty.Application;
+using EcoLefty.Application.Categories.DTOs;
 using EcoLefty.Application.Categories.Validators;
-using EcoLefty.Application.Contracts;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,14 +19,14 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+    public async Task<ActionResult<IEnumerable<CategoryResponseDto>>> GetAll(CancellationToken cancellationToken)
     {
         var categories = await _serviceManager.CategoryService.GetAllAsync(cancellationToken);
         return Ok(categories);
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
+    public async Task<ActionResult<CategoryResponseDto>> GetById(int id, CancellationToken cancellationToken)
     {
         var category = await _serviceManager.CategoryService.GetByIdAsync(id, cancellationToken);
         return Ok(category);
@@ -45,7 +45,7 @@ public class CategoriesController : ControllerBase
 
     [Authorize(Roles = "Admin")]
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] UpdateCategoryRequestDto updateDto, CancellationToken cancellationToken)
+    public async Task<ActionResult<CategoryResponseDto>> Update(int id, [FromBody] UpdateCategoryRequestDto updateDto, CancellationToken cancellationToken)
     {
         var validator = new UpdateCategoryRequestDtoValidator();
         await validator.ValidateAndThrowAsync(updateDto, HttpContext.RequestAborted);
@@ -61,6 +61,7 @@ public class CategoriesController : ControllerBase
         var deleted = await _serviceManager.CategoryService.DeleteAsync(id, cancellationToken);
         if (deleted)
             return NoContent();
+
         return NotFound();
     }
 }

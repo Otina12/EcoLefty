@@ -686,7 +686,7 @@ input[readonly] {
         color: #ecf0f1;
     }
 
-.action-icons {
+/*.action-icons {
     position: absolute;
     top: 20px;
     right: 20px;
@@ -705,7 +705,7 @@ input[readonly] {
 
     .action-icons .material-icons {
         font-size: 32px;
-    }
+    }*/
 
 
 /* --------------- employee-specific details.cshtml styles --------------- */

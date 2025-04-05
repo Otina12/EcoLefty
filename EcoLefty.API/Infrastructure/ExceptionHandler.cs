@@ -1,4 +1,5 @@
 ﻿using EcoLefty.Application.Common.Logger;
+using EcoLefty.Domain.Common.Exceptions.Base;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,15 +23,22 @@ internal sealed class ExceptionHandler : IExceptionHandler
     {
         int status = exception switch
         {
+            NotFoundException => StatusCodes.Status404NotFound,
+            AlreadyExistsException => StatusCodes.Status409Conflict,
+            UnauthorizedException => StatusCodes.Status401Unauthorized,
+            ForbiddenException => StatusCodes.Status403Forbidden,
+            BadRequestException => StatusCodes.Status400BadRequest,
             ArgumentException => StatusCodes.Status400BadRequest,
             _ => StatusCodes.Status500InternalServerError
         };
 
+        LogException(status, exception);
+
         var problemDetails = new ProblemDetails
         {
-            Status = status,
-            Title = "An error occurred",
             Type = exception.GetType().Name,
+            Title = GetTitleForStatus(status),
+            Status = status,
             Detail = exception.Message
         };
 

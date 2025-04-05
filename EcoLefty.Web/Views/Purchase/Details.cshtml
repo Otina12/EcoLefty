@@ -1,13 +1,14 @@
-﻿@model EcoLefty.Application.Purchases.DTOs.PurchaseDetailsResponseDto
+﻿@using EcoLefty.Domain.Common.Enums
+@model EcoLefty.Application.Purchases.DTOs.PurchaseDetailsResponseDto
 
 @{
     ViewBag.Title = "Purchase Details";
     var offer = Model.Offer;
     var customer = Model.Customer;
+    var purchaseAge = DateTime.UtcNow - Model.PurchaseDateUtc;
 }
 
 <div class="purchase-details-container">
-
     <h2>Purchase #@Model.Id</h2>
 
     <div class="purchase-info">
@@ -32,4 +33,15 @@
         <p><strong>Name:</strong> @customer.FirstName @customer.LastName</p>
         <p><strong>Email:</strong> @customer.Email</p>
     </div>
+
+    @if (Model.PurchaseStatus == PurchaseStatus.Active && purchaseAge < TimeSpan.FromMinutes(5))
+    {
+        <form asp-action="Cancel"
+              asp-controller="Purchase"
+              asp-route-id="@Model.Id"
+              method="post"
+              onsubmit="return confirm('Are you sure you want to cancel this purchase?');">
+            <button type="submit">Cancel Purchase</button>
+        </form>
+    }
 </div>

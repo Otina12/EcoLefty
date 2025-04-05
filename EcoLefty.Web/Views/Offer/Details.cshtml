@@ -1,4 +1,5 @@
 ﻿@using System.Security.Claims
+@using EcoLefty.Domain.Common.Enums
 @model EcoLefty.Application.Offers.DTOs.OfferDetailsResponseDto
 
 @{
@@ -10,9 +11,14 @@
 <div class="offer-details-container">
     @if (userIsOwner)
     {
-        <a href="@Url.Action("Edit", "Offer", new { id = Model.Id })" class="edit-icon" title="Edit Product">
-            &#9998;
-        </a>
+        <div class="action-icons">
+            <a href="@Url.Action("Edit", "Offer", new { id = Model.Id })" class="edit-icon" title="Edit Offer">
+                <i class="fa fa-edit"></i>
+            </a>
+            <a href="@Url.Action("Delete", "Offer", new { id = Model.Id })" class="delete-icon" title="Delete Offer">
+                <i class="fa fa-trash"></i>
+            </a>
+        </div>
     }
 
     <div class="offer-details-row">
@@ -24,6 +30,9 @@
             <h1 class="offer-title">@Model.Title</h1>
             <p class="offer-description">@Model.Description</p>
             <br />
+            <p class="offer-status">
+                <strong>Status: </strong>@Model.OfferStatus
+            </p>
             <p class="offer-price">
                 <strong>Price:</strong>
                 <span class="old-price"><del>@Model.Product.DefaultPrice.ToString("C")</del></span>
@@ -54,7 +63,7 @@
         </div>
     </div>
 
-    @if (User.IsInRole("User"))
+    @if (User.IsInRole("User") && Model.OfferStatus == OfferStatus.Active)
     {
         <div class="purchase-section">
             <form asp-controller="Purchase" asp-action="Create" method="post">

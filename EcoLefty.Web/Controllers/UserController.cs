@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
+using EcoLefty.Application;
 using EcoLefty.Application.ApplicationUsers.DTOs;
-using EcoLefty.Application.Contracts;
 using EcoLefty.Web.Attributes;
 using Microsoft.AspNetCore.Mvc;
 
@@ -41,7 +41,7 @@ public class UserController : Controller
             return View(updateUserDto);
         }
 
-        var result = await _serviceManager.ApplicationUserService.UpdateAsync(id, updateUserDto, token);
+        await _serviceManager.ApplicationUserService.UpdateAsync(id, updateUserDto, token);
         return RedirectToAction("Profile", "User", new { id = id });
     }
 }
