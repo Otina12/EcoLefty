@@ -5,4 +5,5 @@ namespace EcoLefty.Domain.Contracts.Repositories;
 
 public interface IPurchaseRepository : IBaseRepository<Purchase, int>
 {
+    Task CancelAllPurchasesByOfferAsync(int offerId, CancellationToken token);
 }

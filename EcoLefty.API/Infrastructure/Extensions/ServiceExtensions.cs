@@ -45,6 +45,12 @@ public static class ServiceExtensions
                 }
             });
 
+            options.MapType<IFormFile>(() => new Microsoft.OpenApi.Models.OpenApiSchema
+            {
+                Type = "string",
+                Format = "binary"
+            });
+
             var xmlFile = $"{Assembly.GetEntryAssembly()!.GetName().Name}.xml";
             var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
 

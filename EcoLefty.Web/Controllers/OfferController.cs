@@ -24,9 +24,11 @@ public class OfferController : Controller
     }
 
     [HttpGet("Offer")]
-    public async Task<IActionResult> GetAll(CancellationToken token)
+    public async Task<IActionResult> GetAll(OfferSearchDto searchModel, CancellationToken token)
     {
-        var offers = await _serviceManager.OfferService.GetActiveOffersAsync(token);
+        await PrepareOfferSearchDto(searchModel, token);
+        var offers = await _serviceManager.OfferService.GetAllAsync(searchModel, token);
+
         return View("Index", offers);
     }
 
@@ -90,10 +92,28 @@ public class OfferController : Controller
     }
 
     [AuthorizeApprovedCompany]
+    public async Task<IActionResult> Cancel(int id, CancellationToken token)
+    {
+        await _serviceManager.OfferService.CancelAsync(id, token);
+        return RedirectToAction("Index");
+    }
+
+    [AuthorizeApprovedCompany]
     public async Task<IActionResult> Delete(int id, CancellationToken token)
     {
         await _serviceManager.OfferService.DeleteAsync(id, token);
         return RedirectToAction("Index");
     }
 
+    private async Task PrepareOfferSearchDto(OfferSearchDto searchModel, CancellationToken token)
+    {
+        ViewBag.Companies = await _serviceManager.CompanyService.GetAllAsync(token);
+        ViewBag.Categories = await _serviceManager.CategoryService.GetAllAsync(token);
+        ViewBag.CurrentSearch = searchModel.SearchText;
+        ViewBag.CurrentCompanyId = searchModel.CompanyId;
+        ViewBag.CurrentCategoryId = searchModel.CategoryId;
+        ViewBag.CurrentSort = searchModel.SortByColumn;
+        ViewBag.CurrentSortDirection = searchModel.SortByAscending;
+        ViewBag.OnlyActive = searchModel.OnlyActive;
+    }
 }

@@ -19,7 +19,7 @@ public class AuthenticationController : ControllerBase
         _authenticationService = authenticationService;
     }
 
-    [HttpPost("Login")]
+    [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginAccountRequestDto loginDto)
     {
         var validator = new LoginAccountRequestDtoValidator();
@@ -30,7 +30,7 @@ public class AuthenticationController : ControllerBase
     }
 
     [Authorize]
-    [HttpPost("Logout")]
+    [HttpPost("logout")]
     public async Task<IActionResult> Logout()
     {
         await _authenticationService.LogoutAsync();

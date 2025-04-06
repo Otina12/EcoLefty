@@ -2,6 +2,7 @@
 using EcoLefty.Application;
 using EcoLefty.Application.Offers.DTOs;
 using EcoLefty.Application.Offers.Validators;
+using EcoLefty.Domain.Common;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -31,9 +32,9 @@ public class OffersController : ControllerBase
         OperationId = "Offers.GetAll"
     )]
     [SwaggerResponse(StatusCodes.Status200OK, "List of offers retrieved successfully.", typeof(IEnumerable<OfferDetailsResponseDto>))]
-    public async Task<ActionResult<IEnumerable<OfferDetailsResponseDto>>> GetAll(CancellationToken cancellationToken)
+    public async Task<ActionResult<PagedList<OfferDetailsResponseDto>>> GetAll([FromQuery] OfferSearchDto searchModel, CancellationToken cancellationToken)
     {
-        IEnumerable<OfferDetailsResponseDto> offers = await _serviceManager.OfferService.GetAllAsync(cancellationToken);
+        var offers = await _serviceManager.OfferService.GetAllAsync(searchModel, cancellationToken);
         return Ok(offers);
     }
 

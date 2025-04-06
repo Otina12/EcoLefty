@@ -327,7 +327,6 @@ public static class TestDataGenerator
         return new CreatePurchaseRequestDto
         {
             OfferId = offerId == 0 ? Faker.Random.Int(1, 100) : offerId,
-            PurchaseDateUtc = DateTime.UtcNow.AddDays(-Faker.Random.Int(1, 30)),
             Quantity = quantity == 0 ? Faker.Random.Int(1, 5) : quantity
         };
     }

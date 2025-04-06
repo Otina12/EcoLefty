@@ -1,4 +1,5 @@
-﻿using EcoLefty.Domain.Contracts;
+﻿using EcoLefty.Domain.Common.Enums;
+using EcoLefty.Domain.Contracts;
 using EcoLefty.Domain.Contracts.Repositories;
 using EcoLefty.Domain.Entities;
 using EcoLefty.Domain.Entities.Auth;
@@ -851,6 +852,18 @@ public class UnitOfWorkMock
 
         var mockRepository = new Mock<IPurchaseRepository>();
 
+        mockRepository.Setup(r => r.CancelAllPurchasesByOfferAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .Returns((int offerId, CancellationToken token) =>
+            {
+                var purchases = GeneratedPurchases.Where(p => p.OfferId == offerId);
+                foreach (var purchase in purchases)
+                {
+                    purchase.PurchaseStatus = PurchaseStatus.Cancelled;
+                }
+
+                return Task.CompletedTask;
+            });
+
         // GetAllAsync
         mockRepository.Setup(r => r.GetAllAsync(It.IsAny<bool>(), It.IsAny<CancellationToken>(), It.IsAny<Expression<Func<Purchase, object>>[]>()))
             .Returns((bool trackChanges, CancellationToken token, Expression<Func<Purchase, object>>[] includes) =>
@@ -868,7 +881,6 @@ public class UnitOfWorkMock
             var filtered = GeneratedPurchases.Where(predicate).ToList();
             return Task.FromResult<IEnumerable<Purchase>>(filtered);
         });
-
 
         // GetAllAsQueryable
         mockRepository.Setup(r => r.GetAllAsQueryable(It.IsAny<bool>(), It.IsAny<Expression<Func<Purchase, object>>[]>()))

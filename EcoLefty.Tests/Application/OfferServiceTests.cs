@@ -403,15 +403,17 @@ public class OfferServiceTests
             .Setup(p => p.CancelAllPurchasesByOfferAsync(offer.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
-        var initialOfferCount = _unitOfWorkMock.GeneratedOffers.Count;
+        var initialActiveOfferCount = _unitOfWorkMock.GeneratedOffers.Where(x => x.OfferStatus == OfferStatus.Active).Count();
 
         // Act
         var result = await _offerService.CancelAsync(offer.Id);
 
+        var activeOfferCountAfterCancel = _unitOfWorkMock.GeneratedOffers.Where(x => x.OfferStatus == OfferStatus.Active).Count();
+
         // Assert
         Assert.True(result);
-        Assert.Equal(initialOfferCount - 1, _unitOfWorkMock.GeneratedOffers.Count);
-        _purchaseServiceMock.Verify(p => p.CancelAllPurchasesByOfferAsync(offer.Id, It.IsAny<CancellationToken>()), Times.Once);
+        Assert.Equal(initialActiveOfferCount - 1, activeOfferCountAfterCancel);
+        _purchaseServiceMock.Verify(p => p.CancelAllPurchasesByOfferAsync(offer.Id, It.IsAny<CancellationToken>()), Times.Never); // don't use service method for atomicity
     }
 
     [Fact]
@@ -423,7 +425,7 @@ public class OfferServiceTests
 
         var mockUserContext = new Mock<ICurrentUserContext>();
         mockUserContext.Setup(c => c.UserId).Returns(company.Id);
-        mockUserContext.Setup(c => c.IsInRole("Admin")).Returns(false); // simulate owner, not admin
+        mockUserContext.Setup(c => c.IsInRole("Admin")).Returns(false); // simulate owner
 
         Mock.Get(_unitOfWorkMock.UnitOfWorkInstance)
             .Setup(u => u.CurrentUserContext)

@@ -82,6 +82,7 @@ public class PurchaseService : IPurchaseService
         purchase.TotalPrice = purchasePrice;
         purchase.PurchaseDateUtc = DateTime.UtcNow;
         purchase.CustomerId = currentUserId;
+
         await _unitOfWork.Purchases.CreateAsync(purchase, token);
 
         await _unitOfWork.SaveChangesAsync();
@@ -108,6 +109,7 @@ public class PurchaseService : IPurchaseService
 
         var customer = purchase.Customer;
         var company = purchase.Offer.Product.Company;
+        var offer = purchase.Offer;
 
         if (customer is null)
             throw new ApplicationUserNotFoundException(purchase.CustomerId);
@@ -115,12 +117,16 @@ public class PurchaseService : IPurchaseService
         if (company is null)
             throw new CompanyNotFoundException(purchase.Offer.Product.CompanyId);
 
+        if (offer is null)
+            throw new OfferNotFoundException(purchase.OfferId);
+
         if (DateTime.UtcNow - purchase.PurchaseDateUtc > TimeSpan.FromMinutes(5))
             throw new InvalidOperationException("Purchase cancellations are only permitted within the first 5 minutes following the request.");
 
         customer.Balance += purchase.TotalPrice;
         company.Balance -= purchase.TotalPrice;
         purchase.PurchaseStatus = PurchaseStatus.Cancelled;
+        offer.QuantityAvailable += purchase.Quantity;
 
         _unitOfWork.Purchases.Update(purchase);
         var cancelled = await _unitOfWork.SaveChangesAsync(token);
@@ -128,36 +134,20 @@ public class PurchaseService : IPurchaseService
         return cancelled > 0;
     }
 
+    /// <summary>
+    /// Only use when cancelling an offer.
+    /// </summary>
+    /// <param name="offerId"></param>
+    /// <param name="token"></param>
+    /// <returns></returns>
+    /// <exception cref="OfferNotFoundException"></exception>
     public async Task<bool> CancelAllPurchasesByOfferAsync(int offerId, CancellationToken token = default)
     {
-        var purchases = await _unitOfWork.Purchases.GetAllWhereAsync(
-            p => p.OfferId == offerId,
-            trackChanges: true,
-            token: token,
-            PurchaseIncludes.Customer,
-            PurchaseIncludes.Offer_Product_Company);
+        var offerExists = await _unitOfWork.Offers.ExistsAsync(offerId, token: token);
+        if (!offerExists)
+            throw new OfferNotFoundException(offerId);
 
-        foreach (var purchase in purchases)
-        {
-            if (purchase.PurchaseStatus != PurchaseStatus.Active)
-                continue;
-
-            var customer = purchase.Customer;
-            var company = purchase.Offer.Product.Company;
-
-            if (customer is null)
-                throw new ApplicationUserNotFoundException(purchase.CustomerId);
-
-            if (company is null)
-                throw new CompanyNotFoundException(purchase.Offer.Product.CompanyId);
-
-            customer.Balance += purchase.TotalPrice;
-            company.Balance -= purchase.TotalPrice;
-
-            purchase.PurchaseStatus = PurchaseStatus.Cancelled;
-
-            _unitOfWork.Purchases.Update(purchase);
-        }
+        await _unitOfWork.Purchases.CancelAllPurchasesByOfferAsync(offerId, token);
 
         var cancelled = await _unitOfWork.SaveChangesAsync(token);
         return cancelled > 0;
@@ -177,8 +167,12 @@ public class PurchaseService : IPurchaseService
             if (purchase.PurchaseStatus != PurchaseStatus.Active)
                 continue;
 
+            var offer = purchase.Offer;
             var customer = purchase.Customer;
             var company = purchase.Offer.Product.Company;
+
+            if (offer is null)
+                throw new OfferNotFoundException(purchase.OfferId);
 
             if (customer is null)
                 throw new ApplicationUserNotFoundException(purchase.CustomerId);
@@ -186,10 +180,12 @@ public class PurchaseService : IPurchaseService
             if (company is null)
                 throw new CompanyNotFoundException(purchase.Offer.Product.CompanyId);
 
+            purchase.PurchaseStatus = PurchaseStatus.Cancelled;
+
+            offer.QuantityAvailable += purchase.Quantity;
+
             customer.Balance += purchase.TotalPrice;
             company.Balance -= purchase.TotalPrice;
-
-            purchase.PurchaseStatus = PurchaseStatus.Cancelled;
 
             _unitOfWork.Purchases.Update(purchase);
         }

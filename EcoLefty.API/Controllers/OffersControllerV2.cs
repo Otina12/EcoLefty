@@ -31,9 +31,9 @@ public class OffersControllerV2 : ControllerBase
         OperationId = "Offers.GetAll"
     )]
     [SwaggerResponse(StatusCodes.Status200OK, "List of offers retrieved successfully.", typeof(IEnumerable<OfferDetailsResponseDto>))]
-    public async Task<ActionResult<IEnumerable<OfferDetailsResponseDto>>> GetAll(CancellationToken cancellationToken)
+    public async Task<ActionResult<IEnumerable<OfferDetailsResponseDto>>> GetAll(OfferSearchDto searchModel, CancellationToken cancellationToken)
     {
-        IEnumerable<OfferDetailsResponseDto> offers = await _serviceManager.OfferService.GetAllAsync(cancellationToken);
+        IEnumerable<OfferDetailsResponseDto> offers = await _serviceManager.OfferService.GetAllAsync(searchModel, cancellationToken);
         return Ok(offers);
     }
 

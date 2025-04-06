@@ -122,8 +122,7 @@ public class ServiceManagerMock
 
         _offerService = new OfferService(
             _unitOfWorkMock.UnitOfWorkInstance,
-            _mapper,
-            GetPurchaseService());
+            _mapper);
         return _offerService;
     }
 

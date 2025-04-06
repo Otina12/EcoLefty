@@ -18,7 +18,9 @@ public class ImageService : IImageService
         if (imageFile == null || imageFile.Length == 0)
             return null;
 
-        var uploadsFolder = Path.Combine(_env.WebRootPath, "uploads");
+        //var uploadsFolder = Path.Combine(_env.WebRootPath, "uploads");
+        var uploadsFolder = @"C:\Users\Giorgi\source\repos\EcoLefty\EcoLefty.Web\wwwroot\uploads\";
+
         if (!Directory.Exists(uploadsFolder))
             Directory.CreateDirectory(uploadsFolder);
 

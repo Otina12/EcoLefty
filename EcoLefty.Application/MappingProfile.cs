@@ -75,6 +75,7 @@ public class MappingProfile : Profile
 
         // Purchase
         CreateMap<Purchase, PurchaseDetailsResponseDto>();
-        CreateMap<CreatePurchaseRequestDto, Purchase>();
+        CreateMap<CreatePurchaseRequestDto, Purchase>()
+            .ForMember(dest => dest.PurchaseDateUtc, opt => opt.Ignore());
     }
 }

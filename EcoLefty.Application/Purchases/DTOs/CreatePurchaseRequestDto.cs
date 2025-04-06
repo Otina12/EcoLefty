@@ -3,6 +3,5 @@
 public class CreatePurchaseRequestDto
 {
     public int Quantity { get; set; }
-    public DateTime PurchaseDateUtc { get; set; }
     public int OfferId { get; set; }
 }

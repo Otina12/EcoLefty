@@ -21,7 +21,7 @@ public class PurchaseController : Controller
     [HttpGet]
     public async Task<IActionResult> Details(int id, CancellationToken token)
     {
-        var purchaseDetails = await _serviceManager.PurchaseService.GetByIdAsync(id);
+        var purchaseDetails = await _serviceManager.PurchaseService.GetByIdAsync(id, token);
 
         if (User.FindFirst(ClaimTypes.NameIdentifier)!.Value != purchaseDetails.Customer.Id)
             throw new ForbiddenException();
@@ -39,7 +39,7 @@ public class PurchaseController : Controller
         }
 
         var curUserId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
-        var result = await _serviceManager.PurchaseService.CreatePurchaseAsync(createPurchaseDto, token);
+        await _serviceManager.PurchaseService.CreatePurchaseAsync(createPurchaseDto, token);
         return RedirectToAction("Profile", "User", new { id = curUserId });
     }
 
@@ -48,12 +48,12 @@ public class PurchaseController : Controller
     public async Task<IActionResult> Cancel(int id, CancellationToken token)
     {
         var curUserId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
-        var purchaseDetails = await _serviceManager.PurchaseService.GetByIdAsync(id);
+        var purchaseDetails = await _serviceManager.PurchaseService.GetByIdAsync(id, token);
 
         if (curUserId != purchaseDetails.Customer.Id)
             throw new ForbiddenException();
 
-        var result = await _serviceManager.PurchaseService.CancelPurchaseAsync(id, token);
+        await _serviceManager.PurchaseService.CancelPurchaseAsync(id, token);
         return RedirectToAction("Profile", "User", new { id = curUserId });
     }
 }

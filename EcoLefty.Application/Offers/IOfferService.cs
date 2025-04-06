@@ -1,10 +1,11 @@
 ﻿using EcoLefty.Application.Offers.DTOs;
+using EcoLefty.Domain.Common;
 
 namespace EcoLefty.Application.Offers;
 
 public interface IOfferService
 {
-    Task<IEnumerable<OfferDetailsResponseDto>> GetAllAsync(CancellationToken token = default);
+    Task<PagedList<OfferDetailsResponseDto>> GetAllAsync(OfferSearchDto offerSearchDto, CancellationToken token = default);
     Task<IEnumerable<OfferDetailsResponseDto>> GetActiveOffersAsync(CancellationToken token = default);
     Task<IEnumerable<OfferDetailsResponseDto>> GetAllOffersOfCompanyAsync(string companyId, CancellationToken token = default);
     Task<IEnumerable<OfferDetailsResponseDto>> GetActiveOffersOfCompanyAsync(string companyId, CancellationToken token = default);

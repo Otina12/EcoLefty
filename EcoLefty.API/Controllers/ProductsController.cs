@@ -34,7 +34,8 @@ public class ProductsController : ControllerBase
 
     [Authorize(Roles = "Company")]
     [HttpPost]
-    public async Task<ActionResult<ProductResponseDto>> Create([FromBody] CreateProductRequestDto createDto, CancellationToken cancellationToken)
+    [Consumes("multipart/form-data")]
+    public async Task<ActionResult<ProductResponseDto>> Create([FromForm] CreateProductRequestDto createDto, CancellationToken cancellationToken)
     {
         var validator = new CreateProductRequestDtoValidator();
         await validator.ValidateAndThrowAsync(createDto, HttpContext.RequestAborted);
