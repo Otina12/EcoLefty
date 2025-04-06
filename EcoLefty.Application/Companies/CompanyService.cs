@@ -18,6 +18,7 @@ namespace EcoLefty.Application.Companies;
 public class CompanyService : ICompanyService
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ITransactionWrapper _transactionWrapper;
     private readonly IOfferService _offerService;
     private readonly IImageService _imageService;
     private readonly IAuthenticationService _authenticationService;
@@ -25,12 +26,14 @@ public class CompanyService : ICompanyService
 
     public CompanyService(
         IUnitOfWork unitOfWork,
+        ITransactionWrapper transactionWrapper,
         IOfferService offerService,
         IImageService imageService,
         IMapper mapper,
         IAuthenticationService authenticationService)
     {
         _unitOfWork = unitOfWork;
+        _transactionWrapper = transactionWrapper;
         _offerService = offerService;
         _imageService = imageService;
         _authenticationService = authenticationService;
@@ -67,8 +70,8 @@ public class CompanyService : ICompanyService
 
     public async Task<TokenResponseDto> CreateAsync(CreateCompanyRequestDto createCompanyDto, CancellationToken token = default)
     {
-        // We need a transaction to ensure that identity user is not added without company and vice versa
-        using var transaction = await _unitOfWork.BeginTransactionAsync(token);
+        // We need a transaction to ensure that identity user is not added without company
+        await _transactionWrapper.BeginTransactionAsync(token);
 
         try
         {
@@ -89,13 +92,13 @@ public class CompanyService : ICompanyService
             await _unitOfWork.Companies.CreateAsync(company);
             await _unitOfWork.SaveChangesAsync(token);
 
-            await transaction.CommitAsync(token);
+            await _transactionWrapper.CommitTransactionAsync(); // without token
 
             return tokenPair;
         }
         catch (Exception)
         {
-            await transaction.RollbackAsync(); // without token
+            await _transactionWrapper.RollbackTransactionAsync(); // without token
             throw;
         }
     }

@@ -3,7 +3,6 @@ using EcoLefty.Domain.Contracts.Repositories;
 using EcoLefty.Infrastructure.Repositories;
 using EcoLefty.Persistence.Context;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Storage;
 
 namespace EcoLefty.Infrastructure;
 
@@ -48,11 +47,6 @@ public class UnitOfWork : IUnitOfWork, IDisposable
         }
 
         return await _context.SaveChangesAsync(token);
-    }
-
-    public async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken token)
-    {
-        return await _context.Database.BeginTransactionAsync(token);
     }
 
     public IAccountRepository Accounts => _accountRepository.Value;

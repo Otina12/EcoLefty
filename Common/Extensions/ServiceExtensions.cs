@@ -9,6 +9,7 @@ using EcoLefty.Domain.Contracts.Repositories;
 using EcoLefty.Domain.Entities.Identity;
 using EcoLefty.Infrastructure;
 using EcoLefty.Infrastructure.Repositories;
+using EcoLefty.Infrastructure.Repositories.Common;
 using EcoLefty.Persistence.Context;
 using EcoLefty.Workers;
 using FluentValidation;
@@ -74,6 +75,7 @@ public static class ServiceExtensions
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IImageService, ImageService>();
+        services.AddScoped<ITransactionWrapper, TransactionWrapper>();
 
         services.AddScoped<ICurrentUserContext, CurrentUserContext>();
 

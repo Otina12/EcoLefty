@@ -24,17 +24,17 @@ public class ServiceManager : IServiceManager
     private readonly Lazy<IPurchaseService> _purchaseService;
     private readonly IImageService _imageService;
 
-    public ServiceManager(IUnitOfWork unitOfWork,
-        IMapper mapper,
-        IServiceProvider serviceProvider)
+    public ServiceManager(IUnitOfWork unitOfWork, IServiceProvider serviceProvider, IMapper mapper)
     {
         _imageService = serviceProvider.GetRequiredService<IImageService>();
+
         var authService = serviceProvider.GetRequiredService<IAuthenticationService>();
+        var transactionWrapper = serviceProvider.GetRequiredService<ITransactionWrapper>();
 
         _accountService = new Lazy<IAccountService>(() => new AccountService(unitOfWork));
-        _applicationUserService = new Lazy<IApplicationUserService>(() => new ApplicationUserService(unitOfWork, mapper, ImageService, authService));
+        _applicationUserService = new Lazy<IApplicationUserService>(() => new ApplicationUserService(unitOfWork, transactionWrapper, mapper, ImageService, authService));
         _categoryService = new Lazy<ICategoryService>(() => new CategoryService(unitOfWork, mapper));
-        _companyService = new Lazy<ICompanyService>(() => new CompanyService(unitOfWork, OfferService, ImageService, mapper, authService));
+        _companyService = new Lazy<ICompanyService>(() => new CompanyService(unitOfWork, transactionWrapper, OfferService, ImageService, mapper, authService));
         _offerService = new Lazy<IOfferService>(() => new OfferService(unitOfWork, mapper));
         _productService = new Lazy<IProductService>(() => new ProductService(unitOfWork, ImageService, mapper));
         _purchaseService = new Lazy<IPurchaseService>(() => new PurchaseService(unitOfWork, mapper));

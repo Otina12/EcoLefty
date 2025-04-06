@@ -17,16 +17,23 @@ namespace EcoLefty.Application.ApplicationUsers;
 public class ApplicationUserService : IApplicationUserService
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ITransactionWrapper _transactionWrapper;
     private readonly IAuthenticationService _authenticationService;
     private readonly IMapper _mapper;
     private readonly IImageService _imageService;
 
-    public ApplicationUserService(IUnitOfWork unitOfWork, IMapper mapper, IImageService imageService, IAuthenticationService authenticationService)
+    public ApplicationUserService(
+        IUnitOfWork unitOfWork,
+        ITransactionWrapper transactionWrapper,
+        IMapper mapper,
+        IImageService imageService,
+        IAuthenticationService authenticationService)
     {
-        _authenticationService = authenticationService;
         _unitOfWork = unitOfWork;
-        _mapper = mapper;
+        _transactionWrapper = transactionWrapper;
         _imageService = imageService;
+        _authenticationService = authenticationService;
+        _mapper = mapper;
     }
 
     public async Task<IEnumerable<ApplicationUserResponseDto>> GetAllAsync(CancellationToken token = default)
@@ -52,8 +59,8 @@ public class ApplicationUserService : IApplicationUserService
 
     public async Task<TokenResponseDto> CreateAsync(CreateApplicationUserRequestDto createUserDto, CancellationToken token = default)
     {
-        // We need a transaction to ensure that identity user is not added without application user and vice versa
-        using var transaction = await _unitOfWork.BeginTransactionAsync(token);
+        // We need a transaction to ensure that identity user is not added without application user
+        await _transactionWrapper.BeginTransactionAsync(token);
 
         try
         {
@@ -74,13 +81,13 @@ public class ApplicationUserService : IApplicationUserService
             await _unitOfWork.Users.CreateAsync(applicationUser, token);
             await _unitOfWork.SaveChangesAsync(token);
 
-            await transaction.CommitAsync(token);
+            await _transactionWrapper.CommitTransactionAsync(); // without token
 
             return tokenPair;
         }
         catch (Exception)
         {
-            await transaction.RollbackAsync(); // without token
+            await _transactionWrapper.RollbackTransactionAsync(); // without token
             throw;
         }
     }

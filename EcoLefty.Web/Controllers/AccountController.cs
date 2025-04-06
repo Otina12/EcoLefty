@@ -40,7 +40,7 @@ public class AccountController : Controller
         }
 
         await _serviceManager.ApplicationUserService.CreateAsync(createUserDto, token);
-        return View();
+        return RedirectToAction("Index", "Home");
     }
 
     [HttpGet]
@@ -58,7 +58,7 @@ public class AccountController : Controller
         }
 
         await _serviceManager.CompanyService.CreateAsync(createCompanyDto, token);
-        return View();
+        return RedirectToAction("Index", "Home");
     }
 
     [HttpGet]
