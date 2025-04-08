@@ -70,6 +70,7 @@
     {
         <div class="purchase-section">
             <form asp-controller="Purchase" asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
                 <input type="hidden" name="OfferId" value="@Model.Id" />
                 <div class="my-field">
                     <label for="Quantity" class="required">Quantity</label>

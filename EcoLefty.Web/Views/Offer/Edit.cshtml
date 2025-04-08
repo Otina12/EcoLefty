@@ -9,6 +9,7 @@
         Edit Offer
     </div>
     <form asp-controller="Offer" asp-action="Edit" method="post">
+        @Html.AntiForgeryToken()
         <div class="my-field">
             <label asp-for="Title" class="required">Title</label>
             <input asp-for="Title" type="text" placeholder="Enter offer title" required />

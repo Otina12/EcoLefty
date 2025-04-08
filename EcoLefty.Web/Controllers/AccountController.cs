@@ -31,6 +31,7 @@ public class AccountController : Controller
         return View();
     }
 
+    [ValidateAntiForgeryToken]
     [HttpPost]
     public async Task<IActionResult> RegisterUser(CreateApplicationUserRequestDto createUserDto, CancellationToken token)
     {
@@ -49,6 +50,7 @@ public class AccountController : Controller
         return View();
     }
 
+    [ValidateAntiForgeryToken]
     [HttpPost]
     public async Task<IActionResult> RegisterCompany(CreateCompanyRequestDto createCompanyDto, CancellationToken token)
     {
@@ -67,6 +69,8 @@ public class AccountController : Controller
         return View();
     }
 
+
+    [ValidateAntiForgeryToken]
     [HttpPost]
     public async Task<IActionResult> Login(LoginAccountRequestDto loginDto)
     {

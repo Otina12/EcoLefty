@@ -3,6 +3,8 @@ using EcoLefty.API.Infrastructure.Extensions;
 using EcoLefty.Application;
 using EcoLefty.Application.Common.Logger;
 using EcoLefty.Web.Infrastructure.Middleware;
+using EcoLefty.Workers;
+using Quartz;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -24,8 +26,15 @@ services.ConfigureServices();
 services.ConfigureIdentity();
 services.AddControllersWithViews();
 
-services.ConfigureQuartz();
-services.ConfigureHealthCheckWorker();
+builder.Services.AddQuartz(q =>
+{
+    q.AddOfferArchiverWorkerJob();
+});
+
+builder.Services.AddQuartzHostedService(options =>
+{
+    options.WaitForJobsToComplete = true;
+});
 
 services.ConfigureValidators();
 services.AddAutoMapper(typeof(MappingProfile));

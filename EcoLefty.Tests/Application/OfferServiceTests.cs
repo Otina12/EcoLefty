@@ -31,7 +31,7 @@ public class OfferServiceTests
         });
 
         _mapper = mappingConfig.CreateMapper();
-        _offerService = new OfferService(_unitOfWorkMock.UnitOfWorkInstance, _mapper, _purchaseServiceMock.Object);
+        _offerService = new OfferService(_unitOfWorkMock.UnitOfWorkInstance, _mapper);
     }
 
     [Fact]
@@ -40,8 +40,14 @@ public class OfferServiceTests
         // Arrange
         var expectedOffers = _unitOfWorkMock.GeneratedOffers;
 
+        OfferSearchDto dto = new OfferSearchDto()
+        {
+            OnlyActive = false,
+            PageSize = expectedOffers.Count
+        };
+
         // Act
-        var result = await _offerService.GetAllAsync();
+        var result = await _offerService.GetAllAsync(dto);
 
         // Assert
         Assert.NotNull(result);

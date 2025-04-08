@@ -15,7 +15,7 @@ public static class TestDataGenerator
 {
     private static readonly Faker Faker = new Faker("en");
 
-    public static Account GenerateAccount(string id = null, string email = null, bool isCompany = false)
+    public static Account GenerateAccount(string? id = null, string? email = null, bool isCompany = false)
     {
         return new Account
         {
@@ -32,7 +32,7 @@ public static class TestDataGenerator
         };
     }
 
-    public static ApplicationUser GenerateApplicationUser(string id = null, Account account = null)
+    public static ApplicationUser GenerateApplicationUser(string? id = null, Account? account = null)
     {
         id = id ?? Guid.NewGuid().ToString();
         var createdAt = DateTime.UtcNow.AddDays(-Faker.Random.Int(1, 365));
@@ -55,7 +55,7 @@ public static class TestDataGenerator
         };
     }
 
-    public static Company GenerateCompany(string id = null, Account account = null)
+    public static Company GenerateCompany(string? id = null, Account? account = null)
     {
         id = id ?? Guid.NewGuid().ToString();
         var createdAt = DateTime.UtcNow.AddDays(-Faker.Random.Int(1, 365));
@@ -94,7 +94,7 @@ public static class TestDataGenerator
         };
     }
 
-    public static Product GenerateProduct(int id = 0, string companyId = null, Company company = null)
+    public static Product GenerateProduct(int id = 0, string? companyId = null, Company? company = null)
     {
         var createdAt = DateTime.UtcNow.AddDays(-Faker.Random.Int(1, 365));
         var environmentallyFriendlyAdjectives = new[] { "Sustainable", "Eco-friendly", "Green", "Organic", "Recycled" };
@@ -122,7 +122,7 @@ public static class TestDataGenerator
         };
     }
 
-    public static Offer GenerateOffer(int id = 0, int productId = 0, Product product = null)
+    public static Offer GenerateOffer(int id = 0, int productId = 0, Product? product = null)
     {
         var createdAt = DateTime.UtcNow.AddDays(-Faker.Random.Int(1, 30));
 
@@ -167,7 +167,7 @@ public static class TestDataGenerator
         };
     }
 
-    public static Purchase GeneratePurchase(int id = 0, string customerId = null, int offerId = 0)
+    public static Purchase GeneratePurchase(int id = 0, string? customerId = null, int offerId = 0)
     {
         var createdAt = DateTime.UtcNow.AddDays(-Faker.Random.Int(0, 30));
 

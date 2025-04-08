@@ -5,7 +5,6 @@ using EcoLefty.Domain.Entities;
 using EcoLefty.Domain.Entities.Auth;
 using EcoLefty.Domain.Entities.Identity;
 using EcoLefty.Tests.Application.TestHelpers;
-using Microsoft.EntityFrameworkCore.Storage;
 using Moq;
 using System.Linq.Expressions;
 
@@ -20,13 +19,12 @@ public class UnitOfWorkMock
     private IOfferRepository? _offerRepository;
     private IProductRepository? _productRepository;
     private IPurchaseRepository? _purchaseRepository;
-    private IAuditLogRepository? _auditLogRepository;
-    private IRefreshTokenRepository? _refreshTokenRepository;
+    //private IAuditLogRepository? _auditLogRepository;
+    //private IRefreshTokenRepository? _refreshTokenRepository;
     private ICurrentUserContext? _currentUserContext;
 
     public IUnitOfWork UnitOfWorkInstance { get; }
 
-    // Store generated test data
     public List<Account> GeneratedAccounts { get; private set; } = new List<Account>();
     public List<ApplicationUser> GeneratedUsers { get; private set; } = new List<ApplicationUser>();
     public List<Company> GeneratedCompanies { get; private set; } = new List<Company>();
@@ -68,10 +66,6 @@ public class UnitOfWorkMock
 
         mockUnitOfWork.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>(), It.IsAny<bool>()))
             .Returns(Task.FromResult(1));
-
-        // Setup BeginTransactionAsync
-        mockUnitOfWork.Setup(u => u.BeginTransactionAsync(It.IsAny<CancellationToken>()))
-            .Returns(Task.FromResult(Mock.Of<IDbContextTransaction>()));
 
         UnitOfWorkInstance = mockUnitOfWork.Object;
     }
@@ -1005,7 +999,6 @@ public class UnitOfWorkMock
         _currentUserContext = mockCurrentUserContext.Object;
         return _currentUserContext;
     }
-
 
     #endregion
 

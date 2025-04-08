@@ -10,6 +10,7 @@
             Register
         </div>
         <form asp-asp-controller="Account" asp-action="RegisterUser" method="post">
+            @Html.AntiForgeryToken()
             <div class="my-field">
                 <label class="required">Name</label>
                 <div class="name-fields">

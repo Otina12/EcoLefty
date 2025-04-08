@@ -11,7 +11,6 @@ using EcoLefty.Infrastructure;
 using EcoLefty.Infrastructure.Repositories;
 using EcoLefty.Infrastructure.Repositories.Common;
 using EcoLefty.Persistence.Context;
-using EcoLefty.Workers;
 using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpLogging;
@@ -135,42 +134,6 @@ public static class ServiceExtensions
         services.AddQuartzHostedService(options =>
         {
             options.WaitForJobsToComplete = true;
-        });
-    }
-
-    public static void ConfigureOfferStatusUpdaterWorker(this IServiceCollection services)
-    {
-        services.AddQuartz(config =>
-        {
-            var jobKey = new JobKey("OfferArchiverWorker");
-            config.AddJob<OfferStatusUpdaterWorker>(opts => opts.WithIdentity(jobKey));
-            config.AddTrigger(opts => opts
-                .ForJob(jobKey)
-                .WithIdentity("OfferArchiverWorker-trigger")
-                .WithSimpleSchedule(x => x
-                    .WithIntervalInMinutes(10)
-                    .RepeatForever()));
-        });
-    }
-
-    public static void ConfigureHealthCheckWorker(this IServiceCollection services)
-    {
-        services.AddHttpClient("HealthCheck", client =>
-        {
-            client.BaseAddress = new Uri("https://localhost:44338/");
-            client.Timeout = TimeSpan.FromSeconds(5);
-        });
-
-        services.AddQuartz(config =>
-        {
-            var healthCheckJobKey = new JobKey("HealthCheckWorker");
-            config.AddJob<HealthCheckWorker>(opts => opts.WithIdentity(healthCheckJobKey));
-            config.AddTrigger(opts => opts
-                .ForJob(healthCheckJobKey)
-                .WithIdentity("HealthCheckWorker-trigger")
-                .WithSimpleSchedule(x => x
-                    .WithIntervalInMinutes(5)
-                    .RepeatForever()));
         });
     }
 }

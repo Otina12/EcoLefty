@@ -43,7 +43,7 @@ public class ApplicationUsersController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateApplicationUserRequestDto createDto, CancellationToken cancellationToken)
+    public async Task<IActionResult> Create([FromForm] CreateApplicationUserRequestDto createDto, CancellationToken cancellationToken)
     {
         var validator = new CreateApplicationUserRequestDtoValidator();
         await validator.ValidateAndThrowAsync(createDto, HttpContext.RequestAborted);

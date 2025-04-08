@@ -5,7 +5,7 @@ namespace EcoLefty.Web.Controllers;
 public class ErrorController : Controller
 {
     [HttpGet("Error/{statusCode:int}")]
-    public IActionResult Error(int statusCode, string message = null)
+    public IActionResult Error(int statusCode, string? message = null)
     {
         var problemDetails = new ProblemDetails
         {

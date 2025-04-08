@@ -9,6 +9,7 @@
         Edit Company
     </div>
     <form asp-controller="Company" asp-action="Edit" method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
         <div class="my-field">
             <label asp-for="Name" class="required">Company Name</label>
             <input asp-for="Name" type="text" placeholder="Enter company name" required />

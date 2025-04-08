@@ -10,7 +10,7 @@
         Create Product
     </div>
     <form asp-controller="Product" asp-action="Create" method="post" enctype="multipart/form-data">
-        >
+        @Html.AntiForgeryToken()
         <div class="my-field">
             <label asp-for="Name" class="required">Product Name</label>
             <input asp-for="Name" type="text" placeholder="Enter product name" required />

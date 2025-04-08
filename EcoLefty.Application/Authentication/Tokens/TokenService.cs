@@ -73,7 +73,7 @@ public class TokenService : ITokenService
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateIssuerSigningKey = true,
-            ValidateLifetime = false, // Allow expired token for refresh purposes
+            ValidateLifetime = false,
             ValidIssuer = _configuration["JwtSettings:Issuer"],
             ValidAudience = _configuration["JwtSettings:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:Secret"]!))

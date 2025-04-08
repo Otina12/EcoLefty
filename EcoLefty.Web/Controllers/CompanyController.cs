@@ -33,6 +33,7 @@ public class CompanyController : Controller
     }
 
     [AllowOnlyOwnerAccount]
+    [ValidateAntiForgeryToken]
     [HttpPost]
     public async Task<IActionResult> Edit(string id, UpdateCompanyRequestDto updateCompanyDto, CancellationToken token)
     {

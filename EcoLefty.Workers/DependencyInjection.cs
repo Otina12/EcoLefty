@@ -17,23 +17,33 @@ public static class DependencyInjection
         return services;
     }
 
-    public static IServiceCollection AddOfferArchiverWorkerJob(this IServiceCollection services)
+    public static IServiceCollectionQuartzConfigurator AddOfferArchiverWorkerJob(this IServiceCollectionQuartzConfigurator builder)
     {
-        services.AddQuartz(config =>
-        {
-            var jobKey = new JobKey("OfferArchiverWorker");
+        var jobKey = new JobKey("OfferArchiverWorker");
 
-            config.AddJob<OfferStatusUpdaterWorker>(opts => opts.WithIdentity(jobKey));
+        builder.AddJob<OfferStatusUpdaterWorker>(opts => opts.WithIdentity(jobKey));
+        builder.AddTrigger(opts => opts
+            .ForJob(jobKey)
+            .WithIdentity("OfferArchiverWorker-trigger")
+            .WithSimpleSchedule(x => x
+                .WithIntervalInMinutes(2)
+                .RepeatForever()));
 
-            config.AddTrigger(opts => opts
-                .ForJob(jobKey)
-                .WithIdentity("OfferArchiverWorker-trigger")
-                .WithSimpleSchedule(x => x
-                    .WithIntervalInMinutes(2)
-                    .RepeatForever()));
-        });
-
-        return services;
+        return builder;
     }
 
+    public static IServiceCollectionQuartzConfigurator AddHealthCheckWorkerJob(this IServiceCollectionQuartzConfigurator builder)
+    {
+        var jobKey = new JobKey("HealthCheckWorker");
+
+        builder.AddJob<HealthCheckWorker>(opts => opts.WithIdentity(jobKey));
+        builder.AddTrigger(opts => opts
+            .ForJob(jobKey)
+            .WithIdentity("HealthCheckWorker-trigger")
+            .WithSimpleSchedule(x => x
+                .WithIntervalInMinutes(1)
+                .RepeatForever()));
+
+        return builder;
+    }
 }

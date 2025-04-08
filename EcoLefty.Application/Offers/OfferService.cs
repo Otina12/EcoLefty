@@ -55,6 +55,22 @@ public class OfferService : IOfferService
             query = query.Where(o => o.StartDateUtc <= currentDate && o.ExpiryDateUtc >= currentDate);
         }
 
+        // Filter only followed categories
+        var currentUserId = _unitOfWork.CurrentUserContext.UserId;
+        if (offerSearchDto.OnlyFollowedCategories == true && currentUserId is not null)
+        {
+            var user = await _unitOfWork.Users.GetByIdAsync(currentUserId, false, token, ApplicationUserIncludes.Categories);
+            if (user != null && user.FollowedCategories.Any())
+            {
+                var followedCategoryIds = user.FollowedCategories.Select(c => c.Id).ToList();
+                query = query.Where(o => o.Product.Categories.Any(category => followedCategoryIds.Contains(category.Id)));
+            }
+            else
+            {
+                return new PagedList<OfferDetailsResponseDto>([], offerSearchDto.PageIndex, offerSearchDto.PageSize);
+            }
+        }
+
         // Filter by category if provided
         if (offerSearchDto.CategoryId.HasValue)
         {

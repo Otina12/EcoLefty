@@ -1,8 +1,10 @@
 ﻿@using EcoLefty.Domain.Common
+@using System.Security.Claims
 @model PagedList<EcoLefty.Application.Offers.DTOs.OfferDetailsResponseDto>
 
 @{
     ViewBag.Title = "Offers Index";
+    var isUser = User.FindFirst(ClaimTypes.Role)?.Value == "User";
 }
 
 <div class="container mt-4">
@@ -12,10 +14,10 @@
     <form asp-action="GetAll" method="get" class="mb-4">
         <div class="row g-3">
             <!-- Search Text -->
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <input type="text" class="form-control" name="SearchText" placeholder="Search offers..." value="@ViewBag.CurrentSearch">
             </div>
-            
+
             <!-- Company Filter -->
             <div class="col-md-2">
                 <select class="form-select" name="CompanyId">
@@ -26,7 +28,7 @@
                     }
                 </select>
             </div>
-            
+
             <!-- Category Filter -->
             <div class="col-md-2">
                 <select class="form-select" name="CategoryId">
@@ -37,9 +39,9 @@
                     }
                 </select>
             </div>
-            
+
             <!-- Sort Options -->
-            <div class="col-md-2">
+            <div class="col-md-1">
                 <select class="form-select" name="SortByColumn">
                     <option value="">Sort By...</option>
                     <option value="startdate" selected=@(ViewBag.CurrentSort == "startdate")>Start Date</option>
@@ -47,27 +49,39 @@
                     <option value="price" selected=@(ViewBag.CurrentSort == "price")>Price</option>
                 </select>
             </div>
-            
+
             <!-- Sort Direction -->
-            <div class="col-md-1">
+            <div class="col-auto">
                 <select class="form-select" name="SortByAscending">
                     <option value="true" selected=@(ViewBag.CurrentSortDirection == true)>Asc</option>
                     <option value="false" selected=@(ViewBag.CurrentSortDirection == false)>Desc</option>
                 </select>
             </div>
-            
+
             <!-- Only Active Switch -->
-            <div class="col-md-1">
+            <div class="col-auto">
                 <div class="form-check form-switch mt-2">
-                    <input class="form-check-input" type="checkbox" name="OnlyActive" value="true" id="onlyActiveSwitch" 
-                           @(ViewBag.OnlyActive ? "checked" : "")>
+                    <input type="checkbox" class="form-check-input" name="OnlyActive" value="true" id="onlyActiveSwitch"
+                    @(ViewBag.OnlyActive ? "checked" : "")>
                     <label class="form-check-label" for="onlyActiveSwitch">Active</label>
                 </div>
             </div>
-            
+
+            <!-- Only Followed Categories Switch -->
+            @if (isUser)
+            {
+                <div class="col-auto">
+                    <div class="form-check form-switch mt-2">
+                        <input type="checkbox" class="form-check-input" name="OnlyFollowedCategories" value="true" id="onlyFollowedCategoriesSwitch"
+                        @(ViewBag.OnlyFollowedCategories ? "checked" : "")>
+                        <label class="form-check-label" for="onlyFollowedCategoriesSwitch">Followed</label>
+                    </div>
+                </div>
+            }
+
             <!-- Search Button -->
-            <div class="col-md-1">
-                <button type="submit" class="btn btn-primary w-100">Search</button>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary">Search</button>
             </div>
         </div>
     </form>
@@ -104,6 +118,7 @@
                         SortByColumn = ViewBag.CurrentSort,
                         SortByAscending = ViewBag.CurrentSortDirection,
                         OnlyActive = ViewBag.OnlyActive,
+                        OnlyFollowedCategories = ViewBag.OnlyFollowedCategories,
                         PageIndex = 1,
                         PageSize = Model.PageSize
                     })">
@@ -120,6 +135,7 @@
                         SortByColumn = ViewBag.CurrentSort,
                         SortByAscending = ViewBag.CurrentSortDirection,
                         OnlyActive = ViewBag.OnlyActive,
+                        OnlyFollowedCategories = ViewBag.OnlyFollowedCategories,
                         PageIndex = Model.PageIndex - 1,
                         PageSize = Model.PageSize
                     })">
@@ -144,6 +160,7 @@
                             SortByColumn = ViewBag.CurrentSort,
                             SortByAscending = ViewBag.CurrentSortDirection,
                             OnlyActive = ViewBag.OnlyActive,
+                            OnlyFollowedCategories = ViewBag.OnlyFollowedCategories,
                             PageIndex = i,
                             PageSize = Model.PageSize
                         })">
@@ -161,6 +178,7 @@
                         SortByColumn = ViewBag.CurrentSort,
                         SortByAscending = ViewBag.CurrentSortDirection,
                         OnlyActive = ViewBag.OnlyActive,
+                        OnlyFollowedCategories = ViewBag.OnlyFollowedCategories,
                         PageIndex = Model.PageIndex + 1,
                         PageSize = Model.PageSize
                     })">
@@ -177,6 +195,7 @@
                         SortByColumn = ViewBag.CurrentSort,
                         SortByAscending = ViewBag.CurrentSortDirection,
                         OnlyActive = ViewBag.OnlyActive,
+                        OnlyFollowedCategories = ViewBag.OnlyFollowedCategories,
                         PageIndex = Model.TotalPages,
                         PageSize = Model.PageSize
                     })">

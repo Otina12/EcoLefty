@@ -11,6 +11,7 @@
             Register Company
         </div>
         <form asp-controller="Account" asp-action="RegisterCompany" method="post">
+            @Html.AntiForgeryToken()
             <div class="my-field">
                 <label class="required" asp-for="Name">Company Name</label>
                 <input asp-for="Name" type="text" placeholder="Company Name*" required />

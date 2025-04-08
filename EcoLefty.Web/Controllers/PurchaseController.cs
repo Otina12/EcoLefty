@@ -30,6 +30,7 @@ public class PurchaseController : Controller
     }
 
     [Authorize]
+    [ValidateAntiForgeryToken]
     [HttpPost]
     public async Task<IActionResult> Create(CreatePurchaseRequestDto createPurchaseDto, CancellationToken token)
     {

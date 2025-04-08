@@ -1,23 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<NoWarn>$(NoWarn);CS8618</NoWarn>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="AspNetCore.HealthChecks.SqlServer" Version="8.0.2" />
-    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.14" />
-    <PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="AspNetCore.HealthChecks.SqlServer" Version="8.0.2" />
+		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.14" />
+		<PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\EcoLefty.Application\EcoLefty.Application.csproj" />
-    <ProjectReference Include="..\EcoLefty.Infrastructure\EcoLefty.Infrastructure.csproj" />
-    <ProjectReference Include="..\EcoLefty.Persistence\EcoLefty.Persistence.csproj" />
-    <ProjectReference Include="..\EcoLefty.Workers\EcoLefty.Workers.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\EcoLefty.Application\EcoLefty.Application.csproj" />
+		<ProjectReference Include="..\EcoLefty.Infrastructure\EcoLefty.Infrastructure.csproj" />
+		<ProjectReference Include="..\EcoLefty.Persistence\EcoLefty.Persistence.csproj" />
+		<ProjectReference Include="..\EcoLefty.Workers\EcoLefty.Workers.csproj" />
+	</ItemGroup>
 
 </Project>

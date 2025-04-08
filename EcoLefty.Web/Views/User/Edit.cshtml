@@ -9,6 +9,7 @@
         Edit Profile
     </div>
     <form asp-controller="User" asp-action="Edit" method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
         <div class="my-field">
             <label asp-for="FirstName" class="required">First Name</label>
             <input asp-for="FirstName" type="text" placeholder="Enter first name" required />

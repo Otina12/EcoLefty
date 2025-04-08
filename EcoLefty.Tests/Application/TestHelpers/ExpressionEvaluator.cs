@@ -10,7 +10,7 @@ public static class ExpressionEvaluator
         return compiledExpression(objectToTest);
     }
 
-    public static string GetPropertyName<T, TProperty>(Expression<Func<T, TProperty>> propertyExpression)
+    public static string? GetPropertyName<T, TProperty>(Expression<Func<T, TProperty>> propertyExpression)
     {
         var memberExpression = propertyExpression.Body as MemberExpression;
         if (memberExpression == null)

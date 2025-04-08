@@ -9,6 +9,7 @@ using EcoLefty.Application.Companies;
 using EcoLefty.Application.Offers;
 using EcoLefty.Application.Products;
 using EcoLefty.Application.Purchases;
+using EcoLefty.Domain.Contracts;
 using Moq;
 
 namespace EcoLefty.Tests.Mocks;
@@ -29,6 +30,8 @@ public class ServiceManagerMock
     private IPurchaseService? _purchaseService;
     private IImageService? _imageService;
 
+    private ITransactionWrapper _transactionWrapper;
+
     public ServiceManagerMock()
     {
         var mapperMock = new Mock<IMapper>();
@@ -44,6 +47,9 @@ public class ServiceManagerMock
         serviceProviderMock.Setup(sp => sp.GetService(typeof(IAuthenticationService)))
             .Returns(authServiceMock.Object);
         _serviceProvider = serviceProviderMock.Object;
+
+        var transactionWrapperMock = new Mock<ITransactionWrapper>();
+        _transactionWrapper = transactionWrapperMock.Object;
     }
 
     public ServiceManager GetServiceManager()
@@ -62,7 +68,7 @@ public class ServiceManagerMock
         serviceMock.Setup(s => s.PurchaseService).Returns(GetPurchaseService());
         serviceMock.Setup(s => s.ImageService).Returns(GetImageService());
 
-        _serviceManager = new ServiceManager(_unitOfWorkMock.UnitOfWorkInstance, _mapper, _serviceProvider);
+        _serviceManager = new ServiceManager(_unitOfWorkMock.UnitOfWorkInstance, _serviceProvider, _mapper);
         return _serviceManager;
     }
 
@@ -84,9 +90,10 @@ public class ServiceManagerMock
 
         _applicationUserService = new ApplicationUserService(
             _unitOfWorkMock.UnitOfWorkInstance,
+            GetTransactionWrapper(),
             _mapper,
             GetImageService(),
-            GetAuthenticationService());
+            GetAuthenticationService()); ;
         return _applicationUserService;
     }
 
@@ -108,6 +115,7 @@ public class ServiceManagerMock
 
         _companyService = new CompanyService(
             _unitOfWorkMock.UnitOfWorkInstance,
+            GetTransactionWrapper(),
             GetOfferService(),
             GetImageService(),
             _mapper,
@@ -158,6 +166,11 @@ public class ServiceManagerMock
     {
         var authServiceMock = new Mock<IAuthenticationService>();
         return authServiceMock.Object;
+    }
+
+    public ITransactionWrapper GetTransactionWrapper()
+    {
+        return _transactionWrapper;
     }
 
     #endregion

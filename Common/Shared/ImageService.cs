@@ -13,7 +13,7 @@ public class ImageService : IImageService
         _env = env;
     }
 
-    public async Task<string> UploadImageAsync(IFormFile imageFile, CancellationToken cancellationToken = default)
+    public async Task<string?> UploadImageAsync(IFormFile imageFile, CancellationToken cancellationToken = default)
     {
         if (imageFile == null || imageFile.Length == 0)
             return null;

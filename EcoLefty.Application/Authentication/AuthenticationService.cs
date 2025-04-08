@@ -1,6 +1,7 @@
 ﻿using EcoLefty.Application.Accounts.DTOs;
 using EcoLefty.Application.Authentication.Tokens;
 using EcoLefty.Application.Authentication.Tokens.DTOs;
+using EcoLefty.Application.Common.Logger;
 using EcoLefty.Domain.Common.Enums;
 using EcoLefty.Domain.Common.Exceptions;
 using EcoLefty.Domain.Common.Exceptions.Base;
@@ -21,19 +22,22 @@ public class AuthenticationService : IAuthenticationService
     private readonly IUnitOfWork _unitOfWork;
     private readonly ITokenService _tokenService;
     private readonly IRefreshTokenRepository _refreshTokenRepository;
+    private readonly ILoggerService _loggerService;
 
     public AuthenticationService(
         UserManager<Account> userManager,
         SignInManager<Account> signInManager,
         IUnitOfWork unitOfWork,
         ITokenService tokenService,
-        IRefreshTokenRepository refreshTokenRepository)
+        IRefreshTokenRepository refreshTokenRepository,
+        ILoggerService loggerService)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _unitOfWork = unitOfWork;
         _tokenService = tokenService;
         _refreshTokenRepository = refreshTokenRepository;
+        _loggerService = loggerService;
     }
 
     public async Task<TokenResponseDto> RegisterAccountAsync(RegisterAccountRequestDto dto, AccountRole accountType)
@@ -73,6 +77,8 @@ public class AuthenticationService : IAuthenticationService
         await _refreshTokenRepository.AddAsync(refreshToken);
         await _unitOfWork.SaveChangesAsync();
 
+        _loggerService.LogInfo($"Registered account: {dto.Email}");
+
         return tokenPair;
     }
 
@@ -109,6 +115,8 @@ public class AuthenticationService : IAuthenticationService
 
         await _refreshTokenRepository.AddAsync(refreshToken);
         await _unitOfWork.SaveChangesAsync();
+
+        _loggerService.LogInfo($"Login of account: {loginDto.Email}");
 
         return tokenPair;
     }

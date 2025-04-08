@@ -49,6 +49,7 @@ public class OfferController : Controller
     }
 
     [AuthorizeApprovedCompany]
+    [ValidateAntiForgeryToken]
     [HttpPost]
     public async Task<IActionResult> Create(CreateOfferRequestDto createOfferDto, CancellationToken token)
     {
@@ -77,6 +78,7 @@ public class OfferController : Controller
     }
 
     [AuthorizeApprovedCompany]
+    [ValidateAntiForgeryToken]
     [HttpPost]
     public async Task<IActionResult> Edit(int id, UpdateOfferRequestDto updateOfferDto, CancellationToken token)
     {
@@ -115,5 +117,6 @@ public class OfferController : Controller
         ViewBag.CurrentSort = searchModel.SortByColumn;
         ViewBag.CurrentSortDirection = searchModel.SortByAscending;
         ViewBag.OnlyActive = searchModel.OnlyActive;
+        ViewBag.OnlyFollowedCategories = searchModel.OnlyFollowedCategories;
     }
 }

@@ -1,5 +1,6 @@
 ﻿using EcoLefty.Application.Common.Logger;
 using EcoLefty.Domain.Common.Exceptions.Base;
+using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,11 +17,14 @@ internal sealed class ExceptionHandler : IExceptionHandler
         _logger = logger;
     }
 
-    public async ValueTask<bool> TryHandleAsync(
-        HttpContext httpContext,
-        Exception exception,
-        CancellationToken cancellationToken)
+    public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
     {
+        if (exception is ValidationException validationException)
+        {
+            await HandleValidationException(httpContext, validationException, cancellationToken);
+            return true;
+        }
+
         int status = exception switch
         {
             NotFoundException => StatusCodes.Status404NotFound,
@@ -46,6 +50,44 @@ internal sealed class ExceptionHandler : IExceptionHandler
         await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
 
         return true;
+    }
+
+    private async Task HandleValidationException(
+        HttpContext httpContext,
+        ValidationException validationException,
+        CancellationToken cancellationToken)
+    {
+        var errors = new Dictionary<string, string[]>();
+
+        foreach (var error in validationException.Errors)
+        {
+            string propertyName = string.IsNullOrEmpty(error.PropertyName)
+                ? "General"
+                : error.PropertyName;
+
+            if (!errors.ContainsKey(propertyName))
+            {
+                errors[propertyName] = new[] { error.ErrorMessage };
+            }
+            else
+            {
+                var currentErrors = errors[propertyName].ToList();
+                currentErrors.Add(error.ErrorMessage);
+                errors[propertyName] = currentErrors.ToArray();
+            }
+        }
+
+        var problemDetails = new ValidationProblemDetails(errors)
+        {
+            Type = "ValidationException",
+            Title = "Validation Failed",
+            Status = StatusCodes.Status400BadRequest
+        };
+
+        LogException(StatusCodes.Status400BadRequest, validationException);
+
+        httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+        await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
     }
 
     private void LogException(int statusCode, Exception exception)

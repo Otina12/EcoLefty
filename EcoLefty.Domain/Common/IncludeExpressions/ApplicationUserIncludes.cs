@@ -12,9 +12,9 @@ public static class ApplicationUserIncludes
 
 public static class ApplicationUserStringIncludes
 {
-    public static string Account_string => "Account";
-    public static string Purchases_string => "Purchases";
-    public static string Purchases_Offer_string => "Purchases.Offer";
-    public static string Purchases_Customer_string => "Purchases.Customer";
-    public static string Categories_string => "FollowedCategories";
+    public static string Account_string => NavigationPathHelper.FormatNavigationPath(nameof(ApplicationUser.Account));
+    public static string Purchases_string => NavigationPathHelper.FormatNavigationPath(nameof(ApplicationUser.Purchases));
+    public static string Purchases_Offer_string => NavigationPathHelper.FormatNavigationPath(nameof(ApplicationUser.Purchases), nameof(Purchase.Offer));
+    public static string Purchases_Customer_string => NavigationPathHelper.FormatNavigationPath(nameof(ApplicationUser.Purchases), nameof(Purchase.Customer));
+    public static string Categories_string => NavigationPathHelper.FormatNavigationPath(nameof(ApplicationUser.FollowedCategories));
 }

@@ -47,6 +47,7 @@ public class ProductController : Controller
     }
 
     [AuthorizeApprovedCompany]
+    [ValidateAntiForgeryToken]
     [HttpPost]
     public async Task<IActionResult> Create(CreateProductRequestDto createProductDto, CancellationToken token)
     {
@@ -74,6 +75,7 @@ public class ProductController : Controller
     }
 
     [AuthorizeApprovedCompany]
+    [ValidateAntiForgeryToken]
     [HttpPost]
     public async Task<IActionResult> Edit(int id, UpdateProductRequestDto updateProductDto, CancellationToken token)
     {

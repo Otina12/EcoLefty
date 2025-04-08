@@ -33,6 +33,7 @@ public class UserController : Controller
     }
 
     [AllowOnlyOwnerAccount]
+    [ValidateAntiForgeryToken]
     [HttpPost]
     public async Task<IActionResult> Edit(string id, UpdateApplicationUserRequestDto updateUserDto, CancellationToken token)
     {

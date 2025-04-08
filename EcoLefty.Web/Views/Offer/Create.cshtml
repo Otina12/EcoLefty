@@ -15,6 +15,7 @@
             Create Offer
         </div>
         <form asp-controller="Offer" asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
             <div class="my-field">
                 <label asp-for="Title" class="required">Title</label>
                 <input asp-for="Title" type="text" placeholder="Enter offer title" required />
@@ -37,14 +38,15 @@
             </div>
             <div class="my-field">
                 <label asp-for="StartDateUtc" class="required">Start Date</label>
-                <input asp-for="StartDateUtc" type="datetime-local" required />
+                <input asp-for="StartDateUtc" class="styled-date" type="datetime-local" required />
                 <span asp-validation-for="StartDateUtc" class="text-danger"></span>
             </div>
             <div class="my-field">
                 <label asp-for="ExpiryDateUtc" class="required">Expiry Date</label>
-                <input asp-for="ExpiryDateUtc" type="datetime-local" required />
+                <input asp-for="ExpiryDateUtc" class="styled-date" type="datetime-local" required />
                 <span asp-validation-for="ExpiryDateUtc" class="text-danger"></span>
             </div>
+
             <div class="my-field">
                 <label asp-for="ProductId" class="required">Product</label>
                 <select asp-for="ProductId"
