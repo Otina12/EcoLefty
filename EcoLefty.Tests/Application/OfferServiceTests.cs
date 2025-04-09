@@ -8,6 +8,8 @@ using EcoLefty.Domain.Common.Enums;
 using EcoLefty.Domain.Common.Exceptions;
 using EcoLefty.Domain.Common.Exceptions.Base;
 using EcoLefty.Domain.Contracts;
+using EcoLefty.Domain.Entities;
+using EcoLefty.Tests.Application.TestHelpers;
 using EcoLefty.Tests.Mocks;
 using Moq;
 
@@ -397,14 +399,12 @@ public class OfferServiceTests
 
         offer.CreatedAtUtc = DateTime.UtcNow.AddMinutes(-5); // ensure it's recent enough
 
-        // Set current user
         var mockUserContext = new Mock<ICurrentUserContext>();
         mockUserContext.Setup(c => c.UserId).Returns(company.Id);
         Mock.Get(_unitOfWorkMock.UnitOfWorkInstance)
             .Setup(u => u.CurrentUserContext)
             .Returns(mockUserContext.Object);
 
-        // Setup purchase service
         _purchaseServiceMock
             .Setup(p => p.CancelAllPurchasesByOfferAsync(offer.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
@@ -426,12 +426,30 @@ public class OfferServiceTests
     public async Task DeleteAsync_WithAdminOrOwner_DeletesOffer()
     {
         // Arrange
-        var offer = _unitOfWorkMock.GeneratedOffers.First();
-        var company = _unitOfWorkMock.GeneratedCompanies.First(c => c.Id == offer.Product.CompanyId);
+        var company = TestDataGenerator.GenerateCompany();
+        var product = TestDataGenerator.GenerateProduct(companyId: company.Id, company: company);
+        var offer = TestDataGenerator.GenerateOffer(productId: product.Id, product: product);
+
+        var purchase = new Purchase
+        {
+            Id = 1,
+            OfferId = offer.Id,
+            Offer = offer,
+            PurchaseStatus = PurchaseStatus.Cancelled
+        };
+
+        offer.Purchases.Add(purchase);
+        product.Offers.Add(offer);
+        company.Products.Add(product);
+
+        _unitOfWorkMock.GeneratedCompanies.Add(company);
+        _unitOfWorkMock.GeneratedProducts.Add(product);
+        _unitOfWorkMock.GeneratedOffers.Add(offer);
+        _unitOfWorkMock.GeneratedPurchases.Add(purchase);
 
         var mockUserContext = new Mock<ICurrentUserContext>();
         mockUserContext.Setup(c => c.UserId).Returns(company.Id);
-        mockUserContext.Setup(c => c.IsInRole("Admin")).Returns(false); // simulate owner
+        mockUserContext.Setup(c => c.IsInRole("Admin")).Returns(false);
 
         Mock.Get(_unitOfWorkMock.UnitOfWorkInstance)
             .Setup(u => u.CurrentUserContext)
@@ -445,6 +463,44 @@ public class OfferServiceTests
         // Assert
         Assert.True(result);
         Assert.Equal(initialOfferCount - 1, _unitOfWorkMock.GeneratedOffers.Count);
+    }
+
+    [Fact]
+    public async Task DeleteAsync_WithActivePurchases_ThrowsException()
+    {
+        // Arrange
+        var company = TestDataGenerator.GenerateCompany();
+        var product = TestDataGenerator.GenerateProduct(companyId: company.Id, company: company);
+        var offer = TestDataGenerator.GenerateOffer(productId: product.Id, product: product);
+
+        var activePurchase = new Purchase
+        {
+            Id = 1,
+            OfferId = offer.Id,
+            Offer = offer,
+            PurchaseStatus = PurchaseStatus.Active
+        };
+
+        offer.Purchases.Add(activePurchase);
+        product.Offers.Add(offer);
+        company.Products.Add(product);
+
+        _unitOfWorkMock.GeneratedCompanies.Add(company);
+        _unitOfWorkMock.GeneratedProducts.Add(product);
+        _unitOfWorkMock.GeneratedOffers.Add(offer);
+        _unitOfWorkMock.GeneratedPurchases.Add(activePurchase);
+
+        var mockUserContext = new Mock<ICurrentUserContext>();
+        mockUserContext.Setup(c => c.UserId).Returns(company.Id);
+        mockUserContext.Setup(c => c.IsInRole("Admin")).Returns(false);
+
+        Mock.Get(_unitOfWorkMock.UnitOfWorkInstance)
+            .Setup(u => u.CurrentUserContext)
+            .Returns(mockUserContext.Object);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            _offerService.DeleteAsync(offer.Id));
     }
 
 }

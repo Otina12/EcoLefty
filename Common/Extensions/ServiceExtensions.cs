@@ -2,6 +2,7 @@
 using EcoLefty.Application;
 using EcoLefty.Application.Authentication;
 using EcoLefty.Application.Authentication.Tokens;
+using EcoLefty.Application.Authentication.Tokens.DTOs;
 using EcoLefty.Application.Common.Images;
 using EcoLefty.Application.Common.Logger;
 using EcoLefty.Domain.Contracts;
@@ -65,6 +66,11 @@ public static class ServiceExtensions
     public static void ConfigureLoggerService(this IServiceCollection services)
     {
         services.AddSingleton<ILoggerService, LoggerService>();
+    }
+
+    public static void ConfigureJwtSettings(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
     }
 
     public static void ConfigureServices(this IServiceCollection services)

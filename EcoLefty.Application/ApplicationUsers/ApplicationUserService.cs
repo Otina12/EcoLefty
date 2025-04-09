@@ -77,6 +77,7 @@ public class ApplicationUserService : IApplicationUserService
                Constants.DEFAULT_USER_IMAGE_PATH : await _imageService.UploadImageAsync(createUserDto.ProfilePictureFile, token);
 
             applicationUser.ProfilePictureUrl = imageUrl;
+            applicationUser.BirthDate = new DateTime(createUserDto.BirthYear, createUserDto.BirthMonth, createUserDto.BirthDay);
 
             await _unitOfWork.Users.CreateAsync(applicationUser, token);
             await _unitOfWork.SaveChangesAsync(token);

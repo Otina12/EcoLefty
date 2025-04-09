@@ -29,7 +29,7 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.PhoneNumber, src => src.MapFrom(src => src.Account.PhoneNumber));
 
         CreateMap<CreateApplicationUserRequestDto, ApplicationUser>()
-            .ForMember(dest => dest.BirthDate, src => src.MapFrom(src => new DateTime(src.BirthYear, src.BirthMonth, src.BirthDay)));
+            .ForMember(dest => dest.BirthDate, opt => opt.Ignore());
 
         CreateMap<UpdateApplicationUserRequestDto, ApplicationUser>()
             .ForMember(dest => dest.ProfilePictureUrl, opt => opt.Ignore());

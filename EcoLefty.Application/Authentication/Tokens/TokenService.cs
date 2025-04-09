@@ -1,7 +1,7 @@
 ﻿using EcoLefty.Application.Authentication.Tokens.DTOs;
 using EcoLefty.Domain.Entities.Identity;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -13,12 +13,12 @@ namespace EcoLefty.Application.Authentication.Tokens;
 public class TokenService : ITokenService
 {
     private readonly UserManager<Account> _userManager;
-    private readonly IConfiguration _configuration;
+    private readonly JwtSettings _jwtSettings;
 
-    public TokenService(UserManager<Account> userManager, IConfiguration configuration)
+    public TokenService(UserManager<Account> userManager, IOptions<JwtSettings> jwtSettings)
     {
         _userManager = userManager;
-        _configuration = configuration;
+        _jwtSettings = jwtSettings.Value;
     }
 
     public async Task<TokenResponseDto> GenerateTokenPairAsync(Account account)
@@ -43,18 +43,17 @@ public class TokenService : ITokenService
             new Claim(ClaimTypes.Email, account.Email!)
         };
 
-        //claims.Add(new Claim(ClaimTypes.Role, "Admin"));
         var roles = await _userManager.GetRolesAsync(account);
         claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:Secret"]!));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
-            issuer: _configuration["JwtSettings:Issuer"],
-            audience: _configuration["JwtSettings:Audience"],
+            issuer: _jwtSettings.Issuer,
+            audience: _jwtSettings.Audience,
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(Convert.ToDouble(_configuration["JwtSettings:ExpirationInMinutes"])),
+            expires: DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationInMinutes),
             signingCredentials: creds
         );
 
@@ -74,9 +73,9 @@ public class TokenService : ITokenService
             ValidateAudience = true,
             ValidateIssuerSigningKey = true,
             ValidateLifetime = false,
-            ValidIssuer = _configuration["JwtSettings:Issuer"],
-            ValidAudience = _configuration["JwtSettings:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:Secret"]!))
+            ValidIssuer = _jwtSettings.Issuer,
+            ValidAudience = _jwtSettings.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret))
         };
 
         var tokenHandler = new JwtSecurityTokenHandler();

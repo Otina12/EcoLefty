@@ -93,7 +93,7 @@ public class ProductService : IProductService
         var imageUrl = createProductDto.ImageFile is null ?
             Constants.DEFAULT_PRODUCT_IMAGE_PATH : await _imageService.UploadImageAsync(createProductDto.ImageFile, token);
 
-        product.ImageUrl = imageUrl;
+        product.ImageUrl = imageUrl!;
 
         await _unitOfWork.Products.CreateAsync(product, token);
         await _unitOfWork.SaveChangesAsync(token);
@@ -119,7 +119,7 @@ public class ProductService : IProductService
         if (updateProductDto.ImageFile is not null)
         {
             var imageUrl = await _imageService.UploadImageAsync(updateProductDto.ImageFile, token);
-            product.ImageUrl = imageUrl;
+            product.ImageUrl = imageUrl ?? string.Empty;
         }
 
         _unitOfWork.Products.Update(product);

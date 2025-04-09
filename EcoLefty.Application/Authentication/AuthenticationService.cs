@@ -136,7 +136,6 @@ public class AuthenticationService : IAuthenticationService
         if (storedToken == null)
             throw new UnauthorizedException("Invalid or expired refresh token.");
 
-        // Remove the old refresh token
         _refreshTokenRepository.Remove(storedToken);
 
         var tokenPair = await _tokenService.GenerateTokenPairAsync(user);

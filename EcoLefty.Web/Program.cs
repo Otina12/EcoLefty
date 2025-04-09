@@ -14,6 +14,8 @@ builder.Host.ConfigureSerilogILogger();
 services.ConfigureLoggerService();
 services.ConfigureHttpLogging();
 
+services.ConfigureJwtSettings(configuration);
+
 services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);
@@ -26,12 +28,12 @@ services.ConfigureServices();
 services.ConfigureIdentity();
 services.AddControllersWithViews();
 
-builder.Services.AddQuartz(q =>
+services.AddQuartz(q =>
 {
     q.AddOfferArchiverWorkerJob();
 });
 
-builder.Services.AddQuartzHostedService(options =>
+services.AddQuartzHostedService(options =>
 {
     options.WaitForJobsToComplete = true;
 });

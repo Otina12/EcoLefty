@@ -1,7 +1,6 @@
-﻿using EcoLefty.Application.Common.Logger;
-using ILogger = Serilog.ILogger;
+﻿using ILogger = Serilog.ILogger;
 
-namespace Common.Shared;
+namespace EcoLefty.Application.Common.Logger;
 
 public class LoggerService : ILoggerService
 {

@@ -19,6 +19,8 @@ builder.Host.ConfigureSerilogILogger();
 services.ConfigureLoggerService();
 services.ConfigureHttpLogging();
 
+services.ConfigureJwtSettings(configuration);
+
 services.AddExceptionHandler<ExceptionHandler>();
 
 if (builder.Environment.IsDevelopment())
@@ -37,13 +39,13 @@ services.ConfigureIdentity();
 
 services.ConfigureHealthChecks(configuration);
 
-builder.Services.AddQuartz(q =>
+services.AddQuartz(q =>
 {
     q.AddOfferArchiverWorkerJob();
     q.AddHealthCheckWorkerJob();
 });
 
-builder.Services.AddQuartzHostedService(options =>
+services.AddQuartzHostedService(options =>
 {
     options.WaitForJobsToComplete = true;
 });

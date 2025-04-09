@@ -1,18 +1,9 @@
-﻿using EcoLefty.Application.Common.Images;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 
-namespace Common.Shared;
+namespace EcoLefty.Application.Common.Images;
 
 public class ImageService : IImageService
 {
-    private readonly IWebHostEnvironment _env;
-
-    public ImageService(IWebHostEnvironment env)
-    {
-        _env = env;
-    }
-
     public async Task<string?> UploadImageAsync(IFormFile imageFile, CancellationToken cancellationToken = default)
     {
         if (imageFile == null || imageFile.Length == 0)
